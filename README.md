@@ -4,6 +4,8 @@
 
 序厅使用 Three.js PBR 材质、PCSS 柔光阴影与 GTAO，支持拖动观察、三种字母视角、光源开关、中英文切换、原创八秒逆行卡农试听和角色待机骨骼动画。文案与角色模型均为原创致敬。
 
+![序厅实机截图：GEB 雕塑、墙面投影与阿基里斯和乌龟](outputs/strange-loop/docs/screenshots/vestibule.jpg)
+
 ## 本地预览
 
 仓库已包含构建后的网页与模型，无需安装依赖即可预览：
