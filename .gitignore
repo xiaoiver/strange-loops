@@ -1,0 +1,14 @@
+.DS_Store
+**/node_modules/
+work/
+.env
+.env.*
+!.env.example
+*.log
+*.blend[0-9]*
+__pycache__/
+
+# Keep source and release assets; local review screenshots stay out of Git.
+outputs/*
+!outputs/strange-loop/
+!outputs/characters/

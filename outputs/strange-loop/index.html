@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#e7e7e6">
+  <meta name="description" content="与阿基里斯和乌龟，重访《集异璧》。从 WU 谜题出发，走向递归、自指与缠结的层次。">
+  <title>怪圈 · 重访《集异璧》</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e7e7e6'/%3E%3Cpath d='M20 24h40v32H20zM30 14h20v52H30z' fill='none' stroke='%233d3e3d' stroke-width='5'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css?v=idle30">
+</head>
+<body>
+  <div id="world" data-i18n-aria="a11y.world" aria-label="可拖动观察的 G、E、B 三维雕塑与真实投影"></div>
+  <div class="paper-grain" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <div id="companion-controls"><button class="character-button" id="meet-achilles" hidden data-i18n-aria="a11y.talkAchilles" aria-label="与阿基里斯交谈"><span data-i18n="actors.achilles">阿基里斯</span></button><button class="character-button" id="meet-tortoise" hidden data-i18n-aria="a11y.talkTortoise" aria-label="与乌龟交谈"><span data-i18n="actors.tortoise">乌龟</span></button></div>
+  <header class="masthead">
+    <a class="wordmark" href="#" data-i18n-aria="a11y.home" aria-label="怪圈，返回序厅"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M6 10h19v19H6zM12 4h19v19H12zM6 10l6-6m13 6 6-6m-6 25 6-6"/></svg><span>怪圈<span class="wordmark-en">STRANGE LOOPS</span></span></a>
+    <div class="header-actions"><button class="language-switch" id="language-switch" lang="en" aria-label="Switch to English">EN</button><button class="index-trigger" id="index-trigger" aria-expanded="false" aria-controls="chapter-index"><span data-i18n="menu">章节</span> <span class="menu-icon"><i></i><i></i></span></button></div>
+  </header>
+  <main>
+    <section class="intro" aria-labelledby="hero-title">
+      <h1 id="hero-title" data-i18n-html="hero">从符号，<br>走向<span class="red">「我」。</span></h1>
+      <p class="intro-copy" data-i18n-html="intro">与阿基里斯和乌龟，重访<a class="book-link" href="https://www.cp.com.cn/book/7-100-01323-2_41.html" target="_blank" rel="noopener noreferrer" aria-label="了解《集异璧》：商务印书馆书籍介绍（新标签页打开）" title="了解这本书（新标签页打开）">《集异璧》</a>。</p>
+      <button class="enter" id="enter"><span data-i18n="enter">从 WU 开始</span><svg viewBox="0 0 40 20" aria-hidden="true"><path d="M1 10h34m-8-7 8 7-8 7"/></svg></button>
+    </section>
+    <div class="light-tools" data-i18n-aria="a11y.lights" aria-label="投影光源开关"><span data-i18n="lightLabel">光源</span><button data-light="G" aria-pressed="true" aria-label="关闭 G 投影光源">G<i></i></button><button data-light="E" aria-pressed="true" aria-label="关闭 E 投影光源">E<i></i></button><button data-light="B" aria-pressed="true" aria-label="关闭 B 投影光源">B<i></i></button></div>
+    <div class="view-tools" data-i18n-aria="a11y.views" aria-label="选择雕塑观察方向">
+      <span class="view-label" data-i18n="viewLabel">视角</span>
+      <div class="view-buttons"><button data-view="G" aria-label="G · 哥德尔：正面观察" aria-pressed="false">G<span data-i18n="names.G">哥德尔</span></button><button data-view="E" aria-label="E · 艾舍尔：侧面观察" aria-pressed="false">E<span data-i18n="names.E">艾舍尔</span></button><button data-view="B" aria-label="B · 巴赫：顶部观察" aria-pressed="false">B<span data-i18n="names.B">巴赫</span></button></div>
+      <button class="reset-view" id="reset-view" data-i18n-aria="a11y.reset" aria-label="恢复漫游视角">↗</button>
+    </div>
+    <p class="drag-hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5a2 2 0 0 1 4 0v6m0-3a2 2 0 0 1 4 0v4m0-2a2 2 0 0 1 4 0v5c0 5-2 7-6 7-3 0-4-1-6-4l-3-4c-2-3 1-5 3-1Z"/></svg><span data-i18n="dragHint">拖动探索</span></p>
+    <div class="dialogue" aria-live="polite" hidden><span class="speaker" id="speaker">阿基里斯</span><p id="dialogue-text">“G、E、B。三个读法，出自同一件东西？”</p></div>
+    <section class="garden-intro" id="garden-intro" hidden aria-labelledby="garden-title">
+      <p class="eyebrow"><span data-i18n="garden.eyebrow">第一章</span> <span class="serif-slash">/</span> <span data-i18n="garden.topic">形式系统</span></p>
+      <h2 id="garden-title" data-i18n="garden.title">WU 花园</h2>
+      <p data-i18n="garden.question">符号可以写下。它也能按规则得到吗？</p>
+      <div class="garden-mi" data-i18n-aria="a11y.target" data-i18n-html="garden.target" aria-label="目标字符串 WU">W<span>U</span></div>
+      <p class="garden-note" data-i18n-html="garden.note">你已抵达 WU 谜题的入口。<br>当前为序厅体验，第一章交互尚未开放。</p>
+      <button id="back-lobby" class="back-lobby" data-i18n="garden.back">← 回到序厅</button>
+    </section>
+  </main>
+  <aside id="chapter-index" class="chapter-index" data-i18n-aria="a11y.chapterIndex" hidden aria-label="七段漫游的章节地图">
+    <div class="index-head"><p><span data-i18n="index.title">漫游地图</span><small data-i18n="index.subtitle">SEVEN ROOMS, ONE STRANGE LOOP</small></p><button id="close-index" data-i18n-aria="a11y.closeIndex" aria-label="关闭章节地图">×</button></div>
+    <ol id="chapter-list"></ol>
+    <p class="index-note" data-i18n-html="index.note">序厅已开放，其余章节待续。<br>致敬侯世达《哥德尔、艾舍尔、巴赫：集异璧之大成》。<br>本展对白为原创，非原书引文。</p>
+  </aside>
+  <footer class="colophon"><span class="location"><b>00</b><span class="footer-line"></span>序厅</span><div class="utilities"><div class="canon-control"><p id="canon-explanation" hidden></p><button id="canon-preview" aria-pressed="false" aria-label="试听卡农 · 8 秒" aria-describedby="canon-explanation"><span id="canon-symbol" aria-hidden="true">▷</span><span id="canon-label">试听卡农 · 8 秒</span></button></div></div></footer>
+  <div id="status" class="sr-only" role="status" aria-live="polite"></div>
+  <div id="fallback" hidden><p data-i18n="fallback.title">一件雕塑，三个字母。</p><span>G · E · B</span><p data-i18n="fallback.note">当前设备无法显示三维场景，你仍可前往第一章的入口预告。</p></div>
+  <script src="assets/app.js?v=idle30" defer></script>
+</body></html>
