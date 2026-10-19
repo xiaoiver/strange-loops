@@ -6,7 +6,7 @@ An interactive narrative exhibition in Chinese and English, inspired by *Gödel,
 
 Built with Three.js PBR materials, PCSS soft shadows, and GTAO, the vestibule supports drag-to-explore camera controls, three letter views, individual light switches, Chinese/English switching, an original eight-second retrograde canon preview, and skeletal idle animations for both characters. The writing and character models are original tributes to the book.
 
-![Vestibule screenshot showing the GEB sculpture, wall shadows, Achilles, and the Tortoise](outputs/strange-loop/docs/screenshots/vestibule.jpg)
+![English vestibule screenshot showing the GEB sculpture, wall shadows, Achilles, and the Tortoise](outputs/strange-loop/docs/screenshots/vestibule-en.jpg)
 
 ## Preview locally
 
