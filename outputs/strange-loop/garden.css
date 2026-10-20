@@ -66,10 +66,6 @@
 body[data-scene=ready] .garden-target{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 .garden-conversation{position:relative;margin-top:24px;max-width:330px;pointer-events:auto}
 .garden .dialogue{position:static;margin:0;max-width:100%}
-.garden-speakers{display:flex;gap:18px;padding-left:43px;margin-top:8px}
-.garden-speakers button{padding:0;font-size:10px;color:var(--muted)}
-.garden-speakers button[aria-pressed=true]{color:var(--ink);text-decoration:underline;text-underline-offset:6px}
-html[lang=en] .garden-speakers{padding-left:85px}
 .practice-complete .garden-conversation,.has-notes .garden-conversation,.choosing-position .garden-conversation{display:none}
 .chapter-navigation[hidden]{display:none}
 .chapter-navigation{display:flex;align-items:center;gap:32px;color:var(--muted)}
@@ -101,8 +97,6 @@ body.in-garden .colophon{gap:24px}
  .current-word{font-size:27px;max-height:72px}.garden-guidance{margin-bottom:12px}
  .garden-rules>button{min-height:46px}.garden-secondary button{min-height:44px}
  .garden-aside{margin-top:24px}.garden-conversation{position:static;max-width:100%;margin-top:10px}
- .garden-speakers{padding-left:30px}
- html[lang=en] .garden-speakers{padding-left:62px}
  body.in-garden .colophon{height:88px;flex-direction:column;align-items:stretch;justify-content:center;gap:0;background:#e7e7e6}
  body.in-garden .colophon .location{min-height:28px}
  .chapter-navigation{justify-content:space-between;gap:16px}.chapter-navigation button{font-size:10px}

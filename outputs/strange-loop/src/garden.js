@@ -134,7 +134,6 @@ export function createGarden(root, { locale: initialLocale, navigation, onWord, 
 </div>
           <div class="garden-conversation">
             <div class="dialogue garden-dialogue" aria-live="polite" aria-atomic="true"><span class="speaker">${t[speaker]}</span><p>“${line}”</p></div>
-            <div class="garden-speakers" role="group" aria-label="${t.talk}"><button id="g-talk-achilles" data-talk="achilles" aria-pressed="${speaker === 'achilles'}">${t.achilles}</button><button id="g-talk-tortoise" data-talk="tortoise" aria-pressed="${speaker === 'tortoise'}">${t.tortoise}</button></div>
           </div>
         </aside>
       </div>
@@ -163,7 +162,6 @@ export function createGarden(root, { locale: initialLocale, navigation, onWord, 
     }
     if (button.dataset.position && selected) { commit(selected, Number(button.dataset.position)); return; }
     if (button.dataset.node) { go(Number(button.dataset.node)); return; }
-    if (button.dataset.talk) { talk(button.dataset.talk); return; }
     switch (button.dataset.action) {
       case 'help': helpOpen = !helpOpen; if (helpOpen) onMeet('tortoise'); render('g-help-toggle'); break;
       case 'help-more': helpLevel = 2; render('g-help-more'); break;
