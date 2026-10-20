@@ -102,7 +102,8 @@ function letterPlate(letter){
 function syncLetterChrome(){
  const c=COPY[locale];
  const input=$('#sculpture-letters');
- if(input&&document.activeElement!==input)input.value=currentLetters;
+ if(input&&document.activeElement!==input){input.value=currentLetters;input.setCustomValidity('');}
+ if(input?.validity.customError)input.setCustomValidity(c.status.sculptureInvalid);
  for(const slot of SLOT_ORDER){
   const letter=displayLetter(slot);
   const plate=letterPlate(letter);
@@ -130,9 +131,8 @@ function syncLetterChrome(){
   apply.disabled=sculptureBusy;
   apply.textContent=sculptureBusy?c.sculpture.generating:c.sculpture.apply;
  }
- const canDownload=canExportSculpture(sculpture)&&!sculptureBusy&&document.body.dataset.scene!=='fallback';
- if(!canDownload)setDownloadOptions(false);
- for(const id of ['sculpture-download-toggle','sculpture-download-stl','sculpture-download-obj']){
+ const canDownload=canExportSculpture(sculpture)&&!sculptureBusy&&!inGarden&&!transition&&document.body.dataset.scene!=='fallback';
+ for(const id of ['sculpture-download-stl','sculpture-download-obj']){
   const b=$(`#${id}`);
   if(b)b.disabled=!canDownload;
  }
@@ -278,7 +278,7 @@ for(const id of ['achilles','tortoise'])$(`#meet-${id}`).addEventListener('click
 
 let enterStart=new THREE.Vector3(),gardenTimer;
 $('#enter').addEventListener('click',()=>{
- if(transition||inGarden)return;setDownloadOptions(false);transition=true;document.body.classList.add('entering');$('#enter').disabled=true;setIndex(false);
+ if(transition||inGarden)return;transition=true;document.body.classList.add('entering');$('#enter').disabled=true;setIndex(false);
  if(canonState!=='idle')canon.stop();
  if(renderer&&camera&&!paused){stage='entering';cameraBlend=0;enterStart.copy(camera.position);}else{gardenTimer=setTimeout(showGarden,paused?20:600);}
  announce('entering');
@@ -307,7 +307,9 @@ for(const button of document.querySelectorAll('[data-light]'))button.addEventLis
 });
 
 const sculptureForm=$('#sculpture-form'),sculptureInput=$('#sculpture-letters');
+sculptureInput?.addEventListener('invalid',()=>sculptureInput.setCustomValidity(COPY[locale].status.sculptureInvalid));
 sculptureInput?.addEventListener('input',()=>{
+ sculptureInput.setCustomValidity('');
  sculptureInput.value=sculptureInput.value.toUpperCase().replace(/[^A-Z]/g,'').slice(0,3);
 });
 sculptureForm?.addEventListener('submit',e=>{
@@ -315,27 +317,8 @@ sculptureForm?.addEventListener('submit',e=>{
  if(sculptureBusy||inGarden||transition)return;
  requestSculpture(sculptureInput.value);
 });
-function setDownloadOptions(open,{restoreFocus=false}={}){
- const toggle=$('#sculpture-download-toggle'),options=$('#sculpture-download-options');
- options.hidden=!open;
- toggle.setAttribute('aria-expanded',String(open));
- if(restoreFocus)toggle.focus({preventScroll:true});
-}
-$('#sculpture-download-toggle').addEventListener('click',()=>setDownloadOptions($('#sculpture-download-options').hidden));
-document.addEventListener('pointerdown',e=>{
- if(!$('#sculpture-downloads').contains(e.target))setDownloadOptions(false);
-});
-$('#sculpture-downloads').addEventListener('focusout',e=>{
- if(!e.currentTarget.contains(e.relatedTarget))setDownloadOptions(false);
-});
-$('#sculpture-downloads').addEventListener('keydown',e=>{
- if(e.key==='Escape'&&!$('#sculpture-download-options').hidden){
-  e.preventDefault();e.stopPropagation();setDownloadOptions(false,{restoreFocus:true});
- }
-});
 function exportSculpture(kind){
  if(sculptureBusy||inGarden||transition||!canExportSculpture(sculpture))return;
- setDownloadOptions(false,{restoreFocus:true});
  try{
   if(kind==='stl')downloadSculptureSTL(sculpture,currentLetters);
   else downloadSculptureOBJ(sculpture,currentLetters);

@@ -6,7 +6,7 @@
   <meta name="description" content="与阿基里斯和乌龟，重访《集异璧》。从 WU 谜题出发，走向递归、自指与缠结的层次。">
   <title>怪圈 · 重访《集异璧》</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e7e7e6'/%3E%3Cpath d='M20 24h40v32H20zM30 14h20v52H30z' fill='none' stroke='%233d3e3d' stroke-width='5'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="style.css?v=sculpt3">
+  <link rel="stylesheet" href="style.css?v=sculpt4">
 </head>
 <body>
   <div id="world" data-i18n-aria="a11y.world" aria-label="可拖动观察的 G、E、B 三维雕塑与真实投影"></div>
@@ -23,17 +23,13 @@
       <p class="intro-copy" data-i18n-html="intro">与阿基里斯和乌龟，重访<a class="book-link" href="https://www.cp.com.cn/book/7-100-01323-2_41.html" target="_blank" rel="noopener noreferrer" aria-label="了解《集异璧》：商务印书馆书籍介绍（新标签页打开）" title="了解这本书（新标签页打开）">《集异璧》</a>。</p>
       <button class="enter" id="enter"><span data-i18n="enter">从 WU 开始</span><svg viewBox="0 0 40 20" aria-hidden="true"><path d="M1 10h34m-8-7 8 7-8 7"/></svg></button>
       <form class="sculpture-form" id="sculpture-form" data-i18n-aria="a11y.sculptureForm" aria-label="自定义三个投影字母">
-        <label for="sculpture-letters"><span data-i18n="sculpture.label">字母</span></label>
-        <input id="sculpture-letters" name="letters" type="text" inputmode="text" autocomplete="off" spellcheck="false" maxlength="3" value="GEB" pattern="[A-Za-z]{3}" data-i18n-aria="a11y.sculptureInput" aria-label="三个大写拉丁字母" title="三个大写拉丁字母">
+        <label class="sr-only" for="sculpture-letters"><span data-i18n="sculpture.label">字母</span></label>
+        <input id="sculpture-letters" name="letters" type="text" inputmode="text" autocomplete="off" spellcheck="false" maxlength="3" required value="GEB" pattern="[A-Za-z]{3}" data-i18n-aria="a11y.sculptureInput" aria-label="三个大写拉丁字母">
         <button type="submit" id="sculpture-apply" data-i18n="sculpture.apply" data-i18n-aria="a11y.sculptureApply">生成</button>
-        <div class="sculpture-downloads" id="sculpture-downloads">
-          <button type="button" id="sculpture-download-toggle" aria-expanded="false" aria-controls="sculpture-download-options" disabled><span data-i18n="sculpture.download">下载模型</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="m3 4.5 3 3 3-3"/></svg></button>
-          <div class="sculpture-download-options" id="sculpture-download-options" role="group" data-i18n-aria="a11y.sculptureDownloads" aria-label="下载可打印模型" hidden>
-            <button type="button" id="sculpture-download-stl" data-i18n="sculpture.downloadStl" data-i18n-aria="a11y.sculptureDownloadStl">STL</button>
-            <button type="button" id="sculpture-download-obj" data-i18n="sculpture.downloadObj" data-i18n-aria="a11y.sculptureDownloadObj">OBJ</button>
-          </div>
-        </div>
-        <p class="sculpture-hint" data-i18n="sculpture.hint">三个大写拉丁字母 · 展签是书中彩蛋</p>
+        <button class="sculpture-download" type="button" id="sculpture-download-stl" data-i18n-aria="a11y.sculptureDownloadStl" aria-label="下载模型 · STL" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v5h14v-5"/></svg>
+          <span class="download-tooltip" data-i18n="a11y.sculptureDownloadStl" aria-hidden="true">下载模型 · STL</span>
+        </button>
       </form>
       <div class="dialogue" aria-live="polite" hidden><span class="speaker" id="speaker">阿基里斯</span><p id="dialogue-text">“G、E、B。三个读法，出自同一件东西？”</p></div>
     </section>
@@ -56,10 +52,14 @@
   <aside id="chapter-index" class="chapter-index" data-i18n-aria="a11y.chapterIndex" hidden aria-label="七段漫游的章节地图">
     <div class="index-head"><p><span data-i18n="index.title">漫游地图</span><small data-i18n="index.subtitle">SEVEN ROOMS, ONE STRANGE LOOP</small></p><button id="close-index" data-i18n-aria="a11y.closeIndex" aria-label="关闭章节地图">×</button></div>
     <ol id="chapter-list"></ol>
+    <div class="model-export">
+      <span data-i18n="sculpture.export">模型导出</span>
+      <button type="button" id="sculpture-download-obj" data-i18n="sculpture.downloadObj" data-i18n-aria="a11y.sculptureDownloadObj" disabled>下载 OBJ</button>
+    </div>
     <p class="index-note" data-i18n-html="index.note">序厅已开放，其余章节待续。<br>致敬侯世达《哥德尔、艾舍尔、巴赫：集异璧之大成》。<br>本展对白为原创，非原书引文。</p>
   </aside>
   <footer class="colophon"><span class="location"><b>00</b><span class="footer-line"></span>序厅</span><div class="utilities"><div class="canon-control"><p id="canon-explanation" hidden></p><button id="canon-preview" aria-pressed="false" aria-label="试听卡农 · 8 秒" aria-describedby="canon-explanation"><span id="canon-symbol" aria-hidden="true">▷</span><span id="canon-label">试听卡农 · 8 秒</span></button></div></div></footer>
   <div id="status" class="sr-only" role="status" aria-live="polite"></div>
   <div id="fallback" hidden><p data-i18n="fallback.title">一件雕塑，三个字母。</p><span>G · E · B</span><p data-i18n="fallback.note">当前设备无法显示三维场景，你仍可前往第一章的入口预告。</p></div>
-  <script src="assets/app.js?v=sculpt3" defer></script>
+  <script src="assets/app.js?v=sculpt4" defer></script>
 </body></html>
