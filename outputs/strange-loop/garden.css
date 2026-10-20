@@ -93,3 +93,29 @@ body.returning #companion-controls{visibility:hidden}
 
 .garden-help p+p{margin-top:10px}
 .garden-help .hint-note{font-size:11px;color:var(--muted)}
+
+/* The rule experiment ends in an inline discovery, followed by a quiet conclusion. */
+.garden-discovery{margin:12px 0 22px}
+.garden-discovery h3{font:500 21px/1.5 "Noto Serif SC","Songti SC",Georgia,serif;margin:0 0 14px}
+.garden-discovery p{font-size:12px;line-height:1.9;margin:0 0 14px}
+.garden-discovery .hint-note,.garden-discovery .discovery-caption,.discovery-caption{font-size:10px;line-height:1.8;color:var(--muted)}
+.garden-discovery .discovery-count{font-size:14px}
+.garden-discovery .discovery-equation{font:22px/1.6 Georgia,serif;letter-spacing:.02em}
+.discovery-equation strong{display:inline-block;border-bottom:1px solid var(--ink);font-weight:400;padding:0 5px}
+.garden .discovery-link{display:block;font-size:11px;padding:10px 0;text-decoration:underline;text-underline-offset:4px;color:var(--muted)}
+.discovery-rules{width:100%;border-collapse:collapse;font-size:11px;margin:0 0 14px}
+.discovery-rules th,.discovery-rules td{padding:8px 0;border-bottom:1px solid var(--line);text-align:left;font-weight:400}
+.discovery-rules th{width:54%}.discovery-rules small{display:block;color:var(--muted);font-size:10px;line-height:1.7}
+.discovery-rules td{font-family:Georgia,serif;white-space:nowrap}
+.discovery-check{padding:0;margin:20px 0 0;border:0;min-width:0}
+.discovery-check legend{font-size:12px;line-height:1.8;padding:0 0 10px}
+.discovery-check button{display:block;width:100%;text-align:left;font-size:11px;line-height:1.7;border:1px solid var(--line);padding:10px 12px;margin:0 0 8px}
+.discovery-check button:hover{border-color:var(--ink);background:#24252508}
+.garden-discovery .answer-feedback{font-size:11px;margin-top:12px}
+.is-discovering:not(.has-conversation) .garden-conversation{display:none}
+@media(max-width:760px){
+ .is-discovering .garden-heading::after{height:150px}
+ .is-reasoning .garden-heading::after{height:100px}
+ .is-reasoning:has(.discovery-check) .garden-heading::after{height:16px}
+ .garden-discovery h3{font-size:20px}.discovery-rules th,.discovery-rules td{padding:6px 0}
+}

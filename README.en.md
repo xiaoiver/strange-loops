@@ -48,8 +48,10 @@ The Blender character project includes rigs, materials, and Idle / Walk / Look a
 
 ## Current scope
 
-The vestibule and chapter one are playable. MU Garden starts with a small goal completed in four taps, followed by an optional MU challenge. The original four rules apply in one tap, using the leftmost matching occurrence. Hints, undo, and restart are available; history records stay out of the interface. Animated 3D letters follow each rewrite. Progress survives language changes, lobby visits, and reloads. The rule interface also works without WebGL. Chapter two and later rooms are not yet open.
+The vestibule and chapter one are playable. MU Garden starts with a small goal completed in four taps. Counting Is, grouping them in threes, and checking all four rules reveal the invariant. Choosing the reason MU is unreachable completes and saves the chapter; further exploration is optional. The original four rules apply in one tap, using the leftmost matching occurrence. Hints, undo, and restart are available; history records stay out of the interface. Animated 3D letters follow each rewrite. Progress survives language changes, lobby visits, and reloads. The rule interface also works without WebGL. Chapter two and later rooms are not yet open.
 
 ![English MU Garden screenshot showing the skylight, rule table, and recessed doorway](outputs/strange-loop/docs/screenshots/garden-en.jpg)
+
+![Chapter one completes after understanding the invariant](outputs/strange-loop/docs/screenshots/garden-complete-en.jpg)
 
 The repository does not include the book's full text, cover scans, or images of Escher's works. Dependency and font notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

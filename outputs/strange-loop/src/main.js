@@ -358,7 +358,7 @@ function showGarden(){
  // A chapter remains lit even if all sculpture projection lights were switched off.
  for(const light of Object.values(projectionLights))light.visible=true;
  setGardenLighting(true);
- resize();refreshShadows();syncDynamicLabels();garden.show();announce('garden');
+ resize();refreshShadows();syncDynamicLabels();garden.show();announce(garden.isComplete()?'gardenComplete':'garden');
  world.setAttribute('aria-label',locale==='zh'?'WU 花园：规则桌与同行者':'MU Garden: the rule table and companions');
 }
 function backLobby(){
