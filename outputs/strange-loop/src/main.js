@@ -8,7 +8,6 @@ import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { applySoftShadows } from './soft-shadows.js';
 import { COPY } from './copy.js';
-import { createCanonPlayer, CANON_SECONDS } from './canon.js';
 import { loadCompanions } from './companions.js';
 import {
  createSculptureWorker,
@@ -38,12 +37,6 @@ const home=new THREE.Vector3(11,14,12),camPos=home.clone(),camGoal=home.clone(),
 const Y=new THREE.Vector3(0,1,0),UPTOP=new THREE.Vector3(0,0,-1);
 let drag=null,manualAngle=null,autoAngle=0,cameraBlend=0,stage='lobby';
 let locale='zh',dialogueKey='free',lastStatus=null;
-let canonState='idle',canonRemaining=CANON_SECONDS;
-const canon=createCanonPlayer(seconds=>{
- canonState='playing';canonRemaining=seconds;syncCanonLabels();
-},reason=>{
- canonState='idle';syncCanonLabels();announce(reason==='error'?'canonError':reason==='ended'?'canonEnded':'canonStopped');
-});
 try{const saved=localStorage.getItem('geb.locale');if(COPY[saved])locale=saved;}catch{}
 const textAt=path=>path.split('.').reduce((value,key)=>value[key],COPY[locale]);
 
@@ -64,19 +57,10 @@ function renderChapterList(){
 }
 function syncDynamicLabels(){
  const c=COPY[locale];
- syncCanonLabels();
  syncLetterChrome();
  $('.location').innerHTML=inGarden?c.gardenLocation:c.lobbyLocation;
  updateDialogue();renderChapterList();
  if(lastStatus){const message=c.status[lastStatus.key];status.textContent=typeof message==='function'?message(...lastStatus.args):message;}
-}
-function syncCanonLabels(){
- const c=COPY[locale].canon,b=$('#canon-preview'),active=canonState!=='idle';
- b.setAttribute('aria-pressed',String(active));b.setAttribute('aria-label',active?c.stop:c.play);
- b.title=c.description;b.disabled=canonState==='loading';
- $('#canon-label').textContent=canonState==='loading'?c.loading:active?c.remaining(canonRemaining):c.play;
- $('#canon-symbol').textContent=active?'■':'▷';
- $('#canon-explanation').hidden=!active;$('#canon-explanation').textContent=c.description;
 }
 function applyLocale(){
  const c=COPY[locale];document.documentElement.lang=c.lang;document.title=c.title;document.querySelector('meta[name="description"]').content=c.description;
@@ -279,7 +263,6 @@ for(const id of ['achilles','tortoise'])$(`#meet-${id}`).addEventListener('click
 let enterStart=new THREE.Vector3(),gardenTimer;
 $('#enter').addEventListener('click',()=>{
  if(transition||inGarden)return;transition=true;document.body.classList.add('entering');$('#enter').disabled=true;setIndex(false);
- if(canonState!=='idle')canon.stop();
  if(renderer&&camera&&!paused){stage='entering';cameraBlend=0;enterStart.copy(camera.position);}else{gardenTimer=setTimeout(showGarden,paused?20:600);}
  announce('entering');
 });
@@ -294,13 +277,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('#chapter-ind
 document.addEventListener('pointerdown',e=>{if(!$('#chapter-index').hidden&&!$('#chapter-index').contains(e.target)&&!$('#index-trigger').contains(e.target)&&!$('#language-switch').contains(e.target))setIndex(false);});
 
 reduced.addEventListener('change',e=>{paused=e.matches;});
-
-$('#canon-preview').addEventListener('click',()=>{
- if(canonState!=='idle'){canon.stop();return;}
- canonState='loading';syncCanonLabels();announce('canonStarted');canon.play();
-});
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&canonState!=='idle')canon.stop();});
-window.addEventListener('pagehide',()=>{if(canonState!=='idle')canon.stop();});
 
 for(const button of document.querySelectorAll('[data-light]'))button.addEventListener('click',()=>{
  const slot=button.dataset.light,light=projectionLights[slot];if(!light)return;light.visible=!light.visible;renderer.shadowMap.needsUpdate=true;button.setAttribute('aria-pressed',String(light.visible));const shown=displayLetter(slot);button.setAttribute('aria-label',COPY[locale].lightAria(shown,light.visible));button.title=button.getAttribute('aria-label');announce('light',shown,light.visible);

@@ -4,7 +4,7 @@
 
 An interactive narrative exhibition in Chinese and English, inspired by *Gödel, Escher, Bach: an Eternal Golden Braid*. The current prototype is the vestibule: lights cast the letters G, E, and B from a single 3D sculpture onto two walls and the floor, while Achilles and the Tortoise walk nearby, pause to observe, and talk with you.
 
-Built with Three.js PBR materials, PCSS soft shadows, and GTAO, the vestibule supports drag-to-explore camera controls, three letter views, individual light switches, custom three-letter sculpture generation (`?s=XYZ`), Chinese/English switching, an original eight-second retrograde canon preview, and skeletal idle animations for both characters. The writing and character models are original tributes to the book.
+Built with Three.js PBR materials, PCSS soft shadows, and GTAO, the vestibule supports drag-to-explore camera controls, three letter views, individual light switches, custom three-letter sculpture generation (`?s=XYZ`), Chinese/English switching, and skeletal idle animations for both characters. The writing and character models are original tributes to the book.
 
 ![English vestibule screenshot showing the GEB sculpture, wall shadows, Achilles, and the Tortoise](outputs/strange-loop/docs/screenshots/vestibule-en.jpg)
 
