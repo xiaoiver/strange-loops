@@ -133,8 +133,8 @@ export function createGarden(root, { locale: initialLocale, navigation, onWord, 
           <div class="garden-target"><span>${t.target}</span><div>${practice ? show('MUIU') : show('MU')}</div>
 </div>
           <div class="garden-conversation">
+            <div class="dialogue garden-dialogue" aria-live="polite" aria-atomic="true"><span class="speaker">${t[speaker]}</span><p>“${line}”</p></div>
             <div class="garden-speakers" role="group" aria-label="${t.talk}"><button id="g-talk-achilles" data-talk="achilles" aria-pressed="${speaker === 'achilles'}">${t.achilles}</button><button id="g-talk-tortoise" data-talk="tortoise" aria-pressed="${speaker === 'tortoise'}">${t.tortoise}</button></div>
-            <p aria-live="polite">${line}</p>
           </div>
         </aside>
       </div>

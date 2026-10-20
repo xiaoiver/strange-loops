@@ -4661,8 +4661,8 @@ if(uCompanionFloorOnly < .5) discard;`)},p.customProgramCacheKey=()=>"companion-
           <div class="garden-target"><span>${j.target}</span><div>${A(x?"MUIU":"MU")}</div>
 </div>
           <div class="garden-conversation">
+            <div class="dialogue garden-dialogue" aria-live="polite" aria-atomic="true"><span class="speaker">${j[qe]}</span><p>\u201C${Me}\u201D</p></div>
             <div class="garden-speakers" role="group" aria-label="${j.talk}"><button id="g-talk-achilles" data-talk="achilles" aria-pressed="${qe==="achilles"}">${j.achilles}</button><button id="g-talk-tortoise" data-talk="tortoise" aria-pressed="${qe==="tortoise"}">${j.tortoise}</button></div>
-            <p aria-live="polite">${Me}</p>
           </div>
         </aside>
       </div>
