@@ -154,45 +154,9 @@ def tortoise():
         for end,y in [('Front',-.42),('Back',.43)]:
             bones.append((f'Leg_{end}_{side}',(x,y,.28),(x*1.22,y*1.24,.07),'Root'))
     arm=rig('Tortoise',bones)
-    ellipsoid('Body',(0,0,.285),(.46,.58,.16),turtle_clay,'Root')
-    verts=[];faces=[];N=48;R=14
-    for k in range(R+1):
-        t=(.0001+(math.pi/2-.0001)*k/R)
-        for j in range(N):
-            p=j*math.tau/N;verts.append((.55*math.sin(t)*math.cos(p),.70*math.sin(t)*math.sin(p),.32+.40*math.cos(t)))
-    for k in range(R):
-        for j in range(N):faces.append((k*N+j,k*N+(j+1)%N,(k+1)*N+(j+1)%N,(k+1)*N+j))
-    mesh=bpy.data.meshes.new('Carapace');mesh.from_pydata(verts,[],faces);mesh.update()
-    o=bpy.data.objects.new('Carapace',mesh);bpy.context.collection.objects.link(o);bpy.context.view_layer.objects.active=o;o.select_set(True)
-    finish(o,'Domed carapace',shell,'Shell')
-    tube('Shell rim',[(.55*math.cos(t*math.tau/80),.7*math.sin(t*math.tau/80),.325) for t in range(80)],.024,shell,'Shell',True)
-    def surface(x,y):return (x,y,.325+.40*math.sqrt(max(.002,1-(x/.55)**2-(y/.7)**2)))
-    def groove(points):
-        sampled=[]
-        for a,b in zip(points,points[1:]):
-            for k in range(10):
-                t=k/10;sampled.append(surface(a[0]*(1-t)+b[0]*t,a[1]*(1-t)+b[1]*t))
-        sampled.append(surface(*points[-1]));tube('Scute seam',sampled,.006,seam,'Shell')
-    groove([(-.18,-.44),(0,-.58),(.18,-.44),(.18,.44),(0,.58),(-.18,.44),(-.18,-.44)])
-    for y in [-.18,.18]:groove([(-.18,y),(0,y+.045),(.18,y)])
-    for xsign in [-1,1]:
-        for inside,outside in [(-.44,-.5),(-.18,-.2),(.18,.2),(.44,.5)]:
-            x=.55*math.sqrt(1-(outside/.7)**2)*.975
-            groove([(xsign*.18,inside),(xsign*x,outside)])
-    limb('Neck',(0,-.5,.30),(0,-.85,.36),.105,.11,turtle_clay,'Head')
-    ellipsoid('Tortoise head',(0,-.9,.365),(.165,.205,.145),turtle_clay,'Head')
-    ellipsoid('Beak',(0,-1.055,.335),(.105,.08,.065),turtle_clay,'Head')
-    for sign in [-1,1]:
-        ellipsoid('Tortoise eye',(sign*.125,-.994,.425),(.018,.022,.02),graphite,'Head',16,8)
-    tube('Beak line',[(-.075,-1.10,.335),(0,-1.128,.325),(.075,-1.1,.335)],.004,seam,'Head')
-    for side,x in [('L',-.38),('R',.38)]:
-        for end,y in [('Front',-.42),('Back',.43)]:
-            bone=f'Leg_{end}_{side}'
-            limb('Leg',(x,y,.28),(x*1.22,y*1.24,.09),.095,.075,turtle_clay,bone)
-            ellipsoid('Foot',(x*1.22,y*1.24,.075),(.105,.125,.073),turtle_clay,bone)
-            for dx in [-.047,0,.047]:ellipsoid('Toe',(x*1.22+dx,y*1.24-.095,.048),(.018,.038,.024),chalk,bone,12,8)
-    limb('Tail',(0,.50,.29),(0,.82,.23),.066,.012,turtle_clay,'Root')
-    return arm,assemble('Tortoise',arm)
+    import runpy
+    builder=runpy.run_path(str(OUT/'lowpoly_tortoise.py'))
+    return arm,builder['create_lowpoly_tortoise'](arm)
 
 def make_clips(arm,kind):
     arm.animation_data_create();actions={}
@@ -266,7 +230,8 @@ def export_character(name,arm,mesh):
     bpy.ops.object.select_all(action='DESELECT');arm.select_set(True);mesh.select_set(True);bpy.context.view_layer.objects.active=arm
     bpy.ops.export_scene.gltf(filepath=str(ASSETS/(name+'.glb')),export_format='GLB',use_selection=True,
       export_animations=True,export_animation_mode='ACTIONS',export_anim_single_armature=False,
-      export_materials='EXPORT',export_cameras=False,export_lights=False,export_force_sampling=True)
+      export_materials='EXPORT',export_cameras=False,export_lights=False,export_force_sampling=True,
+      export_draco_mesh_compression_enable=True,export_draco_mesh_compression_level=6)
 
 ach,ach_mesh=achilles();ach_actions=make_clips(ach,'human');export_character('achilles',ach,ach_mesh)
 tor,tor_mesh=tortoise();tor_actions=make_clips(tor,'tortoise');export_character('tortoise',tor,tor_mesh)
@@ -294,6 +259,6 @@ for screen in bpy.data.screens:
             area_.spaces.active.shading.type='MATERIAL'
             area_.spaces.active.overlay.show_overlays=False
 bpy.ops.object.select_all(action='DESELECT');ach.select_set(True);bpy.context.view_layer.objects.active=ach
-bpy.ops.wm.save_as_mainfile(filepath=str(OUT/'geb-companions.blend'))
+bpy.ops.wm.save_as_mainfile(filepath=str(OUT/'geb-companions-lowpoly.blend'))
 scene.render.filepath=str(OUT/'companions-preview.png');bpy.ops.render.render(write_still=True)
-print('CHARACTERS_READY',str(OUT/'geb-companions.blend'))
+print('CHARACTERS_READY',str(OUT/'geb-companions-lowpoly.blend'))

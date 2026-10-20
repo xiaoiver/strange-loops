@@ -1,0 +1,15 @@
+{
+  "old_triangles": 12824,
+  "triangles": 290,
+  "vertices": 175,
+  "flat_shaded": true,
+  "bones": [
+    "Root",
+    "Shell",
+    "Head",
+    "Leg_Front_L",
+    "Leg_Back_L",
+    "Leg_Front_R",
+    "Leg_Back_R"
+  ]
+}

@@ -12,6 +12,7 @@ import { loadCompanions } from './companions.js';
 import { createGarden } from './garden.js';
 import { createGardenScene } from './garden-scene.js';
 import { createExhibitFade } from './exhibit-fade.js';
+import { renderResolution, observePixelRatio } from './render-resolution.js';
 import {
  createSculptureWorker,
  binToGeometry,
@@ -32,6 +33,7 @@ let paused=reduced.matches, inGarden=false, transition=false, currentView='free'
 let scene,renderer,camera,sculpture,clock,raf,composer,ao,fxaa,elapsed=0;
 let companions,gardenScene,fadeSculpture;
 const projectionLights={};
+const gardenFill={G:0,E:0,B:0};
 let currentLetters=DEFAULT_LETTERS, sculptureBusy=false, graphiteMaterial=null;
 const sculptureWorker=createSculptureWorker('assets/sculpture-worker.js?v=sculpt2');
 const SLOT_ORDER=['G','E','B'];
@@ -62,7 +64,11 @@ function renderChapterList(){
  const list=$('#chapter-list');list.replaceChildren();
  COPY[locale].chapters.forEach(([name,topic],index)=>{
   const li=document.createElement('li'),number=document.createElement('span'),title=document.createElement('strong'),note=document.createElement('em');
-  const here=index===(inGarden?1:0);li.classList.toggle('current',here);number.textContent=String(index).padStart(2,'0');title.textContent=name;note.textContent=here?COPY[locale].index.here:topic;
+  const here=index===(inGarden?1:0),available=index<=1;
+  li.classList.toggle('current',here);li.classList.toggle('unavailable',!available);
+  if(here)li.setAttribute('aria-current','location');
+  number.textContent=String(index).padStart(2,'0');title.textContent=name;
+  note.textContent=here?COPY[locale].index.here:topic;
   li.append(number,title,note);list.append(li);
  });
 }
@@ -134,13 +140,14 @@ function syncLetterChrome(){
 }
 function setGardenLighting(active){
  for(const [id,light] of Object.entries(projectionLights)){
-  light.intensity=active?({G:1.2,E:1,B:3.1}[id]):light.userData.lobbyIntensity;
+  light.intensity=active?gardenFill[id]:light.userData.lobbyIntensity;
   light.castShadow=!active||id==='B';
  }
 }
 function refreshShadows(){
  if(!renderer)return;
  for(const light of Object.values(projectionLights))if(light?.shadow)light.shadow.needsUpdate=true;
+ gardenScene?.refreshShadows();
  renderer.shadowMap.needsUpdate=true;
 }
 function applySculptureBuffer(buffer,letters){
@@ -192,7 +199,7 @@ function box(w,h,d,mat,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d
 async function init(){
  try{
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);
+  renderer.setSize(innerWidth,innerHeight);
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
   renderer.setClearColor(0xe6e6e5);world.appendChild(renderer.domElement);
@@ -206,7 +213,7 @@ async function init(){
   // G falls on z-, E on x-, B on y-. No silhouette textures or compositing.
   plane(42,42,floorMat,17.2,-3.8,17.2,-Math.PI/2);
   plane(42,42,wallMat,17.2,17.2,-3.8);
-  plane(42,42,wallMat,-3.8,17.2,17.2,0,Math.PI/2);
+  const exitWall=plane(42,42,wallMat,-3.8,17.2,17.2,0,Math.PI/2);
   // An original solid created by intersecting three perpendicular letter extrusions.
   const modelData=await fetch('assets/sculpture.bin?v=smooth4').then(r=>{if(!r.ok)throw Error('sculpture');return r.arrayBuffer()});
   const geometry=binToGeometry(modelData);
@@ -214,7 +221,7 @@ async function init(){
   graphiteMaterial.shadowSide=THREE.DoubleSide;
   for(const material of [graphiteMaterial,floorMat,wallMat])applySoftShadows(material,innerWidth<=760);
   sculpture=new THREE.Mesh(geometry,graphiteMaterial);sculpture.position.y=-.12;sculpture.castShadow=sculpture.receiveShadow=true;scene.add(sculpture);fadeSculpture=createExhibitFade(sculpture);
-  gardenScene=createGardenScene(scene,reduced);
+  gardenScene=createGardenScene(scene,reduced,{exitWall,floorMaterial:floorMat});
   garden.setLocale(locale);
   if(inGarden){sculpture.visible=false;gardenScene.setVisible(true);}
   currentLetters=DEFAULT_LETTERS;
@@ -232,7 +239,7 @@ async function init(){
   ao=new GTAOPass(scene,camera,innerWidth,innerHeight);ao.updateGtaoMaterial({radius:.42,distanceExponent:1.5,thickness:1.2,distanceFallOff:.7,scale:1.1,samples:16});ao.updatePdMaterial({radius:5,rings:2,samples:16});ao.blendIntensity=.65;composer.addPass(ao);
   composer.addPass(new OutputPass());fxaa=new ShaderPass(FXAAShader);composer.addPass(fxaa);
   if(!paused&&!inGarden)camPos.set(0,.1,16.5);
-  if(inGarden){camera.position.set(10,6.6,13);camera.lookAt(1,-1.6,0);}
+  if(inGarden){camera.position.copy(gardenCamera);camera.lookAt(gardenLook);}
   resize();document.body.dataset.scene='ready';announce('ready');tick();
   loadCompanions(scene,reduced,(id,position)=>{
    const button=$(`#meet-${id}`);button.hidden=!position;
@@ -251,10 +258,22 @@ function updateCameraProjection(){
  const progress=stage==='entering'?eased:stage==='returning'?1-eased:inGarden?1:0;
  camera.aspect=innerWidth/innerHeight;
  camera.fov=mobile?THREE.MathUtils.lerp(50,65,progress):36;
- camera.setViewOffset(innerWidth,innerHeight,-innerWidth*(mobile?.035:.16),innerHeight*(mobile?THREE.MathUtils.lerp(-.025,.12,progress):0),innerWidth,innerHeight);
+ camera.setViewOffset(innerWidth,innerHeight,-innerWidth*(mobile?.035:THREE.MathUtils.lerp(.16,.04,progress)),innerHeight*(mobile?THREE.MathUtils.lerp(-.025,.12,progress):0),innerWidth,innerHeight);
  camera.updateProjectionMatrix();
 }
-function resize(){if(!renderer)return;const mobile=innerWidth<=760;renderer.setSize(innerWidth,innerHeight);updateCameraProjection();if(composer){composer.setPixelRatio(Math.min(devicePixelRatio,mobile?1.25:1.5));composer.setSize(innerWidth,innerHeight);const dpr=Math.min(devicePixelRatio,mobile?1.25:1.5);fxaa.material.uniforms.resolution.value.set(1/(innerWidth*dpr),1/(innerHeight*dpr));}}
+function resize(){
+ if(!renderer)return;
+ const {pixelRatio,bufferWidth,bufferHeight}=renderResolution(innerWidth,innerHeight,devicePixelRatio);
+ if(renderer.getPixelRatio()!==pixelRatio)renderer.setPixelRatio(pixelRatio);
+ renderer.setSize(innerWidth,innerHeight);
+ updateCameraProjection();
+ if(composer){
+  // Size offscreen targets in physical pixels, with the same integer rounding as the canvas.
+  composer.setPixelRatio(1);
+  composer.setSize(bufferWidth,bufferHeight);
+  fxaa.material.uniforms.resolution.value.set(1/bufferWidth,1/bufferHeight);
+ }
+}
 function tick(){raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta(),.05);if(document.hidden)return;elapsed+=dt;
  const a=1-Math.exp(-dt*4.4);
  if(stage==='lobby'){
@@ -286,7 +305,7 @@ function tick(){raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta
   updateCameraProjection();refreshShadows();
   if(cameraBlend>=1){if(entering)showGarden();else finishLobby();}
  }
- if(companions?.update(dt,camera,stage==='lobby'||stage==='entering'||stage==='returning'||stage==='garden')){projectionLights.B.shadow.needsUpdate=true;renderer.shadowMap.needsUpdate=true;}
+ if(companions?.update(dt,camera,stage==='lobby'||stage==='entering'||stage==='returning'||stage==='garden')){projectionLights.B.shadow.needsUpdate=true;gardenScene?.refreshShadows();renderer.shadowMap.needsUpdate=true;}
  if(gardenScene?.update(dt))refreshShadows();
  composer.render(dt);
 }
@@ -304,13 +323,14 @@ world.addEventListener('pointermove',e=>{if(!drag)return;manualAngle={radius:dra
 function endDrag(){if(drag){drag=null;world.classList.remove('dragging');updateDialogue('drag');}}
 world.addEventListener('pointerup',endDrag);world.addEventListener('pointercancel',endDrag);
 window.addEventListener('resize',resize);
+observePixelRatio(resize);
 for(const id of ['achilles','tortoise'])$(`#meet-${id}`).addEventListener('click',()=>{
  if(inGarden){garden.talk(id);return;}
  companions?.meet(id,camera);updateDialogue(id);announce('companionSelected',COPY[locale].actors[id]);
 });
 
 let enterStart=new THREE.Vector3(),enterLookStart=new THREE.Vector3(),enterUpStart=new THREE.Vector3(),gardenTimer;
-const gardenCamera=new THREE.Vector3(10,6.6,13),gardenLook=new THREE.Vector3(1,-1.6,0),lobbyLook=new THREE.Vector3(0,.1,0);
+const gardenCamera=new THREE.Vector3(15,4.8,10),gardenLook=new THREE.Vector3(0,-1.6,1),lobbyLook=new THREE.Vector3(0,.1,0);
 let transitionLights={};
 function beginSceneTransition(entering){
  stage=entering?'entering':'returning';cameraBlend=0;
@@ -319,7 +339,7 @@ function beginSceneTransition(entering){
  transitionLights={};
  for(const [id,light] of Object.entries(projectionLights)){
   const lobbyOn=$(`[data-light="${id}"]`).getAttribute('aria-pressed')==='true';
-  transitionLights[id]={from:light.visible?light.intensity:0,to:entering?({G:1.2,E:1,B:3.1}[id]):lobbyOn?light.userData.lobbyIntensity:0};
+  transitionLights[id]={from:light.visible?light.intensity:0,to:entering?gardenFill[id]:lobbyOn?light.userData.lobbyIntensity:0};
   light.intensity=transitionLights[id].from;light.visible=true;
  }
  refreshShadows();
@@ -342,7 +362,7 @@ function showGarden(){
  // A chapter remains lit even if all sculpture projection lights were switched off.
  for(const light of Object.values(projectionLights))light.visible=true;
  setGardenLighting(true);
- resize();refreshShadows();syncDynamicLabels();garden.show();announce('garden');
+ resize();refreshShadows();syncDynamicLabels();garden.show();announce(garden.isComplete()?'gardenComplete':'garden');
  world.setAttribute('aria-label',locale==='zh'?'WU 花园：规则桌与同行者':'MU Garden: the rule table and companions');
 }
 function backLobby(){
@@ -376,7 +396,11 @@ $('.wordmark').addEventListener('click',e=>{e.preventDefault();if(inGarden)backL
 
 function setIndex(open){$('#chapter-index').hidden=!open;$('#index-trigger').setAttribute('aria-expanded',String(open));if(open)$('#close-index').focus({preventScroll:true});}
 $('#index-trigger').addEventListener('click',()=>setIndex($('#chapter-index').hidden));$('#close-index').addEventListener('click',()=>{setIndex(false);$('#index-trigger').focus()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.querySelector('dialog[open]')){if(!$('#chapter-index').hidden){setIndex(false);$('#index-trigger').focus();}else if(inGarden)backLobby();}});
+document.addEventListener('keydown',e=>{
+ if(e.key!=='Escape'||e.repeat||e.defaultPrevented||document.querySelector('dialog[open]'))return;
+ if(!$('#chapter-index').hidden){e.preventDefault();setIndex(false);$('#index-trigger').focus();}
+ else if(inGarden){e.preventDefault();if(!garden.dismiss())backLobby();}
+});
 document.addEventListener('pointerdown',e=>{if(!$('#chapter-index').hidden&&!$('#chapter-index').contains(e.target)&&!$('#index-trigger').contains(e.target)&&!$('#language-switch').contains(e.target))setIndex(false);});
 
 reduced.addEventListener('change',e=>{paused=e.matches;});

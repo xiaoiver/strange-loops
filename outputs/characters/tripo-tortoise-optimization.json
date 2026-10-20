@@ -1,0 +1,25 @@
+{
+  "source": "source/tripo-tortoise.glb",
+  "generator": "Tripo",
+  "source_triangles": 15515,
+  "optimized_triangles": 598,
+  "vertices": 309,
+  "glb_bytes": 85376,
+  "height": 0.69,
+  "scale_in_web": 0.46,
+  "shading": "flat",
+  "weighted_vertices": {
+    "Root": 168,
+    "Shell": 100,
+    "Head": 100,
+    "Leg_Front_L": 15,
+    "Leg_Back_L": 22,
+    "Leg_Front_R": 16,
+    "Leg_Back_R": 25
+  },
+  "animations": [
+    "Tortoise_Idle",
+    "Tortoise_Look",
+    "Tortoise_Walk"
+  ]
+}

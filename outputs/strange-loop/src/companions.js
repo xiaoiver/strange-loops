@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { playCompanionAnimation as play } from './companion-animation.js';
 
 // Blender-authored rigs and baked clips. World routes remain editable here.
 const specifications = [
@@ -12,7 +13,7 @@ export async function loadCompanions(scene, reduced, onProject) {
   const loader=new GLTFLoader(),draco=new DRACOLoader(),actors=[];
   draco.setDecoderPath('assets/draco/');
   loader.setDRACOLoader(draco);
-  const loaded=await Promise.all(specifications.map(spec=>loader.loadAsync(`assets/characters/${spec.id}.glb?v=draco1`)));
+  const loaded=await Promise.all(specifications.map(spec=>loader.loadAsync(`assets/characters/${spec.id}.glb?v=${spec.id==='tortoise'?'tripo2':'mannequin1'}`)));
   draco.dispose();
   for(const [index,spec] of specifications.entries()){
     const gltf=loaded[index];
@@ -41,14 +42,6 @@ export async function loadCompanions(scene, reduced, onProject) {
     actors.push({...spec,root,mixer,actions,age:0,clipAge:0,current:null,walking:!reduced.matches,
       target:new THREE.Vector3(0,.1,0),from:new THREE.Vector3(spec.from[0],-3.8,spec.from[1]),to:new THREE.Vector3(spec.to[0],-3.8,spec.to[1])});
   }
-  function play(actor,name){
-    if(actor.current===name)return;
-    const action=actor.actions[name];if(!action)return;
-    actor.actions[actor.current]?.fadeOut(.2);
-    const looping=name==='Walk'||name==='Idle';
-    action.reset().setLoop(looping?THREE.LoopRepeat:THREE.LoopOnce,looping?Infinity:1);
-    action.clampWhenFinished=!looping;action.fadeIn(.35).play();actor.current=name;actor.clipAge=0;
-  }
   for(const actor of actors){
     actor.root.position.copy(reduced.matches?actor.to:actor.from);
     play(actor,reduced.matches?'Idle':'Walk');
@@ -60,8 +53,13 @@ export async function loadCompanions(scene, reduced, onProject) {
     setSpace(space){
       for(const [index,actor] of actors.entries()){
         actor.from.copy(actor.root.position);
-        const destination=space==='garden' ? (index===0?[3.8,-.2]:[4.8,-1.3]) : specifications[index].to;
+        const destination=space==='garden' ? (index===0?[2.8,-1.95]:[3.6,-1.75]) : specifications[index].to;
         actor.to.set(destination[0],-3.8,destination[1]);
+        // Cross a visible stretch of the shaded floor, at each companion's pace.
+        actor.duration=Math.max(1.2,actor.from.distanceTo(actor.to)/(index===0?.45:.23));
+        // The garden's architecture shades the companions; keep lobby letter
+        // projections off their surfaces when returning to the vestibule.
+        actor.root.traverse(mesh=>{if(mesh.isMesh)mesh.receiveShadow=space==='garden';});
         actor.age=0;actor.walking=!reduced.matches;
         actor.target.set(space==='garden'?1.9:0,space==='garden'?-3:.1,0);
         if(reduced.matches)actor.root.position.copy(actor.to);
@@ -80,7 +78,7 @@ export async function loadCompanions(scene, reduced, onProject) {
           if(actor.walking){actor.root.position.copy(actor.to);actor.walking=false;play(actor,'Idle');changed=true;}
         }else if(actor.walking){
           const t=Math.min(1,actor.age/actor.duration);
-          actor.root.position.lerpVectors(actor.from,actor.to,t);
+          actor.root.position.lerpVectors(actor.from,actor.to,t*t*(3-2*t));
           aim.subVectors(actor.to,actor.from);changed=true;
           if(t>=1){actor.walking=false;play(actor,'Look');}
         }

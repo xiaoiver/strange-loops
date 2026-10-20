@@ -1,6 +1,26 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { rewrite, rewriteSources, occurrences, createHistory, appendStep, pathTo, restoreHistory, displayWord, DISPLAY_LIMIT, HISTORY_LIMIT } from '../src/miu-system.js';
+import { rewrite, rewriteRange, rewriteSources, occurrences, createHistory, appendStep, pathTo, restoreHistory, displayWord, DISPLAY_LIMIT, HISTORY_LIMIT } from '../src/miu-system.js';
+
+test('preview spans cover the full source fragment for each rule and locale', () => {
+  const cases = [
+    ['MUI', 1, 2, 'I'],
+    ['MUIUI', 2, 0, 'UIUI'],
+    ['MIIIIU', 3, 1, 'III'],
+    ['MIIIIU', 3, 2, 'III'],
+    ['MUUUI', 4, 1, 'UU'],
+    ['MUUUI', 4, 2, 'UU'],
+  ];
+  for (const [word, rule, position, source] of cases) {
+    const { start, length } = rewriteRange(word, rule, position);
+    assert.equal(word.slice(start, start + length), source);
+    for (const locale of ['zh', 'en']) {
+      assert.equal(displayWord(word, locale).slice(start, start + length), displayWord(source, locale));
+    }
+  }
+  assert.equal(rewriteRange('MIU', 1, 2), null);
+  assert.equal(rewriteRange('MI', 3, 1), null);
+});
 
 test('3D letter motion follows the exact rewrite, including duplicated and removed letters', () => {
   assert.deepEqual(rewriteSources('MII', 2, 0), [0, 1, 2, 1, 2]);

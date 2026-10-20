@@ -23,10 +23,12 @@ test('suggested operations are legal throughout reachable short strings', () => 
 
 test('help follows the current choice and offers a way back without claiming a solution to MU', () => {
   assert.equal(gardenHint('MIIIIU', true, 3).key, 'frontGroup');
-  assert.equal(gardenHint('MIIIIU', false, 3).key, 'choose');
+  assert.equal(gardenHint('MIIIIU', false, 3).key, 'observe');
   assert.equal(gardenHint('MUIU', true, null).key, 'complete');
   assert.equal(gardenHint('MIU', true, null).key, 'detour');
-  assert.equal(gardenHint('M' + 'I'.repeat(64), false, null).key, 'shorter');
-  const { rule } = gardenHint('MUIU', false, null);
-  assert.ok(rule); assert.notEqual(rewrite('MUIU', rule, occurrences('MUIU', rule)[0]), 'MU');
+  for (const word of ['MI', 'MUIU', 'MUUI', 'MIIII', 'M' + 'I'.repeat(64)]) {
+    const hint = gardenHint(word, false, null);
+    assert.equal(hint.key, 'observe');
+    assert.equal(hint.rule, undefined, 'the unreachable goal must not prompt endless rewrites');
+  }
 });

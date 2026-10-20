@@ -42,7 +42,7 @@ export const COPY = {
     },
     index: {
       title: '漫游地图', subtitle: 'SEVEN ROOMS, ONE STRANGE LOOP', here: '你在这里',
-      note: '序厅与第一章已开放，其余章节待续。<br>致敬侯世达《哥德尔、艾舍尔、巴赫：集异璧之大成》。<br>本展对白为原创，非原书引文。',
+      note: '序厅与第一章已开放，其余章节待续。<br>致敬侯世达《哥德尔、艾舍尔、巴赫：集异璧之大成》。<br>本展对白为原创，非原书引文。<br>阿基里斯模型：<a class="book-link" href="https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c" target="_blank" rel="noopener noreferrer">STYLE Fortnite-creative-mannequin</a> · POLLO28 · <a class="book-link" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>（已修改）。',
     },
     chapters: [
       ['三重投影', '表征'], ['WU 花园', '形式系统'], ['图形与衬底画廊', '图形与衬底'],
@@ -59,7 +59,7 @@ export const COPY = {
       ready: '三维大厅已就绪。拖动雕塑，或选择 G、E、B 观察方向。',
       fallback: '三维场景暂不可用，仍可前往第一章体验。',
       view: letter => letter === 'free' ? '已恢复漫游视角' : `已切换至 ${letter} 观察方向`,
-      entering: '正在前往第一章：WU 谜题。', garden: '已进入 WU 花园。从 WJ 开始，试着应用一条规则。', back: '已返回序厅。',
+      entering: '正在前往第一章：WU 谜题。', garden: '已进入 WU 花园。', gardenComplete: '第一章已完成。你发现了 WU 不可达的不变量证明。', back: '已返回序厅。',
       light: (letter, on) => `${letter} 光源已${on ? '开启' : '关闭'}，对应接收面的照明与阴影随光源更新。`,
       language: '已切换为中文。',
       companionsUnavailable: '角色暂未载入，仍可继续观察雕塑。', companionSelected: name => `${name}停下脚步，与你交谈。`,
@@ -113,7 +113,7 @@ export const COPY = {
     },
     index: {
       title: 'The route', subtitle: 'SEVEN ROOMS, ONE STRANGE LOOP', here: 'YOU ARE HERE',
-      note: 'The vestibule and chapter one are open. More rooms will follow.<br>An interactive homage to Douglas R. Hofstadter’s Gödel, Escher, Bach.<br>All exhibition dialogue is original, not quoted from the book.',
+      note: 'The vestibule and chapter one are open. More rooms will follow.<br>An interactive homage to Douglas R. Hofstadter’s Gödel, Escher, Bach.<br>All exhibition dialogue is original, not quoted from the book.<br>Achilles: <a class="book-link" href="https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c" target="_blank" rel="noopener noreferrer">STYLE Fortnite-creative-mannequin</a> by POLLO28 · <a class="book-link" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> (adapted).',
     },
     chapters: [
       ['Three Projections', 'Representation'], ['MU Garden', 'Formal systems'], ['Figure and Ground', 'Figure / ground'],
@@ -130,7 +130,7 @@ export const COPY = {
       ready: 'The 3D room is ready. Drag to explore, or select a G, E or B viewing direction.',
       fallback: 'The 3D scene is unavailable. You can still play chapter one.',
       view: letter => letter === 'free' ? 'Returned to the roaming view' : `Now viewing from the ${letter} direction`,
-      entering: 'Entering chapter one: the MU-puzzle.', garden: 'Welcome to MU Garden. Start with MI and try a rule.', back: 'Returned to the vestibule.',
+      entering: 'Entering chapter one: the MU-puzzle.', garden: 'Welcome to MU Garden.', gardenComplete: 'Chapter one complete. You found the invariant proving MU unreachable.', back: 'Returned to the vestibule.',
       light: (letter, on) => `The ${letter} light is ${on ? 'on' : 'off'}. Its illumination and shadows have updated.`,
       language: 'Switched to English.',
       companionsUnavailable: 'The companions could not load. You can still explore the sculpture.', companionSelected: name => `${name} stops to talk with you.`,

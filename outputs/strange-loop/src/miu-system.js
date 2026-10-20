@@ -25,6 +25,13 @@ export function rewrite(word, rule, position) {
   return word.slice(0, position) + word.slice(position + 2);
 }
 
+// The source fragment affected by a legal rewrite, before locale substitution.
+export function rewriteRange(word, rule, position) {
+  if (!occurrences(word, rule).includes(position)) return null;
+  if (rule === 2) return { start: 1, length: word.length - 1 };
+  return { start: position, length: rule === 3 ? 3 : rule === 4 ? 2 : 1 };
+}
+
 // Keep visual motion tied to the same legal rewrite as the game.
 // -1 marks a newly introduced letter; other entries refer to old character indices.
 export function rewriteSources(word, rule, position) {
