@@ -2,7 +2,7 @@
 
 The web bundle uses Three.js. The sculpture generator uses three-bvh-csg and three-mesh-bvh, and derives its letter geometry from the Helvetiker Bold font shipped with Three.js. The chapter-one gallery uses the Optimer Regular font from the same distribution.
 
-Noto Serif SC is loaded from Google Fonts at runtime, with local system font fallbacks. The font is not bundled in this repository.
+Noto Serif SC is bundled as a self-hosted WOFF2 subset under the derived family name Strange Loops Serif SC (weights 400–700), with system font fallbacks. Source revision and SHA-256 are pinned in outputs/strange-loop/assets/fonts/subset.json. The SIL Open Font License and upstream copyright are included in assets/fonts/OFL.txt. Rebuild instructions: outputs/strange-loop/scripts/subset-font.py.
 
 ## Three.js
 

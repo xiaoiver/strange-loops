@@ -12,3 +12,6 @@ __pycache__/
 outputs/*
 !outputs/strange-loop/
 !outputs/characters/
+
+# Generated, verified website release package.
+outputs/strange-loop/dist/

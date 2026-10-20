@@ -57,3 +57,5 @@ Blender 角色工程包含骨骼、材质及 Idle / Walk / Look 动画。重建�
 ![理解不变量后，第一章明确标记为已完成](outputs/strange-loop/docs/screenshots/garden-complete.jpg)
 
 项目未包含原书全文、封面扫描或艾舍尔作品图像。依赖及字体声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+
+部署说明见[发布到 Gallery Mate 官网](outputs/strange-loop/docs/deploy-gallerymate.md)。
