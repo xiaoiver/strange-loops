@@ -33,7 +33,7 @@ let paused=reduced.matches, inGarden=false, transition=false, currentView='free'
 let scene,renderer,camera,sculpture,clock,raf,composer,ao,fxaa,elapsed=0;
 let companions,gardenScene,fadeSculpture;
 const projectionLights={};
-const gardenFill={G:0,E:0,B:.5};
+const gardenFill={G:0,E:0,B:0};
 let currentLetters=DEFAULT_LETTERS, sculptureBusy=false, graphiteMaterial=null;
 const sculptureWorker=createSculptureWorker('assets/sculpture-worker.js?v=sculpt2');
 const SLOT_ORDER=['G','E','B'];
