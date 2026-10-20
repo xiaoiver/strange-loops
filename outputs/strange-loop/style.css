@@ -58,7 +58,8 @@ html[lang=en] .speaker{width:68px;min-width:0;line-height:1.4}
 .intro .dialogue{position:static;margin-top:20px;max-width:380px}
 .sculpture-form input{width:88px;height:38px;padding:0 12px;border:1px solid var(--line);background:rgba(231,231,230,.82);font:18px Georgia,serif;letter-spacing:.28em;text-transform:uppercase;text-align:center;color:var(--ink)}
 .sculpture-form input:focus{outline:2px solid var(--red);outline-offset:3px}
-.sculpture-form button[type=submit]{height:38px;padding:0 16px;background:var(--ink);color:var(--paper);font-size:11px;letter-spacing:.12em}
+.sculpture-form button[type=submit]{height:38px;padding:0 16px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:11px;letter-spacing:.12em;transition:border-color .15s,background .15s}
+.sculpture-form button[type=submit]:hover:not(:disabled){border-color:var(--ink);background:#24252506}
 .sculpture-form button[type=submit]:disabled{opacity:.55}
 .sculpture-download{position:relative;display:grid;place-items:center;flex-shrink:0;width:44px;height:44px;padding:0;color:var(--muted)}
 .sculpture-download svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
