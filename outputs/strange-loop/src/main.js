@@ -64,7 +64,11 @@ function renderChapterList(){
  const list=$('#chapter-list');list.replaceChildren();
  COPY[locale].chapters.forEach(([name,topic],index)=>{
   const li=document.createElement('li'),number=document.createElement('span'),title=document.createElement('strong'),note=document.createElement('em');
-  const here=index===(inGarden?1:0);li.classList.toggle('current',here);number.textContent=String(index).padStart(2,'0');title.textContent=name;note.textContent=here?COPY[locale].index.here:topic;
+  const here=index===(inGarden?1:0),available=index<=1;
+  li.classList.toggle('current',here);li.classList.toggle('unavailable',!available);
+  if(here)li.setAttribute('aria-current','location');
+  number.textContent=String(index).padStart(2,'0');title.textContent=name;
+  note.textContent=here?COPY[locale].index.here:available?topic:COPY[locale].index.unavailable;
   li.append(number,title,note);list.append(li);
  });
 }

@@ -50,6 +50,8 @@ The Blender character project includes rigs, materials, and Idle / Walk / Look a
 
 The vestibule and chapter one are playable. MU Garden starts with a small goal completed in four taps. Counting Is, grouping them in threes, and checking all four rules reveal the invariant. Choosing the reason MU is unreachable completes and saves the chapter; further exploration is optional. The original four rules apply in one tap, using the leftmost matching occurrence. Hints, undo, and restart are available; history records stay out of the interface. Animated 3D letters follow each rewrite. Progress survives language changes, lobby visits, and reloads. The rule interface also works without WebGL. Chapter two and later rooms are not yet open.
 
+See the [chapter two production plan](outputs/strange-loop/docs/chapter-02-plan.md) (Chinese, with English UI copy and summary). Unreleased rooms are greyed out and marked “COMING SOON” in the route.
+
 ![English MU Garden screenshot showing the skylight, rule table, and recessed doorway](outputs/strange-loop/docs/screenshots/garden-en.jpg)
 
 ![Chapter one completes after understanding the invariant](outputs/strange-loop/docs/screenshots/garden-complete-en.jpg)
