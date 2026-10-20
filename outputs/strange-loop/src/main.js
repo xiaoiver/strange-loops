@@ -12,6 +12,7 @@ import { loadCompanions } from './companions.js';
 import { createGarden } from './garden.js';
 import { createGardenScene } from './garden-scene.js';
 import { createExhibitFade } from './exhibit-fade.js';
+import { renderResolution, observePixelRatio } from './render-resolution.js';
 import {
  createSculptureWorker,
  binToGeometry,
@@ -194,7 +195,7 @@ function box(w,h,d,mat,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d
 async function init(){
  try{
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);
+  renderer.setSize(innerWidth,innerHeight);
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
   renderer.setClearColor(0xe6e6e5);world.appendChild(renderer.domElement);
@@ -256,7 +257,19 @@ function updateCameraProjection(){
  camera.setViewOffset(innerWidth,innerHeight,-innerWidth*(mobile?.035:.16),innerHeight*(mobile?THREE.MathUtils.lerp(-.025,.12,progress):0),innerWidth,innerHeight);
  camera.updateProjectionMatrix();
 }
-function resize(){if(!renderer)return;const mobile=innerWidth<=760;renderer.setSize(innerWidth,innerHeight);updateCameraProjection();if(composer){composer.setPixelRatio(Math.min(devicePixelRatio,mobile?1.25:1.5));composer.setSize(innerWidth,innerHeight);const dpr=Math.min(devicePixelRatio,mobile?1.25:1.5);fxaa.material.uniforms.resolution.value.set(1/(innerWidth*dpr),1/(innerHeight*dpr));}}
+function resize(){
+ if(!renderer)return;
+ const {pixelRatio,bufferWidth,bufferHeight}=renderResolution(innerWidth,innerHeight,devicePixelRatio);
+ if(renderer.getPixelRatio()!==pixelRatio)renderer.setPixelRatio(pixelRatio);
+ renderer.setSize(innerWidth,innerHeight);
+ updateCameraProjection();
+ if(composer){
+  // Size offscreen targets in physical pixels, with the same integer rounding as the canvas.
+  composer.setPixelRatio(1);
+  composer.setSize(bufferWidth,bufferHeight);
+  fxaa.material.uniforms.resolution.value.set(1/bufferWidth,1/bufferHeight);
+ }
+}
 function tick(){raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta(),.05);if(document.hidden)return;elapsed+=dt;
  const a=1-Math.exp(-dt*4.4);
  if(stage==='lobby'){
@@ -306,6 +319,7 @@ world.addEventListener('pointermove',e=>{if(!drag)return;manualAngle={radius:dra
 function endDrag(){if(drag){drag=null;world.classList.remove('dragging');updateDialogue('drag');}}
 world.addEventListener('pointerup',endDrag);world.addEventListener('pointercancel',endDrag);
 window.addEventListener('resize',resize);
+observePixelRatio(resize);
 for(const id of ['achilles','tortoise'])$(`#meet-${id}`).addEventListener('click',()=>{
  if(inGarden){garden.talk(id);return;}
  companions?.meet(id,camera);updateDialogue(id);announce('companionSelected',COPY[locale].actors[id]);
