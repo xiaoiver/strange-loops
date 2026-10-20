@@ -1,6 +1,6 @@
 # Third-party notices
 
-The web bundle uses Three.js. The sculpture generator uses three-bvh-csg and three-mesh-bvh, and derives its letter geometry from the Helvetiker Bold font shipped with Three.js.
+The web bundle uses Three.js. The sculpture generator uses three-bvh-csg and three-mesh-bvh, and derives its letter geometry from the Helvetiker Bold font shipped with Three.js. The chapter-one gallery uses the Optimer Regular font from the same distribution.
 
 Noto Serif SC is loaded from Google Fonts at runtime, with local system font fallbacks. The font is not bundled in this repository.
 
@@ -76,7 +76,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-## Helvetiker Bold / Magenta font license
+## Helvetiker Bold and Optimer Regular / Magenta font license
 
 Copyright @ 2004 by MAGENTA Ltd. All Rights Reserved.
 

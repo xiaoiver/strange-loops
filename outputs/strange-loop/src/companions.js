@@ -57,9 +57,22 @@ export async function loadCompanions(scene, reduced, onProject) {
   const projected=new THREE.Vector3(),aim=new THREE.Vector3(),rotation=new THREE.Quaternion(),yAxis=new THREE.Vector3(0,1,0);
   let showing=true;
   return {
+    setSpace(space){
+      for(const [index,actor] of actors.entries()){
+        actor.from.copy(actor.root.position);
+        const destination=space==='garden' ? (index===0?[3.8,-.2]:[4.8,-1.3]) : specifications[index].to;
+        actor.to.set(destination[0],-3.8,destination[1]);
+        actor.age=0;actor.walking=!reduced.matches;
+        actor.target.set(space==='garden'?1.9:0,space==='garden'?-3:.1,0);
+        if(reduced.matches)actor.root.position.copy(actor.to);
+        play(actor,reduced.matches?'Idle':'Walk');
+      }
+    },
     update(dt,camera,visible){
       showing=visible;let changed=false;
       for(const actor of actors){
+        // Visibility changes invalidate cached shadows even when animation is paused.
+        if(actor.root.visible!==visible)changed=true;
         actor.root.visible=visible;
         if(!visible){onProject(actor.id,null);continue;}
         actor.age+=dt;actor.clipAge+=dt;

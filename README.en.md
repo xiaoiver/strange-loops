@@ -2,7 +2,7 @@
 
 [简体中文](README.md) | English
 
-An interactive narrative exhibition in Chinese and English, inspired by *Gödel, Escher, Bach: an Eternal Golden Braid*. The current prototype is the vestibule: lights cast the letters G, E, and B from a single 3D sculpture onto two walls and the floor, while Achilles and the Tortoise walk nearby, pause to observe, and talk with you.
+An interactive narrative exhibition in Chinese and English, inspired by *Gödel, Escher, Bach: an Eternal Golden Braid*. The vestibule explores G, E, and B as projections of a single sculpture. Chapter one, MU Garden, lets you rewrite symbols using four formal rules. Achilles and the Tortoise accompany you in both rooms.
 
 Built with Three.js PBR materials, PCSS soft shadows, and GTAO, the vestibule supports drag-to-explore camera controls, three letter views, individual light switches, custom three-letter sculpture generation (`?s=XYZ`), Chinese/English switching, and skeletal idle animations for both characters. The writing and character models are original tributes to the book.
 
@@ -24,6 +24,7 @@ Open <http://localhost:4173>. Serve the files over HTTP rather than opening the 
 ```sh
 cd outputs/strange-loop
 npm ci
+npm test
 npm run build
 npm start
 ```
@@ -40,4 +41,6 @@ The Blender character project includes rigs, materials, and Idle / Walk / Look a
 
 ## Current scope
 
-The vestibule is currently the only fully interactive room. The seven-chapter map and the WU / MU garden entrance preview the planned narrative; chapter text and interactions are not yet implemented. The repository does not include the book's full text, cover scans, or images of Escher's works. Dependency and font notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+The vestibule and chapter one are playable. MU Garden includes one-tap rewrites, occurrence selection when needed, animated 3D letters, branching derivation history, a reachable onboarding target, and optional observation hints. Progress survives language changes, lobby visits, and reloads. The rule interface also works without WebGL. Chapter two and later rooms are not yet open.
+
+The repository does not include the book's full text, cover scans, or images of Escher's works. Dependency and font notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
