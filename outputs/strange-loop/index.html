@@ -27,7 +27,11 @@
       <label for="sculpture-letters"><span data-i18n="sculpture.label">字母</span></label>
       <input id="sculpture-letters" name="letters" type="text" inputmode="text" autocomplete="off" spellcheck="false" maxlength="3" value="GEB" pattern="[A-Za-z]{3}" data-i18n-aria="a11y.sculptureInput" aria-label="三个大写拉丁字母" title="三个大写拉丁字母">
       <button type="submit" id="sculpture-apply" data-i18n="sculpture.apply" data-i18n-aria="a11y.sculptureApply">生成</button>
-      <p class="sculpture-hint" data-i18n="sculpture.hint">三个大写拉丁字母 · Helvetiker</p>
+      <div class="sculpture-downloads" role="group" data-i18n-aria="a11y.sculptureDownloads" aria-label="下载可打印模型">
+        <button type="button" id="sculpture-download-stl" data-i18n="sculpture.downloadStl" data-i18n-aria="a11y.sculptureDownloadStl">STL</button>
+        <button type="button" id="sculpture-download-obj" data-i18n="sculpture.downloadObj" data-i18n-aria="a11y.sculptureDownloadObj">OBJ</button>
+      </div>
+      <p class="sculpture-hint" data-i18n="sculpture.hint">三个大写拉丁字母 · 展签是书中彩蛋</p>
     </form>
     <div class="light-tools" data-i18n-aria="a11y.lights" aria-label="投影光源开关"><span data-i18n="lightLabel">光源</span><button data-light="G" aria-pressed="true" aria-label="关闭 G 投影光源"><b class="slot-letter">G</b><i></i></button><button data-light="E" aria-pressed="true" aria-label="关闭 E 投影光源"><b class="slot-letter">E</b><i></i></button><button data-light="B" aria-pressed="true" aria-label="关闭 B 投影光源"><b class="slot-letter">B</b><i></i></button></div>
     <div class="view-tools" data-i18n-aria="a11y.views" aria-label="选择雕塑观察方向">

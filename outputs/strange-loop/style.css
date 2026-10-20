@@ -28,7 +28,7 @@
 @media(max-width:760px) and (max-height:700px){.intro,html[lang=en] .intro{top:15%}}
 
 /* Finite music preview: explicit opt-in, visible stop, no ambient loop. */
-.canon-control{position:relative}.utilities #canon-preview{gap:8px;min-height:44px;white-space:nowrap}.utilities #canon-preview[aria-pressed=true]{color:var(--ink)}#canon-symbol{font-size:13px;width:14px}#canon-explanation{position:absolute;bottom:72px;right:0;width:max-content;max-width:280px;margin:0;font-size:10px;letter-spacing:.025em;line-height:1.8;color:var(--muted)}#canon-explanation[hidden]{display:none}
+.canon-control{position:relative}.utilities #canon-preview{gap:8px;min-height:44px;white-space:nowrap}.utilities #canon-preview[aria-pressed=true]{color:var(--ink)}#canon-symbol{font-size:13px;width:14px}#canon-explanation{position:absolute;bottom:72px;right:0;width:max-content;max-width:340px;margin:0;font-size:10px;letter-spacing:.025em;line-height:1.8;color:var(--muted)}#canon-explanation[hidden]{display:none}
 @media(max-width:760px){.utilities{gap:12px}.utilities #canon-preview{font-size:9px}#canon-explanation{bottom:62px;max-width:210px;font-size:9px}}
 
 /* Invisible, keyboard-accessible hit areas follow the two 3D companions. */
@@ -54,12 +54,16 @@ html[lang=en] .speaker{width:68px;min-width:0;line-height:1.4}
   html[lang=en] .speaker{width:52px;min-width:0}
 }
 
-.sculpture-form{position:absolute;left:8.2%;top:58%;z-index:3;display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;max-width:280px;pointer-events:auto}
+.sculpture-form{position:absolute;left:8.2%;top:58%;z-index:3;display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;max-width:340px;pointer-events:auto}
 .sculpture-form label{font-size:10px;letter-spacing:.12em;color:var(--muted)}
 .sculpture-form input{width:88px;height:38px;padding:0 12px;border:1px solid var(--line);background:rgba(231,231,230,.82);font:18px Georgia,serif;letter-spacing:.28em;text-transform:uppercase;text-align:center;color:var(--ink)}
 .sculpture-form input:focus{outline:2px solid var(--red);outline-offset:3px}
 .sculpture-form button[type=submit]{height:38px;padding:0 16px;background:var(--ink);color:var(--paper);font-size:11px;letter-spacing:.12em}
 .sculpture-form button[type=submit]:disabled{opacity:.55}
+.sculpture-downloads{display:flex;gap:6px;align-items:center}
+.sculpture-downloads button{height:38px;padding:0 12px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:10px;letter-spacing:.14em}
+.sculpture-downloads button:hover:not(:disabled){border-color:var(--ink);color:var(--red)}
+.sculpture-downloads button:disabled{opacity:.45;cursor:not-allowed}
 .sculpture-hint{flex-basis:100%;margin:0;font-size:9px;letter-spacing:.08em;color:var(--muted);line-height:1.6}
 .light-tools .slot-letter,.view-buttons .slot-letter{font-weight:inherit}
 .view-buttons .slot-letter{font:inherit}
@@ -70,5 +74,6 @@ body.in-garden .sculpture-form{visibility:hidden}
  .sculpture-form{left:7%;top:auto;bottom:38%;max-width:92%;gap:8px}
  .sculpture-form input{width:78px;height:34px;font-size:16px}
  .sculpture-form button[type=submit]{height:34px;padding:0 12px;font-size:10px}
+ .sculpture-downloads button{height:34px;padding:0 10px;font-size:9px}
  .sculpture-hint{font-size:8px}
 }
