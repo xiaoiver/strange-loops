@@ -60,8 +60,10 @@ export async function loadCompanions(scene, reduced, onProject) {
     setSpace(space){
       for(const [index,actor] of actors.entries()){
         actor.from.copy(actor.root.position);
-        const destination=space==='garden' ? (index===0?[1.8,-2.65]:[2.6,-2.45]) : specifications[index].to;
+        const destination=space==='garden' ? (index===0?[2.8,-1.95]:[3.6,-1.75]) : specifications[index].to;
         actor.to.set(destination[0],-3.8,destination[1]);
+        // Cross a visible stretch of the shaded floor, at each companion's pace.
+        actor.duration=Math.max(1.2,actor.from.distanceTo(actor.to)/(index===0?.45:.23));
         // The garden's architecture shades the companions; keep lobby letter
         // projections off their surfaces when returning to the vestibule.
         actor.root.traverse(mesh=>{if(mesh.isMesh)mesh.receiveShadow=space==='garden';});
@@ -83,7 +85,7 @@ export async function loadCompanions(scene, reduced, onProject) {
           if(actor.walking){actor.root.position.copy(actor.to);actor.walking=false;play(actor,'Idle');changed=true;}
         }else if(actor.walking){
           const t=Math.min(1,actor.age/actor.duration);
-          actor.root.position.lerpVectors(actor.from,actor.to,t);
+          actor.root.position.lerpVectors(actor.from,actor.to,t*t*(3-2*t));
           aim.subVectors(actor.to,actor.from);changed=true;
           if(t>=1){actor.walking=false;play(actor,'Look');}
         }

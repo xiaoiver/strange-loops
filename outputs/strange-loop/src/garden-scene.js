@@ -92,9 +92,7 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
     }
   }
   const letters = new THREE.Group();letters.position.set(1+.55*tableScale,-3.8+.5*tableScale,1);letters.scale.setScalar(tableScale);letters.rotation.y=Math.PI/2-.1;group.add(letters);
-  const trails = new THREE.Group();group.add(trails);
-  const trailMat=new THREE.MeshBasicMaterial({color:0x777b78,transparent:true,opacity:.65,depthWrite:false});
-  let current='',language='',motion=null,ghost=null,goal='',pathKey='';
+  let current='',language='',motion=null,ghost=null,goal='';
   function geometry(letter){
     if(!geometries.has(letter)){
       const g=new TextGeometry(letter,{font,size:1,depth:.1,curveSegments:5,bevelEnabled:true,bevelThickness:.008,bevelSize:.006,bevelSegments:1});
@@ -125,15 +123,6 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
     const width=g.boundingBox.max.x-g.boundingBox.min.x;g.translate(-width/2,0,0);
     const m=new THREE.Mesh(g,ink);if(width>1.8)m.scale.setScalar(1.8/width);target.add(m);
   }
-  function setTrail(path){
-    const key=path.join('|');if(key===pathKey)return;pathKey=key;
-    trails.children.forEach(m=>m.geometry.dispose());trails.clear();
-    path.slice(-5).forEach((word,i)=>{
-      const text=word.length>14?word.slice(0,11)+'...':word;
-      const g=new TextGeometry(text,{font,size:.28,depth:.001,curveSegments:2});g.computeBoundingBox();g.translate(-(g.boundingBox.max.x-g.boundingBox.min.x)/2,0,0);
-      const mesh=new THREE.Mesh(g,trailMat);mesh.rotation.set(-Math.PI/2,0,-.35);mesh.position.set(-2.1-i*.04,-3.785,2.6-i*1.08);trails.add(mesh);
-    });
-  }
   return {
     setVisible(value){setPresence(value ? 1 : 0);},
     setPresence,
@@ -144,7 +133,6 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
     },
     setWord(word,locale,meta={}){
       setTarget(displayWord(meta.target||'MU',locale));
-      setTrail((meta.path||[word]).map(w=>displayWord(w,locale)));
       if(word===current&&locale===language)return;
       clearMotion();
       const previousPositions=letters.children.map(m=>m.position.clone());
