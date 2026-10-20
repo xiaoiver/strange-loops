@@ -68,7 +68,7 @@ function renderChapterList(){
   li.classList.toggle('current',here);li.classList.toggle('unavailable',!available);
   if(here)li.setAttribute('aria-current','location');
   number.textContent=String(index).padStart(2,'0');title.textContent=name;
-  note.textContent=here?COPY[locale].index.here:available?topic:COPY[locale].index.unavailable;
+  note.textContent=here?COPY[locale].index.here:topic;
   li.append(number,title,note);list.append(li);
  });
 }
