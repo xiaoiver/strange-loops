@@ -8,6 +8,7 @@ import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { applySoftShadows } from './soft-shadows.js';
 import { COPY } from './copy.js';
+import { initialLocale, localeUrl } from './locale-url.js';
 import { loadCompanions } from './companions.js';
 import { createGarden } from './garden.js';
 import { createGardenScene } from './garden-scene.js';
@@ -40,8 +41,9 @@ const SLOT_ORDER=['G','E','B'];
 const home=new THREE.Vector3(11,14,12),camPos=home.clone(),camGoal=home.clone(),look=new THREE.Vector3(0,.1,0),up=new THREE.Vector3(0,1,0);
 const Y=new THREE.Vector3(0,1,0),UPTOP=new THREE.Vector3(0,0,-1);
 let drag=null,manualAngle=null,autoAngle=0,cameraBlend=0,stage='lobby';
-let locale='zh',dialogueKey='free',lastStatus=null;
-try{const saved=localStorage.getItem('geb.locale');if(COPY[saved])locale=saved;}catch{}
+let savedLocale=null,dialogueKey='free',lastStatus=null;
+try{savedLocale=localStorage.getItem('geb.locale');}catch{}
+let locale=initialLocale(location.search,savedLocale,document.documentElement.dataset.locale);
 const textAt=path=>path.split('.').reduce((value,key)=>value[key],COPY[locale]);
 const garden=createGarden($('#garden-intro'),{
  locale,
@@ -91,7 +93,8 @@ function applyLocale(){
  if(inGarden)world.setAttribute('aria-label',locale==='zh'?'WU 花园：规则桌与同行者':'MU Garden: the rule table and companions');
 }
 $('#language-switch').addEventListener('click',()=>{
- locale=locale==='zh'?'en':'zh';try{localStorage.setItem('geb.locale',locale);}catch{}applyLocale();announce('language');
+ locale=locale==='zh'?'en':'zh';try{localStorage.setItem('geb.locale',locale);}catch{}
+ history.replaceState(null,'',localeUrl(location.href,locale));applyLocale();announce('language');
 });
 
 

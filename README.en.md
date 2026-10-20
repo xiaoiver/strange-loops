@@ -57,3 +57,5 @@ See the [chapter two production plan](outputs/strange-loop/docs/chapter-02-plan.
 ![Chapter one completes after understanding the invariant](outputs/strange-loop/docs/screenshots/garden-complete-en.jpg)
 
 The repository does not include the book's full text, cover scans, or images of Escher's works. Dependency and font notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+See [publishing under the Gallery Mate website](outputs/strange-loop/docs/deploy-gallerymate.md) (Chinese).
