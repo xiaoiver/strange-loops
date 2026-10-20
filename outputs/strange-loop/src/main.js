@@ -27,7 +27,7 @@ let scene,renderer,camera,sculpture,clock,raf,composer,ao,fxaa,elapsed=0;
 let companions;
 const projectionLights={};
 let currentLetters=DEFAULT_LETTERS, sculptureBusy=false, graphiteMaterial=null;
-const sculptureWorker=createSculptureWorker('assets/sculpture-worker.js?v=sculpt1');
+const sculptureWorker=createSculptureWorker('assets/sculpture-worker.js?v=sculpt2');
 const SLOT_ORDER=['G','E','B'];
 const home=new THREE.Vector3(11,14,12),camPos=home.clone(),camGoal=home.clone(),look=new THREE.Vector3(0,.1,0),up=new THREE.Vector3(0,1,0);
 const Y=new THREE.Vector3(0,1,0),UPTOP=new THREE.Vector3(0,0,-1);
@@ -90,24 +90,28 @@ function displayLetter(slot){
  const i=SLOT_ORDER.indexOf(slot);
  return currentLetters[i]||slot;
 }
+function letterPlate(letter){
+ const c=COPY[locale];
+ return c.letterNames[letter]||c.names[letter]||letter;
+}
 function syncLetterChrome(){
  const c=COPY[locale];
- const isGeb=currentLetters===DEFAULT_LETTERS;
  const input=$('#sculpture-letters');
  if(input&&document.activeElement!==input)input.value=currentLetters;
  for(const slot of SLOT_ORDER){
   const letter=displayLetter(slot);
+  const plate=letterPlate(letter);
   for(const el of document.querySelectorAll(`[data-light="${slot}"] .slot-letter,[data-view="${slot}"] .slot-letter`))el.textContent=letter;
   const nameEl=document.querySelector(`[data-view="${slot}"] .slot-name`);
   if(nameEl){
-   nameEl.textContent=isGeb?c.names[slot]:letter;
+   nameEl.textContent=plate;
    nameEl.hidden=false;
   }
  }
  const directions={G:locale==='zh'?'正面观察':'front view',E:locale==='zh'?'侧面观察':'side view',B:locale==='zh'?'顶部观察':'top view'};
  for(const b of document.querySelectorAll('[data-view]')){
-  const slot=b.dataset.view,letter=displayLetter(slot);
-  const label=isGeb?c.viewAria[slot]:`${letter} · ${directions[slot]}`;
+  const slot=b.dataset.view,letter=displayLetter(slot),plate=letterPlate(letter);
+  const label=currentLetters===DEFAULT_LETTERS&&c.viewAria[slot]?c.viewAria[slot]:`${letter} · ${plate}：${directions[slot]}`;
   b.setAttribute('aria-label',label);
  }
  for(const b of document.querySelectorAll('[data-light]')){

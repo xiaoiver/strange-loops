@@ -19,7 +19,15 @@ export const COPY = {
     duration: '七段漫游 <span>·</span> 原创对白 <span>·</span> 循原书线索',
     caption: '一体 · 三影<small>ONE OBJECT, THREE SHADOWS</small>',
     lightLabel: '光源', viewLabel: '视角', dragHint: '拖动探索',
-    sculpture: { label: '字母', apply: '生成', hint: '三个大写拉丁字母 · Helvetiker', generating: '生成中…' },
+    sculpture: { label: '字母', apply: '生成', hint: '三个大写拉丁字母 · 展签是书中彩蛋', generating: '生成中…' },
+    // Letter plates: GEB cast, cited thinkers, and book-adjacent Easter eggs.
+    letterNames: {
+      A: '阿基里斯', B: '巴赫', C: '螃蟹', D: '灯神', E: '艾舍尔', F: '费马',
+      G: '哥德尔', H: '侯世达', I: '同构', J: '炸脖龙', K: '克林', L: '卡洛尔',
+      M: '莫比乌斯', N: '诺依曼', O: '衔尾蛇', P: '彭罗斯', Q: '蒯因', R: '罗素',
+      S: '斯穆里安', T: '乌龟', U: '通用机', V: '维纳', W: '维特根斯坦', X: '变元 x',
+      Y: '阴阳', Z: '芝诺',
+    },
     names: { G: '哥德尔', E: '艾舍尔', B: '巴赫' },
     actors: { achilles: '阿基里斯', tortoise: '乌龟' },
     dialogues: {
@@ -86,7 +94,15 @@ export const COPY = {
     duration: 'Seven rooms <span>·</span> Original dialogue <span>·</span> Inspired by GEB',
     caption: 'One object, three shadows<small>GÖDEL · ESCHER · BACH</small>',
     lightLabel: 'LIGHTS', viewLabel: 'VIEW', dragHint: 'Drag to explore',
-    sculpture: { label: 'LETTERS', apply: 'Generate', hint: 'Three uppercase Latin letters · Helvetiker', generating: 'Generating…' },
+    sculpture: { label: 'LETTERS', apply: 'Generate', hint: 'Three Latin capitals · nameplates are book Easter eggs', generating: 'Generating…' },
+    // Letter plates: GEB cast, cited thinkers, and book-adjacent Easter eggs.
+    letterNames: {
+      A: 'Achilles', B: 'Bach', C: 'Crab', D: 'Djinn', E: 'Escher', F: 'Fermat',
+      G: 'Gödel', H: 'Hofstadter', I: 'Isomorphism', J: 'Jabberwock', K: 'Kleene', L: 'Carroll',
+      M: 'Möbius', N: 'Neumann', O: 'Ouroboros', P: 'Penrose', Q: 'Quine', R: 'Russell',
+      S: 'Smullyan', T: 'Tortoise', U: 'UTM', V: 'Wiener', W: 'Wittgenstein', X: 'Variable x',
+      Y: 'Yin-Yang', Z: 'Zeno',
+    },
     names: { G: 'Gödel', E: 'Escher', B: 'Bach' },
     actors: { achilles: 'Achilles', tortoise: 'Tortoise' },
     dialogues: {
