@@ -63,15 +63,19 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
 
   // A distant skylight through a real rectangular roof aperture. Its shadow
   // creates one continuous band on the wall and floor, including object shadows.
-  const roofY=5.7, apertureBack=-4.31, apertureFront=-.84, apertureCenter=(apertureBack+apertureFront)/2;
-  box(40,.12,apertureBack+20,pale,0,roofY,(-20+apertureBack)/2);
-  box(40,.12,20-apertureFront,pale,0,roofY,(20+apertureFront)/2);
-  box(12,.12,apertureFront-apertureBack,pale,-14,roofY,apertureCenter);
-  box(11,.12,apertureFront-apertureBack,pale,14.5,roofY,apertureCenter);
+  const roofY=5.7, apertureBack=-5.55, apertureFront=-2.08, apertureCenter=(apertureBack+apertureFront)/2;
+  const roof=new THREE.Group();roof.position.y=roofY;roof.rotation.y=-Math.atan(.2);group.add(roof);
+  function roofBox(w,d,x,z){const mesh=box(w,.12,d,pale,x,0,z);roof.add(mesh);}
+  roofBox(40,apertureBack+20,0,(-20+apertureBack)/2);
+  roofBox(40,20-apertureFront,0,(20+apertureFront)/2);
+  roofBox(12,apertureFront-apertureBack,-14,apertureCenter);
+  roofBox(11,apertureFront-apertureBack,14.5,apertureCenter);
   const skylight=new THREE.SpotLight(0xf4f4f1,0,80,.48,.16,3);
-  skylight.name='garden-skylight';skylight.position.set(17,22,-10);skylight.target.position.set(1,-3.8,1);
-  // Preserve illumination at the floor target while increasing distance contrast.
-  const skylightIntensity=4000*Math.pow(skylight.position.distanceTo(skylight.target.position),skylight.decay-2);
+  skylight.name='garden-skylight';skylight.position.set(17,28,-12);skylight.target.position.set(1,-3.8,1);
+  // Keep the established floor-target brightness while changing the source angle.
+  const referenceDistance=Math.hypot(16,25.8,11), lightDistance=skylight.position.distanceTo(skylight.target.position);
+  const cutoff=d=>Math.pow(1-Math.pow(d/skylight.distance,4),2);
+  const skylightIntensity=4000*Math.pow(lightDistance,skylight.decay)/(referenceDistance*referenceDistance)*cutoff(referenceDistance)/cutoff(lightDistance);
   skylight.castShadow=true;skylight.visible=false;skylight.shadow.mapSize.set(2048,2048);
   // All gallery casters are well beyond eight units; avoid wasting perspective
   // depth precision near the source, which amplifies bias at the floor.
