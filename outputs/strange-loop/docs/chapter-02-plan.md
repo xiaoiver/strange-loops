@@ -1,6 +1,12 @@
 # 第二章制作计划：图形与衬底画廊
 
-状态：方案阶段，本章在地图中保持置灰。目标体验约 75–100 秒。
+状态：待实施。本 PR 只完善制作计划，不开放章节或改动运行时。目标体验约 75–100 秒，按玩家自己的节奏推进。
+
+## 首版范围
+
+一间画廊、一个共边轮廓、一个数字展面、一条短流程。沿用现有阿基里斯与乌龟，不再增加人物或学习新的符号操作规则。主要点击约 6–8 次；解释默认收起，没有必须等待的演出。章节完成以理解确认为准，不以观看时长或尝试次数为准。
+
+交付物包括原创轮廓源 SVG、可操作的三维展面、对应的无 WebGL 图文流程、中英文文案、独立进度保存及验收记录。空间沿用用户认可的黑白灰展厅、真实斜向天光和右侧阴影中的同行者。
 
 ## 本章要让玩家带走什么
 
@@ -16,7 +22,7 @@
 - 原书的合数／素数与 tq 系统提供叙事线索。首版用有限数字演示代替完整 tq 操作，避免再让玩家学习一套改写规则。
 - 对白全部原创。首版自行绘制几何轮廓，不直接使用艾舍尔原作扫描。
 
-核对来源：[商务印书馆目录](https://www.cp.com.cn/book/7-100-01323-2_41.html)；[MIT OpenCourseWare 原课程讲义：Chapter III, Figure and Ground（公开镜像 PDF）](https://mitocw.ups.edu.ec/high-school/humanities-and-social-sciences/godel-escher-bach/lecture-notes/MITHFH_geb_v3_9.pdf)。出版社目录用于中文章节名称，课程讲义用于数学主题核对；下面的场景、机制与对白为本展方案。
+核对来源：[商务印书馆目录](https://www.cp.com.cn/book/7-100-01323-2_41.html)；[MIT OpenCourseWare 原课程讲义：Chapter III, Figure and Ground（公开镜像 PDF）](https://opencw.aprende.org/high-school/courses/godel-escher-bach/lecture-notes/geb_v3_9.pdf)。出版社目录用于中文章节名称，课程讲义用于数学主题核对；下面的场景、机制与对白为本展方案。课程讲义仅辅助核对，不把本展的器皿／侧脸造型或数字流程称为原书中的场景。
 
 ## 一条短路线
 
@@ -30,15 +36,31 @@
 
 每段只提供一个主要操作。没有倒计时、失败惩罚、历史列表或隐藏点击点。识别不出错觉时可直接显示轮廓说明，继续后续段落。
 
+## 场景分镜与节奏
+
+| 镜头 | 参考时长 | 构图与灯光 | 操作与反馈 |
+| --- | --- | --- | --- |
+| 过门 | 5 秒 | 第一章规则桌退场，沿原出口方向衔接白色画廊；保留门的比例、斜向天光与人物尺度 | 进入后焦点落在章节标题；减少动态时直接到达 |
+| 共边 | 15–20 秒 | 中右侧薄屏风近正视，深灰双侧脸之间留出器皿；天光照出厚度，避免阴影覆盖关键轮廓 | “看留白”只转移观察重点；细轮廓线提示两种读法，完成后可继续 |
+| 尚未生成 | 20–25 秒 | 屏风退为背景，同一位置出现 2–12 的数字展面；当前关注的 8 有清楚焦点 | 点 8 显示“尚未列出”；“再生成一批”后以短动画呈现 2 × 4 = 8，留白转为已有证据 |
+| 有限检查 | 20–25 秒 | 展面突出 11，保留 8 的乘法证据作对照；两个角色转向展面 | 点“检查 11”，依次显示除以 2、3 均不能整除，随后明确标记“已确认素数”；可立即显示全部结果 |
+| 收束 | 15–25 秒 | 展面保留两条证据，左侧只呈现一个理解问题 | 答对后保存完成状态，提供自由观察、返回与第三章预告；不要求继续生成 |
+
+这些时长用于控制内容量，不作为推进计时器。场景占主要视觉面积，左侧始终只呈现本步一句引导和一个主操作。3D 中的数字与 HTML 控件指向同一逻辑操作；不要求用户点击细小网格。
+
 ## 空间与视觉
 
 延续黑白纸灰、PBR、AO、真实天光和小比例同行者。首版仅增加一面薄屏风与一处数字展面，不增加楼梯、迷宫或复杂园林。
 
 屏风采用原创的“器皿／双侧脸”共边轮廓：先用 SVG 验证两种形状都容易认出，再挤出成低面数几何。两块深灰侧面之间的留白形成器皿，白色后墙提供衬底。按钮只改变轮廓提示与叙述焦点，不增删几何，不把空隙突然实体化。建筑和物体的阴影继续来自场景灯光。
 
+识别镜头保留一个可一键恢复的正视观察位，拖动范围受限，避免大角度透视破坏共边关系。提示线只作阅读辅助，不冒充实体投影；不增加贴在墙上的假阴影、景深或音频控件。数字证据使用文字及下划线／轮廓区别状态，不单靠灰度变化。
+
 数字展面展示有限范围 2–12，避免把 1 错标为素数或合数。深灰表示已有合数生成证据，留白统一表示“尚未列出”，不直接标为素数。
 
 第一批仅显示 4 = 2 × 2、6 = 2 × 3、9 = 3 × 3；下一批显式加入 8 = 2 × 4。这是一个有意只走了部分步骤的生成过程，不能把这两批误称为该范围的完整合数列表。检查 11 使用独立、会结束的试除过程，显示检查 2、3 的结果；“为什么足够”可展开查看。
+
+展开解释为：若 11 有非平凡因数，至少一个不超过 √11；因此只需检查 2 到 ⌊√11⌋ = 3。面板里的“生成进度”与“数学分类”分别存储：11 的素数结论来自试除证据，不能由它在生成批次里缺席推断。2、3、5、7 等未选数字仍显示“尚未列出”，首版不要求完成整张数字表。
 
 人物停在右侧阴影中，阿基里斯先认形、提出猜测，乌龟引导观察。两人每段最多各一句回应，不重复播报。移动端按“短引导 → 场景 → 当前操作”排列，所有操作可用按钮完成。
 
@@ -53,6 +75,10 @@
 | 数字提示 | 8 还没出现。现在能下结论吗？ | 8 has not appeared yet. Can we conclude anything? |
 | 新证据 | 2 × 4 = 8。刚才的留白也能被生成。 | 2 × 4 = 8. The blank can be generated too. |
 | 有限检查 | 检查 11 | Check 11 |
+| 有限检查结果 | 2、3 都不能整除 11，所需检查已完成。 | Neither 2 nor 3 divides 11. All required checks are complete. |
+| 状态区分 | 尚未列出 / 已有合数证据 / 已确认素数 | Not listed yet / Composite evidence found / Confirmed prime |
+| 轮廓帮助 | 没看出来？显示轮廓 | Need a hint? Show the outlines |
+| 第一章过门 | 规则告诉我们什么能出现。没有出现的呢？ | Rules tell us what can appear. What about what has not? |
 | 理解确认 | 8 刚才为什么还是留白？ | Why was 8 blank earlier? |
 | 正确理由 | 它还没被列出。 | It had not been listed yet. |
 | 错误理由 | 留白就说明它是素数。 | Being blank meant it was prime. |
@@ -70,12 +96,44 @@
 
 不要把本演示说成一般不可判定性的证明。素数与合数在这里都能判定；有限窗口的留白也不自动代表无限集合的补集。更深的“可枚举与可判定”区别作为可选阅读线索，首屏不引入这些术语。也不能让视觉上的图底互换改变 MU 的不可达结论。
 
+## 状态、返回与异常
+
+流程状态为 `contour → pending-eight → generated-eight → checked-eleven → reflection → complete`。过门动画使用独立的导航状态，不能自行标记学习步骤完成。
+
+- `contour`：完成两种读法的提示或主动展开轮廓说明后继续。没有图形识别测验。
+- `pending-eight`：按钮和数字 8 的点击等价，都选中同一个待观察数字。再次点击只重读当前说明。
+- `generated-eight`：生成批次只追加一次，保留 `2 × 4` 证据；重复点击不增加动画队列或重复对白。
+- `checked-eleven`：必须产生完整的有限检查记录。提供立即显示结果入口，避免动画或减少动态偏好阻断推进。
+- `reflection`：错误答案就地解释，并保留另一个答案；正确答案才进入 `complete`。两种语言使用相同答案标识。
+- `complete`：收起教学控件；自由观察不清除完成标记，第三章仍进入预告。
+
+新存档键建议 `geb.figure-ground.v1`，保存阶段、批次标识、检查记录和完成标记，不保存 DOM 或 Three.js 对象。恢复时验证阶段所需证据；坏存档退回最后可确认步骤，不能仅凭 `complete: true` 跳过全部依据。读写失败时允许本次体验继续，返回后可重新进入。第一章 `geb.garden.v1` 保持兼容。
+
+Esc 依次关闭帮助、章节地图，再退出本章；焦点回到对应触发按钮。普通返回保留本章阶段，不重置第一章推导。切换语言保留步骤与证据，不重放已结束的角色反应。场景进入失败时，同一份状态和证据驱动 HTML 流程，显示 SVG 轮廓及数字列表，不要求 WebGL 或模型加载成功。
+
+## 素材与实现清单
+
+| 素材或模块 | 制作方式 | 首版约束 |
+| --- | --- | --- |
+| 共边屏风 | 原创 SVG 轮廓，运行时挤出；源文件随仓库保存 | 先验证识别再制作厚度，单件约千级三角面，不新增纹理 |
+| 数字展面 | 复用字体与现有 Three.js 材质，11 个数字 | 保留 HTML 等价入口，不重建整间场景 |
+| 同行者 | 复用现有 GLB、Walk / Look / Idle | 每段至多一次观察反应，不新增自动抱臂触发链 |
+| 空间与照明 | 复用白墙、地面、门洞与天光做局部调整 | 复用现有渲染器和阴影方案，离章恢复原场景状态 |
+| 双语文案 | `figure-ground-copy.js` 集中管理 | 无障碍名称、状态、错误和完成页均覆盖中英文 |
+| 数学与流程 | `figure-ground-system.js` 纯数据逻辑 | 生成记录与分类证据分开；UI 和 3D 共用一份状态 |
+
+`figure-ground.js` 管理 DOM、焦点与交互；`figure-ground-scene.js` 管理几何、拾取和释放资源。显示层不重复实现试除或完成判定。把目前的 `inGarden` 分支收敛为明确的当前章节状态，保留过场锁，避免同时显示两章或快速重复进入。
+
+本章不新增外部模型、照片、扫描页或新的网络依赖。若合并了官网发布适配 PR，新增中文文案后重新生成并核对本地字体子集，再构建发布包；生产更新仍需将验证后的快照同步到 GM 仓库。仅合并本计划不会发布或开放第二章。
+
 ## 实施顺序
 
 - **P0：验证轮廓。** 先完成共边 SVG 和正视预览，确认桌面、手机都能认出器皿及双侧脸。此时再确定挤出厚度与摆位。
 - **P1：静态空间。** 接入屏风、数字展面和已有角色，复用真实天光及阴影；与第一章往返时无漏光或场景残留。
 - **P2：完整短流程。** 建立独立章节状态、生成证据与试除逻辑，接入双语叙述、理解确认、完成保存。
 - **P3：衔接与开放。** 串接第一章完成入口、章节地图、返回、Esc、减少动态与 WebGL 失败路径。通过验收后，才将地图第二章改为开放。
+
+按 P0–P3 顺序实现。P0 若不能同时清楚识别两种读法，先修轮廓与正视构图，不能靠增加说明文字掩盖。P2 完整流程可以先在无 3D 的 HTML 中走通，再联动三维反馈；P3 才修改第一章的“下一章预告”入口与地图可用状态。地图只去掉第二章的置灰，第三至第七章继续置灰，右侧保留原主题文案，不加“未开放”字样。
 
 建议将数字生成及判定逻辑放入 `figure-ground-system.js`，DOM 与叙述放入 `figure-ground.js` / `figure-ground-copy.js`，几何与灯光接入独立的 `figure-ground-scene.js`。实现时把当前仅区分序厅／花园的导航状态扩展为明确的章节状态；保留第一章存档键，第二章单独保存，避免互相覆盖。屏风可直接从 SVG 挤出，无需先生成新人物或购买模型。
 
@@ -88,6 +146,19 @@
 - 中英文、键盘、触屏、390 × 844、减少动态、无 WebGL 均有完整路径。
 - 序厅与第一章的光照、四条规则、推导保存和角色动画保持正常。
 
+验收记录至少包含：
+
+| 类别 | 必查用例 | 通过依据 |
+| --- | --- | --- |
+| 数学单测 | 部分生成中 8 缺席；下一批有合法乘法；11 检查 2、3；输入 1 不被判为素数 | 验证实际证据与停止条件，不只断言展示文案 |
+| 流程单测 | 缺少观察／检查证据不可完成；答错不通关；坏存档降级；重复操作幂等 | 状态转移与恢复结果符合约束 |
+| 桌面浏览器 | 第一章完成 → 第二章完成 → 返回 → 刷新恢复；逐步切换中英文 | 保留两章各自进度，模型、字幕和按钮同步，无控制台错误 |
+| 窄屏与键盘 | 390 × 844、横屏、Tab／Enter／Esc | 主操作可达、无横向溢出，焦点可见且不会落入隐藏章节 |
+| 失败路径 | 无 WebGL、角色加载失败、减少动态、存储不可用 | 从入章到完成均可继续，数学结论不依赖动画回调 |
+| 视觉与回归 | 两种轮廓正视截图、中英文完成页；序厅和第一章往返 | 光束与阴影来自灯光，无场景残留、门洞漏光或重复角色动作 |
+
+实现 PR 附上以上截图与实际验证结果，不把本计划中的目标写成已完成的功能或已通过的测试。
+
 ## English summary
 
-Chapter two uses a shared contour to introduce figure and ground, then links it to generated sets and the evidence needed to classify their complement. A partial composite generator leaves 8 blank before generating it; a separate terminating check establishes that 11 is prime. One short comprehension check completes the chapter. The finite demonstration does not claim that primes are undecidable or that visual inversion changes formal derivability. The room remains unavailable until implemented and verified.
+Chapter two uses a shared contour to introduce figure and ground, then links it to generated sets and the evidence needed to classify their complement. A partial composite generator leaves 8 blank before generating it; a separate terminating check establishes that 11 is prime. One short comprehension check completes the chapter. The finite demonstration does not claim that primes are undecidable or that visual inversion changes formal derivability. The plan now specifies shot timing, independent progress, failure paths, reusable assets, staged implementation and acceptance evidence. This is a documentation-only proposal; the room remains greyed out until implemented and verified.
