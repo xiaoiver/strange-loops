@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 // Blender-authored rigs and baked clips. World routes remain editable here.
 const specifications = [
@@ -8,8 +9,11 @@ const specifications = [
 ];
 
 export async function loadCompanions(scene, reduced, onProject) {
-  const loader=new GLTFLoader(),actors=[];
-  const loaded=await Promise.all(specifications.map(spec=>loader.loadAsync(`assets/characters/${spec.id}.glb?v=idle30`)));
+  const loader=new GLTFLoader(),draco=new DRACOLoader(),actors=[];
+  draco.setDecoderPath('assets/draco/');
+  loader.setDRACOLoader(draco);
+  const loaded=await Promise.all(specifications.map(spec=>loader.loadAsync(`assets/characters/${spec.id}.glb?v=draco1`)));
+  draco.dispose();
   for(const [index,spec] of specifications.entries()){
     const gltf=loaded[index];
     const root=new THREE.Group();root.name=`companion-${spec.id}`;
