@@ -43,4 +43,6 @@ The Blender character project includes rigs, materials, and Idle / Walk / Look a
 
 The vestibule and chapter one are playable. MU Garden includes one-tap rewrites, occurrence selection when needed, animated 3D letters, branching derivation history, a reachable onboarding target, and optional observation hints. Progress survives language changes, lobby visits, and reloads. The rule interface also works without WebGL. Chapter two and later rooms are not yet open.
 
+![English MU Garden screenshot showing the skylight, rule table, and recessed doorway](outputs/strange-loop/docs/screenshots/garden-en.jpg)
+
 The repository does not include the book's full text, cover scans, or images of Escher's works. Dependency and font notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

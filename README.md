@@ -43,4 +43,6 @@ Blender 角色工程包含骨骼、材质及 Idle / Walk / Look 动画。重建�
 
 序厅与第一章可完整体验。WU / MU 花园包含四条一键改写规则、必要时的位置选择、保留分支的推导历史、引导入门的可达目标和同步变化的三维字母，以及逐层展开的观察线索。中英文切换、返回序厅和刷新会保留推导；无 WebGL 也能操作规则。第二章及后续章节尚未开放。
 
+![第一章 WU 花园实机截图：斜向顶光、规则桌与有纵深的门洞](outputs/strange-loop/docs/screenshots/garden.jpg)
+
 项目未包含原书全文、封面扫描或艾舍尔作品图像。依赖及字体声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

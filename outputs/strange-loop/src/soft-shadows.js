@@ -72,7 +72,8 @@ export function applySoftShadows(material, mobile) {
     if (start < 0 || end < 0) throw new Error('Unsupported Three.js shadow shader layout');
     const nativeFilter = original.slice(start, end).replace('#elif defined( SHADOWMAP_TYPE_PCF_SOFT )', '');
     let chunk = original.slice(0, start) + `#elif defined( SHADOWMAP_TYPE_PCF_SOFT )
-      if ( uPcssEnabled > 0.5 ) {
+      // The PCSS distance estimate is orthographic; perspective lights use native PCF.
+      if ( uPcssEnabled > 0.5 && abs( shadowCoord.w - 1.0 ) < 0.0001 ) {
         shadow = gebPCSS( shadowMap, shadowMapSize, shadowCoord.xyz );
       } else {
         ${nativeFilter}

@@ -1,4 +1,4 @@
-import { createHistory, restoreHistory, appendStep, pathTo, occurrences, rewrite, displayWord } from './miu-system.js';
+import { createHistory, restoreHistory, appendStep, pathTo, occurrences, rewrite, rewriteRange, displayWord } from './miu-system.js';
 import { gardenHint } from './garden-hints.js';
 import { GARDEN_COPY } from './garden-copy.js';
 
@@ -22,6 +22,14 @@ export function createGarden(root, { locale: initialLocale, navigation, onWord, 
   const c = () => GARDEN_COPY[locale];
   const word = () => history.nodes[history.current].word;
   const show = value => displayWord(value, locale);
+  function preview(rule, position = occurrences(word(), rule)[0]) {
+    const range = rewriteRange(word(), rule, position);
+    onHighlight(range?.start ?? null, range?.length ?? 0);
+  }
+  function restoreSelection() {
+    if (selected) preview(selected);
+    else onHighlight(null, 0);
+  }
   function save() {
     try { localStorage.setItem(STORAGE, JSON.stringify({ history, practice, hint, seen: [...seen], onboarded: true })); }
     catch { storageAvailable = false; }
@@ -39,7 +47,7 @@ export function createGarden(root, { locale: initialLocale, navigation, onWord, 
   }
   function syncScene(meta = {}) {
     onWord(word(), locale, { ...meta, target: practice ? 'MUIU' : 'MU', path: pathTo(history).map(n => n.word) });
-    onHighlight(null, 0);
+    restoreSelection();
   }
   function commit(rule, position) {
     const previous = word();
@@ -93,7 +101,10 @@ export function createGarden(root, { locale: initialLocale, navigation, onWord, 
             <div class="rule-feedback" aria-hidden="true">${[1, 2, 3, 4].map(r => `<span data-reason="${r}">${t.reasons[r - 1]}</span>`).join('')}</div>
           </div>
           <div class="rewrite-area" aria-live="polite">
-            ${selected ? `<p class="position-prompt">${t.choosePosition}</p><div class="occurrence-list">${matches.map(p => `<button id="g-position-${p}" data-position="${p}" aria-label="${t.position}${p + 1}${t.positionEnd} → ${show(rewrite(current, selected, p))}"><span>${show(current.slice(0, p))}<mark>${show(current.slice(p, p + (selected === 3 ? 3 : 2)))}</mark>${show(current.slice(p + (selected === 3 ? 3 : 2)))}</span><b>→ ${show(shorten(rewrite(current, selected, p)))}</b></button>`).join('')}</div><button id="g-cancel" data-action="cancel">${t.cancel}</button>` : ''}
+            ${selected ? `<p class="position-prompt">${t.choosePosition}</p><div class="occurrence-list">${matches.map(p => {
+              const { start, length } = rewriteRange(current, selected, p);
+              return `<button id="g-position-${p}" data-position="${p}" aria-label="${t.position}${p + 1}${t.positionEnd} → ${show(rewrite(current, selected, p))}"><span>${show(current.slice(0, start))}<mark>${show(current.slice(start, start + length))}</mark>${show(current.slice(start + length))}</span><b>→ ${show(shorten(rewrite(current, selected, p)))}</b></button>`;
+            }).join('')}</div><button id="g-cancel" data-action="cancel">${t.cancel}</button>` : ''}
             ${notice ? `<p class="garden-limit" role="status">${t[notice]}</p>` : ''}
             ${finished ? `<button id="g-challenge" class="garden-primary" data-action="practice">${t.challenge} →</button>` : ''}
           </div>
@@ -148,7 +159,7 @@ export function createGarden(root, { locale: initialLocale, navigation, onWord, 
       if (!matches.length) return;
       if (matches.length === 1) { commit(rule, matches[0]); return; }
       selected = rule; notice = ''; speak('choice', true); render();
-      onHighlight(matches[0], rule === 3 ? 3 : 2); return;
+      preview(rule, matches[0]); return;
     }
     if (button.dataset.position && selected) { commit(selected, Number(button.dataset.position)); return; }
     if (button.dataset.node) { go(Number(button.dataset.node)); return; }
@@ -159,7 +170,7 @@ export function createGarden(root, { locale: initialLocale, navigation, onWord, 
       case 'help-observe':
         helpOpen = false; selected = null; onHighlight(null, 0); historyOpen = true; observation = true; hint = Math.max(1, hint);
         save(); render('g-observe-toggle'); root.querySelector('#g-observation').scrollIntoView({ block: 'nearest' }); break;
-      case 'cancel': selected = null; onHighlight(null, 0); render('g-rule-3'); break;
+      case 'cancel': cancelSelection(); break;
       case 'back': if (history.current) go(history.nodes[history.current].parent); break;
       case 'history': historyOpen = !historyOpen; if (!historyOpen) observation = false; render(); break;
       case 'observe': observation = !observation; render(); break;
@@ -175,15 +186,33 @@ export function createGarden(root, { locale: initialLocale, navigation, onWord, 
       case 'lobby': root.querySelector('dialog')?.close(); onExit(); break;
     }
   }
+  function cancelSelection() {
+    const rule = selected;
+    selected = null; onHighlight(null, 0); render(`g-rule-${rule}`);
+  }
+  function dismiss() {
+    if (selected) { cancelSelection(); return true; }
+    if (helpOpen) { helpOpen = false; render('g-help-toggle'); return true; }
+    if (observation) { observation = false; render('g-observe-toggle'); return true; }
+    if (historyOpen) { historyOpen = false; render('g-history-toggle'); return true; }
+    return false;
+  }
   root.addEventListener('click', handleClick);
   navigation.addEventListener('click', handleClick);
   for (const event of ['pointerover', 'focusin']) root.addEventListener(event, e => {
-    const button = e.target.closest('[data-position]');
-    if (button && selected) onHighlight(Number(button.dataset.position), selected === 3 ? 3 : 2);
+    const button = e.target.closest('[data-position], [data-rule]');
+    if (!button) return;
+    if (button.dataset.rule) preview(Number(button.dataset.rule));
+    else if (selected) preview(selected, Number(button.dataset.position));
+  });
+  for (const event of ['pointerout', 'focusout']) root.addEventListener(event, e => {
+    const button = e.target.closest('[data-position], [data-rule]');
+    if (button && !button.contains(e.relatedTarget)) restoreSelection();
   });
   return {
     show() { render(); syncScene(); root.querySelector('#g-word').focus({ preventScroll: true }); },
     setLocale(value) { locale = value; render(); syncScene(); },
     talk,
+    dismiss,
   };
 }
