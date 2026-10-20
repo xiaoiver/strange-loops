@@ -24,19 +24,19 @@ export function createGardenScene(scene, reduced, { exitWall } = {}) {
   table.scale.setScalar(tableScale);table.rotation.y=Math.PI/2;
 
   // Open the existing wall instead of placing a dark rectangle on its surface.
-  const lobbyWallGeometry = exitWall?.geometry, doorZ=-1.3;
+  const lobbyWallGeometry = exitWall?.geometry, doorZ=-1.3, doorScale=.8;
   let doorwayWallGeometry;
   if (exitWall) {
     exitWall.updateMatrixWorld(true);
     const center=exitWall.worldToLocal(new THREE.Vector3(-3.8,-3.8,doorZ));
-    const left=center.x-.95, right=center.x+.95, floor=center.y, top=floor+3.95;
+    const left=center.x-.95*doorScale, right=center.x+.95*doorScale, floor=center.y, top=floor+3.95*doorScale;
     const shape = new THREE.Shape();
     shape.moveTo(-21,floor);shape.lineTo(left,floor);shape.lineTo(left,top);
     shape.lineTo(right,top);shape.lineTo(right,floor);shape.lineTo(21,floor);
     shape.lineTo(21,21);shape.lineTo(-21,21);shape.closePath();
     doorwayWallGeometry = new THREE.ShapeGeometry(shape);
   }
-  const doorway = new THREE.Group();doorway.position.set(-3.8,0,doorZ);doorway.rotation.y=Math.PI/2;group.add(doorway);
+  const doorway = new THREE.Group();doorway.position.set(-3.8,-3.8*(1-doorScale),doorZ);doorway.scale.setScalar(doorScale);doorway.rotation.y=Math.PI/2;group.add(doorway);
   function doorBox(w,h,d,material,x,y,z){const mesh=box(w,h,d,material,x,y,z);doorway.add(mesh);return mesh;}
   const reveal = new THREE.MeshStandardMaterial({color:0xd7d8d5,roughness:.94});
   const interior = new THREE.MeshStandardMaterial({color:0x646864,roughness:.97,envMapIntensity:.08,fog:false});
