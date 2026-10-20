@@ -6,7 +6,7 @@
   <meta name="description" content="与阿基里斯和乌龟，重访《集异璧》。从 WU 谜题出发，走向递归、自指与缠结的层次。">
   <title>怪圈 · 重访《集异璧》</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e7e7e6'/%3E%3Cpath d='M20 24h40v32H20zM30 14h20v52H30z' fill='none' stroke='%233d3e3d' stroke-width='5'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="style.css?v=idle30">
+  <link rel="stylesheet" href="style.css?v=sculpt7">
 </head>
 <body>
   <div id="world" data-i18n-aria="a11y.world" aria-label="可拖动观察的 G、E、B 三维雕塑与真实投影"></div>
@@ -22,15 +22,24 @@
       <h1 id="hero-title" data-i18n-html="hero">从符号，<br>走向<span class="red">「我」。</span></h1>
       <p class="intro-copy" data-i18n-html="intro">与阿基里斯和乌龟，重访<a class="book-link" href="https://www.cp.com.cn/book/7-100-01323-2_41.html" target="_blank" rel="noopener noreferrer" aria-label="了解《集异璧》：商务印书馆书籍介绍（新标签页打开）" title="了解这本书（新标签页打开）">《集异璧》</a>。</p>
       <button class="enter" id="enter"><span data-i18n="enter">从 WU 开始</span><svg viewBox="0 0 40 20" aria-hidden="true"><path d="M1 10h34m-8-7 8 7-8 7"/></svg></button>
+      <form class="sculpture-form" id="sculpture-form" data-i18n-aria="a11y.sculptureForm" aria-label="自定义三个投影字母">
+        <label class="sr-only" for="sculpture-letters"><span data-i18n="sculpture.label">字母</span></label>
+        <input id="sculpture-letters" name="letters" type="text" inputmode="text" autocomplete="off" spellcheck="false" maxlength="3" required value="GEB" pattern="[A-Za-z]{3}" data-i18n-aria="a11y.sculptureInput" aria-label="三个大写拉丁字母">
+        <button type="submit" id="sculpture-apply" data-i18n="sculpture.apply" data-i18n-aria="a11y.sculptureApply">生成</button>
+        <button class="sculpture-download" type="button" id="sculpture-download-stl" data-i18n-aria="a11y.sculptureDownloadStl" aria-label="下载模型 · STL" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v5h14v-5"/></svg>
+          <span class="download-tooltip" data-i18n="a11y.sculptureDownloadStl" aria-hidden="true">下载模型 · STL</span>
+        </button>
+      </form>
+      <div class="dialogue" aria-live="polite" hidden><span class="speaker" id="speaker">阿基里斯</span><p id="dialogue-text">“G、E、B。三个读法，出自同一件东西？”</p></div>
     </section>
-    <div class="light-tools" data-i18n-aria="a11y.lights" aria-label="投影光源开关"><span data-i18n="lightLabel">光源</span><button data-light="G" aria-pressed="true" aria-label="关闭 G 投影光源">G<i></i></button><button data-light="E" aria-pressed="true" aria-label="关闭 E 投影光源">E<i></i></button><button data-light="B" aria-pressed="true" aria-label="关闭 B 投影光源">B<i></i></button></div>
+    <div class="light-tools" data-i18n-aria="a11y.lights" aria-label="投影光源开关"><span data-i18n="lightLabel">光源</span><button data-light="G" aria-pressed="true" aria-label="关闭 G 投影光源"><b class="slot-letter">G</b><i></i></button><button data-light="E" aria-pressed="true" aria-label="关闭 E 投影光源"><b class="slot-letter">E</b><i></i></button><button data-light="B" aria-pressed="true" aria-label="关闭 B 投影光源"><b class="slot-letter">B</b><i></i></button></div>
     <div class="view-tools" data-i18n-aria="a11y.views" aria-label="选择雕塑观察方向">
       <span class="view-label" data-i18n="viewLabel">视角</span>
-      <div class="view-buttons"><button data-view="G" aria-label="G · 哥德尔：正面观察" aria-pressed="false">G<span data-i18n="names.G">哥德尔</span></button><button data-view="E" aria-label="E · 艾舍尔：侧面观察" aria-pressed="false">E<span data-i18n="names.E">艾舍尔</span></button><button data-view="B" aria-label="B · 巴赫：顶部观察" aria-pressed="false">B<span data-i18n="names.B">巴赫</span></button></div>
+      <div class="view-buttons"><button data-view="G" aria-label="G · 哥德尔：正面观察" aria-pressed="false"><b class="slot-letter">G</b><span class="slot-name" data-i18n="names.G">哥德尔</span></button><button data-view="E" aria-label="E · 艾舍尔：侧面观察" aria-pressed="false"><b class="slot-letter">E</b><span class="slot-name" data-i18n="names.E">艾舍尔</span></button><button data-view="B" aria-label="B · 巴赫：顶部观察" aria-pressed="false"><b class="slot-letter">B</b><span class="slot-name" data-i18n="names.B">巴赫</span></button></div>
       <button class="reset-view" id="reset-view" data-i18n-aria="a11y.reset" aria-label="恢复漫游视角">↗</button>
     </div>
-    <p class="drag-hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V5a2 2 0 0 1 4 0v6m0-3a2 2 0 0 1 4 0v4m0-2a2 2 0 0 1 4 0v5c0 5-2 7-6 7-3 0-4-1-6-4l-3-4c-2-3 1-5 3-1Z"/></svg><span data-i18n="dragHint">拖动探索</span></p>
-    <div class="dialogue" aria-live="polite" hidden><span class="speaker" id="speaker">阿基里斯</span><p id="dialogue-text">“G、E、B。三个读法，出自同一件东西？”</p></div>
+    <p class="drag-hint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V6a1.5 1.5 0 0 1 3 0V4a1.5 1.5 0 0 1 3 0v2a1.5 1.5 0 0 1 3 0v2a1.5 1.5 0 0 1 3 0v7c0 4-2.5 6-6 6h-1c-2 0-3.5-1-4.5-3L4 12c-1-2 1-3 2-1l2 2Z"/><path d="M11 6v6m3-6v6m3-4v5"/></svg><span data-i18n="dragHint">拖动探索</span></p>
     <section class="garden-intro" id="garden-intro" hidden aria-labelledby="garden-title">
       <p class="eyebrow"><span data-i18n="garden.eyebrow">第一章</span> <span class="serif-slash">/</span> <span data-i18n="garden.topic">形式系统</span></p>
       <h2 id="garden-title" data-i18n="garden.title">WU 花园</h2>
@@ -45,8 +54,8 @@
     <ol id="chapter-list"></ol>
     <p class="index-note" data-i18n-html="index.note">序厅已开放，其余章节待续。<br>致敬侯世达《哥德尔、艾舍尔、巴赫：集异璧之大成》。<br>本展对白为原创，非原书引文。</p>
   </aside>
-  <footer class="colophon"><span class="location"><b>00</b><span class="footer-line"></span>序厅</span><div class="utilities"><div class="canon-control"><p id="canon-explanation" hidden></p><button id="canon-preview" aria-pressed="false" aria-label="试听卡农 · 8 秒" aria-describedby="canon-explanation"><span id="canon-symbol" aria-hidden="true">▷</span><span id="canon-label">试听卡农 · 8 秒</span></button></div></div></footer>
+  <footer class="colophon"><span class="location"><b>00</b><span class="footer-line"></span>序厅</span></footer>
   <div id="status" class="sr-only" role="status" aria-live="polite"></div>
   <div id="fallback" hidden><p data-i18n="fallback.title">一件雕塑，三个字母。</p><span>G · E · B</span><p data-i18n="fallback.note">当前设备无法显示三维场景，你仍可前往第一章的入口预告。</p></div>
-  <script src="assets/app.js?v=idle30" defer></script>
+  <script src="assets/app.js?v=sculpt7" defer></script>
 </body></html>

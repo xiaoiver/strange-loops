@@ -7,7 +7,7 @@
 - `geb-companions.blend`：两个带骨骼和权重的角色、材质、摄影棚灯光与相机。
 - `companions-preview.png`：Blender Cycles 渲染预览。
 - `create_characters.py`：可复现的建模、绑定、动画和导出脚本。
-- 网页模型位于 `../strange-loop/assets/characters/achilles.glb` 和 `tortoise.glb`，合计约 1.2 MB。
+- 网页模型位于 `../strange-loop/assets/characters/achilles.glb` 和 `tortoise.glb`，经 Draco 压缩后合计约 220 KB（解码器在 `../strange-loop/assets/draco/`）。从 Blender 重新导出后，在 `../strange-loop` 运行 `npm run compress-characters`。
 
 ## 动作
 

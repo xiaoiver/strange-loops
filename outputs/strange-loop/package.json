@@ -1,1 +1,20 @@
-{"name":"strange-loop-entrance","version":"1.0.0","private":true,"type":"module","scripts":{"build":"esbuild src/main.js --bundle --minify --outfile=assets/app.js","start":"python3 -m http.server 4173"},"dependencies":{"three":"0.180.0","three-bvh-csg":"0.0.17"},"devDependencies":{"esbuild":"0.25.11"}}
+{
+  "name": "strange-loop-entrance",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/main.js --bundle --minify --outfile=assets/app.js && esbuild src/sculpture-worker.js --bundle --minify --format=iife --outfile=assets/sculpture-worker.js",
+    "start": "python3 -m http.server 4173",
+    "sculpture": "node scripts/generate-sculpture.mjs",
+    "compress-characters": "gltf-transform draco assets/characters/achilles.glb assets/characters/achilles.glb --method edgebreaker && gltf-transform draco assets/characters/tortoise.glb assets/characters/tortoise.glb --method edgebreaker"
+  },
+  "dependencies": {
+    "three": "0.180.0",
+    "three-bvh-csg": "0.0.17"
+  },
+  "devDependencies": {
+    "@gltf-transform/cli": "^4.5.1",
+    "esbuild": "0.25.11"
+  }
+}
