@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { playCompanionAnimation as play } from './companion-animation.js';
 
 // Blender-authored rigs and baked clips. World routes remain editable here.
 const specifications = [
@@ -40,14 +41,6 @@ export async function loadCompanions(scene, reduced, onProject) {
     }
     actors.push({...spec,root,mixer,actions,age:0,clipAge:0,current:null,walking:!reduced.matches,
       target:new THREE.Vector3(0,.1,0),from:new THREE.Vector3(spec.from[0],-3.8,spec.from[1]),to:new THREE.Vector3(spec.to[0],-3.8,spec.to[1])});
-  }
-  function play(actor,name){
-    if(actor.current===name)return;
-    const action=actor.actions[name];if(!action)return;
-    actor.actions[actor.current]?.fadeOut(.2);
-    const looping=name==='Walk'||name==='Idle';
-    action.reset().setLoop(looping?THREE.LoopRepeat:THREE.LoopOnce,looping?Infinity:1);
-    action.clampWhenFinished=!looping;action.fadeIn(.35).play();actor.current=name;actor.clipAge=0;
   }
   for(const actor of actors){
     actor.root.position.copy(reduced.matches?actor.to:actor.from);
