@@ -5,11 +5,13 @@ import fontData from 'three/examples/fonts/optimer_regular.typeface.json';
 import { createExhibitFade } from './exhibit-fade.js';
 import { displayWord, rewriteSources } from './miu-system.js';
 
-export function createGardenScene(scene, reduced, { backWall } = {}) {
+export function createGardenScene(scene, reduced, { exitWall } = {}) {
   const group = new THREE.Group(); group.visible = false; scene.add(group);
   const fade = createExhibitFade(group, { anchorY: -3.8, lift: .12, shrink: .018 });
   const font = new FontLoader().parse(fontData), geometries = new Map();
   const plinth = new THREE.MeshStandardMaterial({color:0x505451,roughness:.88});
+  // Cast from the lit surface so the thin plinth's contact shadow stays attached.
+  plinth.shadowSide=THREE.FrontSide;
   const ink = new THREE.MeshStandardMaterial({color:0x252827,roughness:.62});
   const highlight = new THREE.MeshStandardMaterial({color:0xe9eae7,roughness:.68,emissive:0x343634,emissiveIntensity:.35});
   const pale = new THREE.MeshStandardMaterial({color:0xe0e0de,roughness:.9});
@@ -17,50 +19,58 @@ export function createGardenScene(scene, reduced, { backWall } = {}) {
     const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
     mesh.position.set(x,y,z);mesh.castShadow=mesh.receiveShadow=true;group.add(mesh);return mesh;
   }
-  box(4.8,.48,2.8,plinth,1,-3.56,1);
+  const tableScale=.8;
+  const table=box(4.8,.48,2.8,plinth,1,-3.8+.24*tableScale,1);
+  table.scale.setScalar(tableScale);table.rotation.y=Math.PI/2;
 
   // Open the existing wall instead of placing a dark rectangle on its surface.
-  const lobbyWallGeometry = backWall?.geometry;
+  const lobbyWallGeometry = exitWall?.geometry, doorZ=-1.3;
   let doorwayWallGeometry;
-  if (backWall) {
+  if (exitWall) {
+    exitWall.updateMatrixWorld(true);
+    const center=exitWall.worldToLocal(new THREE.Vector3(-3.8,-3.8,doorZ));
+    const left=center.x-.95, right=center.x+.95, floor=center.y, top=floor+3.95;
     const shape = new THREE.Shape();
-    shape.moveTo(-3.8,-3.8);shape.lineTo(-1.55,-3.8);shape.lineTo(-1.55,.15);
-    shape.lineTo(.35,.15);shape.lineTo(.35,-3.8);shape.lineTo(38.2,-3.8);
-    shape.lineTo(38.2,38.2);shape.lineTo(-3.8,38.2);shape.closePath();
+    shape.moveTo(-21,floor);shape.lineTo(left,floor);shape.lineTo(left,top);
+    shape.lineTo(right,top);shape.lineTo(right,floor);shape.lineTo(21,floor);
+    shape.lineTo(21,21);shape.lineTo(-21,21);shape.closePath();
     doorwayWallGeometry = new THREE.ShapeGeometry(shape);
-    doorwayWallGeometry.translate(-backWall.position.x,-backWall.position.y,0);
   }
+  const doorway = new THREE.Group();doorway.position.set(-3.8,0,doorZ);doorway.rotation.y=Math.PI/2;group.add(doorway);
+  function doorBox(w,h,d,material,x,y,z){const mesh=box(w,h,d,material,x,y,z);doorway.add(mesh);return mesh;}
   const reveal = new THREE.MeshStandardMaterial({color:0xd7d8d5,roughness:.94});
   const interior = new THREE.MeshStandardMaterial({color:0x646864,roughness:.97,envMapIntensity:.08,fog:false});
   const darkness = new THREE.MeshStandardMaterial({color:0x101312,roughness:1,envMapIntensity:0,fog:false});
-  box(.16,3.95,1.1,reveal,-1.63,-1.825,-4.365);
-  box(.16,3.95,1.1,reveal,.43,-1.825,-4.365);
-  box(2.22,.16,3.4,reveal,-.6,.23,-5.515);
-  box(.16,3.95,2.3,interior,-1.63,-1.825,-6.065);
-  box(.16,3.95,2.3,interior,.43,-1.825,-6.065);
-  box(1.9,.06,3.4,interior,-.6,-3.8,-5.5);
-  box(1.9,3.95,.1,darkness,-.6,-1.825,-7.2);
-  const target = new THREE.Group(); target.position.set(-.6,.55,-3.72); group.add(target);
+  doorBox(.16,3.95,1.1,reveal,-1.03,-1.825,-.565);
+  doorBox(.16,3.95,1.1,reveal,1.03,-1.825,-.565);
+  doorBox(2.22,.16,3.4,reveal,0,.23,-1.715);
+  doorBox(.16,3.95,2.3,interior,-1.03,-1.825,-2.265);
+  doorBox(.16,3.95,2.3,interior,1.03,-1.825,-2.265);
+  doorBox(1.9,.06,3.4,interior,0,-3.8,-1.7);
+  doorBox(1.9,3.95,.1,darkness,0,-1.825,-3.4);
+  const target = new THREE.Group(); target.position.set(0,.55,.08); doorway.add(target);
 
   // A distant skylight through a real rectangular roof aperture. Its shadow
   // creates one continuous band on the wall and floor, including object shadows.
-  const roofY=5.7, apertureLeft=1.2, apertureRight=5.4;
-  box(apertureLeft+20,.12,40,pale,(-20+apertureLeft)/2,roofY,0);
-  box(20-apertureRight,.12,40,pale,(20+apertureRight)/2,roofY,0);
-  box(apertureRight-apertureLeft,.12,12,pale,(apertureLeft+apertureRight)/2,roofY,-14);
-  box(apertureRight-apertureLeft,.12,11,pale,(apertureLeft+apertureRight)/2,roofY,14.5);
+  const roofY=5.7, apertureBack=-4.31, apertureFront=-.84, apertureCenter=(apertureBack+apertureFront)/2;
+  box(40,.12,apertureBack+20,pale,0,roofY,(-20+apertureBack)/2);
+  box(40,.12,20-apertureFront,pale,0,roofY,(20+apertureFront)/2);
+  box(12,.12,apertureFront-apertureBack,pale,-14,roofY,apertureCenter);
+  box(11,.12,apertureFront-apertureBack,pale,14.5,roofY,apertureCenter);
   const skylight=new THREE.SpotLight(0xf4f4f1,0,80,.48,.16,2);
-  skylight.name='garden-skylight';skylight.position.set(8,22,17);skylight.target.position.set(1,-3.8,-1);
-  skylight.castShadow=true;skylight.visible=false;skylight.shadow.mapSize.set(1024,1024);
-  Object.assign(skylight.shadow.camera,{near:.5,far:65});
-  skylight.shadow.normalBias=.004;skylight.shadow.bias=-.00002;skylight.shadow.radius=3;
+  skylight.name='garden-skylight';skylight.position.set(17,22,-10);skylight.target.position.set(1,-3.8,1);
+  skylight.castShadow=true;skylight.visible=false;skylight.shadow.mapSize.set(2048,2048);
+  // All gallery casters are well beyond eight units; avoid wasting perspective
+  // depth precision near the source, which amplifies bias at the floor.
+  Object.assign(skylight.shadow.camera,{near:8,far:80});
+  skylight.shadow.normalBias=.001;skylight.shadow.bias=-.00001;skylight.shadow.radius=3;
   skylight.shadow.autoUpdate=false;skylight.shadow.camera.name='floor-shadow';
   scene.add(skylight,skylight.target);
   function setPresence(value){
     fade(value);skylight.visible=value>0;skylight.intensity=4000*value;skylight.shadow.needsUpdate=true;
-    if(backWall)backWall.geometry=value>0?doorwayWallGeometry:lobbyWallGeometry;
+    if(exitWall)exitWall.geometry=value>0?doorwayWallGeometry:lobbyWallGeometry;
   }
-  const letters = new THREE.Group();letters.position.set(1,-3.30,1.55);letters.rotation.y=.1;group.add(letters);
+  const letters = new THREE.Group();letters.position.set(1+.55*tableScale,-3.8+.5*tableScale,1);letters.scale.setScalar(tableScale);letters.rotation.y=Math.PI/2-.1;group.add(letters);
   const trails = new THREE.Group();group.add(trails);
   const trailMat=new THREE.MeshBasicMaterial({color:0x777b78,transparent:true,opacity:.65,depthWrite:false});
   let current='',language='',motion=null,ghost=null,goal='',pathKey='';

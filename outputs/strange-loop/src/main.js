@@ -33,7 +33,7 @@ let paused=reduced.matches, inGarden=false, transition=false, currentView='free'
 let scene,renderer,camera,sculpture,clock,raf,composer,ao,fxaa,elapsed=0;
 let companions,gardenScene,fadeSculpture;
 const projectionLights={};
-const gardenFill={G:.32,E:.24,B:.5};
+const gardenFill={G:0,E:0,B:.5};
 let currentLetters=DEFAULT_LETTERS, sculptureBusy=false, graphiteMaterial=null;
 const sculptureWorker=createSculptureWorker('assets/sculpture-worker.js?v=sculpt2');
 const SLOT_ORDER=['G','E','B'];
@@ -208,8 +208,8 @@ async function init(){
   // Three perpendicular receivers. Each is illuminated normally by one collimated source.
   // G falls on z-, E on x-, B on y-. No silhouette textures or compositing.
   plane(42,42,floorMat,17.2,-3.8,17.2,-Math.PI/2);
-  const backWall=plane(42,42,wallMat,17.2,17.2,-3.8);
-  plane(42,42,wallMat,-3.8,17.2,17.2,0,Math.PI/2);
+  plane(42,42,wallMat,17.2,17.2,-3.8);
+  const exitWall=plane(42,42,wallMat,-3.8,17.2,17.2,0,Math.PI/2);
   // An original solid created by intersecting three perpendicular letter extrusions.
   const modelData=await fetch('assets/sculpture.bin?v=smooth4').then(r=>{if(!r.ok)throw Error('sculpture');return r.arrayBuffer()});
   const geometry=binToGeometry(modelData);
@@ -217,7 +217,7 @@ async function init(){
   graphiteMaterial.shadowSide=THREE.DoubleSide;
   for(const material of [graphiteMaterial,floorMat,wallMat])applySoftShadows(material,innerWidth<=760);
   sculpture=new THREE.Mesh(geometry,graphiteMaterial);sculpture.position.y=-.12;sculpture.castShadow=sculpture.receiveShadow=true;scene.add(sculpture);fadeSculpture=createExhibitFade(sculpture);
-  gardenScene=createGardenScene(scene,reduced,{backWall});
+  gardenScene=createGardenScene(scene,reduced,{exitWall});
   garden.setLocale(locale);
   if(inGarden){sculpture.visible=false;gardenScene.setVisible(true);}
   currentLetters=DEFAULT_LETTERS;
@@ -254,7 +254,7 @@ function updateCameraProjection(){
  const progress=stage==='entering'?eased:stage==='returning'?1-eased:inGarden?1:0;
  camera.aspect=innerWidth/innerHeight;
  camera.fov=mobile?THREE.MathUtils.lerp(50,65,progress):36;
- camera.setViewOffset(innerWidth,innerHeight,-innerWidth*(mobile?.035:.16),innerHeight*(mobile?THREE.MathUtils.lerp(-.025,.12,progress):0),innerWidth,innerHeight);
+ camera.setViewOffset(innerWidth,innerHeight,-innerWidth*(mobile?.035:THREE.MathUtils.lerp(.16,.04,progress)),innerHeight*(mobile?THREE.MathUtils.lerp(-.025,.12,progress):0),innerWidth,innerHeight);
  camera.updateProjectionMatrix();
 }
 function resize(){
@@ -326,7 +326,7 @@ for(const id of ['achilles','tortoise'])$(`#meet-${id}`).addEventListener('click
 });
 
 let enterStart=new THREE.Vector3(),enterLookStart=new THREE.Vector3(),enterUpStart=new THREE.Vector3(),gardenTimer;
-const gardenCamera=new THREE.Vector3(10,4.8,15),gardenLook=new THREE.Vector3(1,-1.6,0),lobbyLook=new THREE.Vector3(0,.1,0);
+const gardenCamera=new THREE.Vector3(15,4.8,10),gardenLook=new THREE.Vector3(0,-1.6,1),lobbyLook=new THREE.Vector3(0,.1,0);
 let transitionLights={};
 function beginSceneTransition(entering){
  stage=entering?'entering':'returning';cameraBlend=0;
