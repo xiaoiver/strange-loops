@@ -111,7 +111,7 @@ function syncLetterChrome(){
  const directions={G:locale==='zh'?'正面观察':'front view',E:locale==='zh'?'侧面观察':'side view',B:locale==='zh'?'顶部观察':'top view'};
  for(const b of document.querySelectorAll('[data-view]')){
   const slot=b.dataset.view,letter=displayLetter(slot),plate=letterPlate(letter);
-  const label=currentLetters===DEFAULT_LETTERS&&c.viewAria[slot]?c.viewAria[slot]:`${letter} · ${plate}：${directions[slot]}`;
+  const sep=locale==='zh'?'：':': ';const label=currentLetters===DEFAULT_LETTERS&&c.viewAria[slot]?c.viewAria[slot]:`${letter} · ${plate}${sep}${directions[slot]}`;
   b.setAttribute('aria-label',label);
  }
  for(const b of document.querySelectorAll('[data-light]')){
