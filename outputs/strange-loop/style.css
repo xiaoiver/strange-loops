@@ -53,3 +53,22 @@ html[lang=en] .speaker{width:68px;min-width:0;line-height:1.4}
   html[lang=en] .dialogue{grid-template-columns:52px minmax(0,1fr)}
   html[lang=en] .speaker{width:52px;min-width:0}
 }
+
+.sculpture-form{position:absolute;left:8.2%;top:58%;z-index:3;display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;max-width:280px;pointer-events:auto}
+.sculpture-form label{font-size:10px;letter-spacing:.12em;color:var(--muted)}
+.sculpture-form input{width:88px;height:38px;padding:0 12px;border:1px solid var(--line);background:rgba(231,231,230,.82);font:18px Georgia,serif;letter-spacing:.28em;text-transform:uppercase;text-align:center;color:var(--ink)}
+.sculpture-form input:focus{outline:2px solid var(--red);outline-offset:3px}
+.sculpture-form button[type=submit]{height:38px;padding:0 16px;background:var(--ink);color:var(--paper);font-size:11px;letter-spacing:.12em}
+.sculpture-form button[type=submit]:disabled{opacity:.55}
+.sculpture-hint{flex-basis:100%;margin:0;font-size:9px;letter-spacing:.08em;color:var(--muted);line-height:1.6}
+.light-tools .slot-letter,.view-buttons .slot-letter{font-weight:inherit}
+.view-buttons .slot-letter{font:inherit}
+.view-buttons .slot-name{font:9px -apple-system,sans-serif;letter-spacing:.06em}
+body.entering .sculpture-form{opacity:0;pointer-events:none}
+body.in-garden .sculpture-form{visibility:hidden}
+@media(max-width:760px){
+ .sculpture-form{left:7%;top:auto;bottom:38%;max-width:92%;gap:8px}
+ .sculpture-form input{width:78px;height:34px;font-size:16px}
+ .sculpture-form button[type=submit]{height:34px;padding:0 12px;font-size:10px}
+ .sculpture-hint{font-size:8px}
+}

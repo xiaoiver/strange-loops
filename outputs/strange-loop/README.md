@@ -32,7 +32,9 @@
 
 ## 生成模型
 
-运行 `node scripts/generate-sculpture.mjs`，然后重新构建。模型字形来自 Three.js 示例的 Helvetiker Bold。
+默认雕塑由构建脚本写出：`npm run sculpture`（或 `node scripts/generate-sculpture.mjs [ABC]`），再 `npm run build`。字形来自 Three.js 示例的 Helvetiker Bold（仅拉丁大写）。
+
+序厅提供三字输入框：访客可输入任意 A–Z 三连，在 Web Worker 中用同一套 CSG 求交替换网格，并刷新阴影。分享链接支持 `?s=CAT`；失败（空网格等）会保留当前雕塑并提示。`npm run build` 会同时打包 `assets/app.js` 与 `assets/sculpture-worker.js`。
 
 首屏精简：保留主标题、单句引导和入口；移除重复展签、标签及页脚标语。对白在切换视角或拖动后出现，恢复漫游视角时收起。完整书名和原创对白说明仍在章节地图内。
 

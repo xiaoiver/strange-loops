@@ -10,6 +10,14 @@ import { applySoftShadows } from './soft-shadows.js';
 import { COPY } from './copy.js';
 import { createCanonPlayer, CANON_SECONDS } from './canon.js';
 import { loadCompanions } from './companions.js';
+import {
+ createSculptureWorker,
+ binToGeometry,
+ normalizeLetters,
+ readQueryLetters,
+ writeQueryLetters,
+ DEFAULT_LETTERS,
+} from './sculpture.js';
 
 const $=s=>document.querySelector(s);
 const world=$('#world'),status=$('#status');
@@ -18,6 +26,9 @@ let paused=reduced.matches, inGarden=false, transition=false, currentView='free'
 let scene,renderer,camera,sculpture,clock,raf,composer,ao,fxaa,elapsed=0;
 let companions;
 const projectionLights={};
+let currentLetters=DEFAULT_LETTERS, sculptureBusy=false, graphiteMaterial=null;
+const sculptureWorker=createSculptureWorker('assets/sculpture-worker.js?v=sculpt1');
+const SLOT_ORDER=['G','E','B'];
 const home=new THREE.Vector3(11,14,12),camPos=home.clone(),camGoal=home.clone(),look=new THREE.Vector3(0,.1,0),up=new THREE.Vector3(0,1,0);
 const Y=new THREE.Vector3(0,1,0),UPTOP=new THREE.Vector3(0,0,-1);
 let drag=null,manualAngle=null,autoAngle=0,cameraBlend=0,stage='lobby';
@@ -48,12 +59,8 @@ function renderChapterList(){
 }
 function syncDynamicLabels(){
  const c=COPY[locale];
- for(const b of document.querySelectorAll('[data-view]'))b.setAttribute('aria-label',c.viewAria[b.dataset.view]);
- for(const b of document.querySelectorAll('[data-light]')){
-  const letter=b.dataset.light,on=projectionLights[letter]?.visible??(b.getAttribute('aria-pressed')==='true');b.setAttribute('aria-label',c.lightAria(letter,on));
- }
  syncCanonLabels();
- for(const b of document.querySelectorAll('[data-view],[data-light],#reset-view'))b.title=b.getAttribute('aria-label');
+ syncLetterChrome();
  $('.location').innerHTML=inGarden?c.gardenLocation:c.lobbyLocation;
  updateDialogue();renderChapterList();
  if(lastStatus){const message=c.status[lastStatus.key];status.textContent=typeof message==='function'?message(...lastStatus.args):message;}
@@ -77,6 +84,88 @@ function applyLocale(){
 $('#language-switch').addEventListener('click',()=>{
  locale=locale==='zh'?'en':'zh';try{localStorage.setItem('geb.locale',locale);}catch{}applyLocale();announce('language');
 });
+
+
+function displayLetter(slot){
+ const i=SLOT_ORDER.indexOf(slot);
+ return currentLetters[i]||slot;
+}
+function syncLetterChrome(){
+ const c=COPY[locale];
+ const isGeb=currentLetters===DEFAULT_LETTERS;
+ const input=$('#sculpture-letters');
+ if(input&&document.activeElement!==input)input.value=currentLetters;
+ for(const slot of SLOT_ORDER){
+  const letter=displayLetter(slot);
+  for(const el of document.querySelectorAll(`[data-light="${slot}"] .slot-letter,[data-view="${slot}"] .slot-letter`))el.textContent=letter;
+  const nameEl=document.querySelector(`[data-view="${slot}"] .slot-name`);
+  if(nameEl){
+   nameEl.textContent=isGeb?c.names[slot]:letter;
+   nameEl.hidden=false;
+  }
+ }
+ const directions={G:locale==='zh'?'正面观察':'front view',E:locale==='zh'?'侧面观察':'side view',B:locale==='zh'?'顶部观察':'top view'};
+ for(const b of document.querySelectorAll('[data-view]')){
+  const slot=b.dataset.view,letter=displayLetter(slot);
+  const label=isGeb?c.viewAria[slot]:`${letter} · ${directions[slot]}`;
+  b.setAttribute('aria-label',label);
+ }
+ for(const b of document.querySelectorAll('[data-light]')){
+  const slot=b.dataset.light,letter=displayLetter(slot);
+  const on=projectionLights[slot]?.visible??(b.getAttribute('aria-pressed')==='true');
+  b.setAttribute('aria-label',c.lightAria(letter,on));
+ }
+ for(const b of document.querySelectorAll('[data-view],[data-light],#reset-view'))b.title=b.getAttribute('aria-label')||'';
+ const apply=$('#sculpture-apply');
+ if(apply){
+  apply.disabled=sculptureBusy;
+  apply.textContent=sculptureBusy?c.sculpture.generating:c.sculpture.apply;
+ }
+}
+function refreshShadows(){
+ if(!renderer)return;
+ for(const light of Object.values(projectionLights))if(light?.shadow)light.shadow.needsUpdate=true;
+ renderer.shadowMap.needsUpdate=true;
+}
+function applySculptureBuffer(buffer,letters){
+ const geometry=binToGeometry(buffer);
+ const old=sculpture.geometry;
+ sculpture.geometry=geometry;
+ old?.dispose?.();
+ currentLetters=letters;
+ writeQueryLetters(letters);
+ syncLetterChrome();
+ refreshShadows();
+}
+
+async function requestSculpture(raw,{announceFailure=true}={}){
+ const letters=normalizeLetters(raw);
+ if(!letters){
+  if(announceFailure)announce('sculptureInvalid');
+  syncLetterChrome();
+  return false;
+ }
+ if(letters===currentLetters&&sculpture){
+  writeQueryLetters(letters);
+  syncLetterChrome();
+  announce('sculptureReady',letters);
+  return true;
+ }
+ sculptureBusy=true;syncLetterChrome();announce('sculptureGenerating',letters);
+ try{
+  const {letters:built,buffer}=await sculptureWorker.build(letters);
+  applySculptureBuffer(buffer,built);
+  announce('sculptureReady',built);
+  return true;
+ }catch(error){
+  console.warn('Sculpture generation failed',error);
+  if(announceFailure)announce(error?.message==='invalid'?'sculptureInvalid':error?.message==='worker'||error?.message==='disposed'?'sculptureWorkerFailed':'sculptureFailed');
+  syncLetterChrome();
+  return false;
+ }finally{
+  sculptureBusy=false;syncLetterChrome();
+ }
+}
 
 function seeded(seed){return()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;}}
 function microTexture(){const c=document.createElement('canvas');c.width=c.height=256;const ctx=c.getContext('2d'),im=ctx.createImageData(256,256),rand=seeded(987);for(let i=0;i<im.data.length;i+=4){const n=128+rand()*8;im.data[i]=im.data[i+1]=im.data[i+2]=n;im.data[i+3]=255;}ctx.putImageData(im,0,0);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(4,4);return t;}
@@ -103,13 +192,12 @@ async function init(){
   plane(42,42,wallMat,-3.8,17.2,17.2,0,Math.PI/2);
   // An original solid created by intersecting three perpendicular letter extrusions.
   const modelData=await fetch('assets/sculpture.bin?v=smooth4').then(r=>{if(!r.ok)throw Error('sculpture');return r.arrayBuffer()});
-  const count=new DataView(modelData).getUint32(0,true),quantized=new Int16Array(modelData,4,count*3),positions=new Float32Array(count*3);
-  for(let i=0;i<positions.length;i++)positions[i]=quantized[i]/8192;
-  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));geometry.setAttribute('normal',new THREE.Int16BufferAttribute(new Int16Array(modelData,4+count*6,count*3),3,true));
-  const graphite=new THREE.MeshStandardMaterial({color:0x292c2b,metalness:.18,roughness:.44,bumpMap:tex,bumpScale:.008});
-  graphite.shadowSide=THREE.DoubleSide;
-  for(const material of [graphite,floorMat,wallMat])applySoftShadows(material,innerWidth<=760);
-  sculpture=new THREE.Mesh(geometry,graphite);sculpture.position.y=-.12;sculpture.castShadow=sculpture.receiveShadow=true;scene.add(sculpture);
+  const geometry=binToGeometry(modelData);
+  graphiteMaterial=new THREE.MeshStandardMaterial({color:0x292c2b,metalness:.18,roughness:.44,bumpMap:tex,bumpScale:.008});
+  graphiteMaterial.shadowSide=THREE.DoubleSide;
+  for(const material of [graphiteMaterial,floorMat,wallMat])applySoftShadows(material,innerWidth<=760);
+  sculpture=new THREE.Mesh(geometry,graphiteMaterial);sculpture.position.y=-.12;sculpture.castShadow=sculpture.receiveShadow=true;scene.add(sculpture);
+  currentLetters=DEFAULT_LETTERS;
   const ambient=new THREE.HemisphereLight(0xf4f4f3,0x8c8d8c,.22);scene.add(ambient);
   const lightSet=[['G',[0,0,8],3.4],['E',[8,0,0],2.8],['B',[0,8,0],3.1]];
   for(const [letter,position,intensity]of lightSet){
@@ -129,7 +217,10 @@ async function init(){
    if(position)button.style.transform=`translate(${position.x-22}px,${position.y-24}px)`;
   }).then(value=>{companions=value;renderer.shadowMap.needsUpdate=true;projectionLights.B.shadow.needsUpdate=true;})
     .catch(error=>{console.warn('Companion models unavailable',error);announce('companionsUnavailable');});
- }catch(e){console.error(e);$('#fallback').hidden=false;world.style.display='none';$('.drag-hint').style.display='none';$('.view-tools').style.display='none';document.body.dataset.scene='fallback';announce('fallback');}
+  syncLetterChrome();
+  const queryLetters=readQueryLetters();
+  if(queryLetters&&queryLetters!==DEFAULT_LETTERS)requestSculpture(queryLetters,{announceFailure:true});
+ }catch(e){console.error(e);$('#fallback').hidden=false;world.style.display='none';$('.drag-hint').style.display='none';$('.view-tools').style.display='none';$('.sculpture-form')&&($('.sculpture-form').style.display='none');document.body.dataset.scene='fallback';announce('fallback');}
 }
 
 function resize(){if(!renderer)return;const mobile=innerWidth<=760;renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.fov=mobile?50:36;camera.setViewOffset(innerWidth,innerHeight,-innerWidth*(mobile?.035:.16),-innerHeight*(mobile?.025:0),innerWidth,innerHeight);camera.updateProjectionMatrix();if(composer){composer.setPixelRatio(Math.min(devicePixelRatio,mobile?1.25:1.5));composer.setSize(innerWidth,innerHeight);const dpr=Math.min(devicePixelRatio,mobile?1.25:1.5);fxaa.material.uniforms.resolution.value.set(1/(innerWidth*dpr),1/(innerHeight*dpr));}}
@@ -155,7 +246,7 @@ function tick(){raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta
 function setView(view){if(inGarden||transition)return;currentView=view;manualAngle=null;autoAngle=0;
  for(const b of document.querySelectorAll('[data-view]'))b.setAttribute('aria-pressed',String(b.dataset.view===view));
  if(view==='G')camGoal.set(0,.1,16.5);if(view==='E')camGoal.set(16.5,.1,0);if(view==='B')camGoal.set(0,16.5,.001);if(view==='free')camGoal.copy(home);
- updateDialogue(view);announce('view',view);
+ updateDialogue(view);announce('view',view==='free'?'free':displayLetter(view));
  companions?.react(view);
 }
 for(const button of document.querySelectorAll('[data-view]'))button.addEventListener('click',()=>setView(button.dataset.view));
@@ -196,6 +287,17 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&canonState
 window.addEventListener('pagehide',()=>{if(canonState!=='idle')canon.stop();});
 
 for(const button of document.querySelectorAll('[data-light]'))button.addEventListener('click',()=>{
- const letter=button.dataset.light,light=projectionLights[letter];if(!light)return;light.visible=!light.visible;renderer.shadowMap.needsUpdate=true;button.setAttribute('aria-pressed',String(light.visible));button.setAttribute('aria-label',COPY[locale].lightAria(letter,light.visible));button.title=button.getAttribute('aria-label');announce('light',letter,light.visible);
+ const slot=button.dataset.light,light=projectionLights[slot];if(!light)return;light.visible=!light.visible;renderer.shadowMap.needsUpdate=true;button.setAttribute('aria-pressed',String(light.visible));const shown=displayLetter(slot);button.setAttribute('aria-label',COPY[locale].lightAria(shown,light.visible));button.title=button.getAttribute('aria-label');announce('light',shown,light.visible);
 });
+
+const sculptureForm=$('#sculpture-form'),sculptureInput=$('#sculpture-letters');
+sculptureInput?.addEventListener('input',()=>{
+ sculptureInput.value=sculptureInput.value.toUpperCase().replace(/[^A-Z]/g,'').slice(0,3);
+});
+sculptureForm?.addEventListener('submit',e=>{
+ e.preventDefault();
+ if(sculptureBusy||inGarden||transition)return;
+ requestSculpture(sculptureInput.value);
+});
+
 applyLocale();init();
