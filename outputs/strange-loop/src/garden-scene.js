@@ -68,8 +68,10 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
   box(40,.12,20-apertureFront,pale,0,roofY,(20+apertureFront)/2);
   box(12,.12,apertureFront-apertureBack,pale,-14,roofY,apertureCenter);
   box(11,.12,apertureFront-apertureBack,pale,14.5,roofY,apertureCenter);
-  const skylight=new THREE.SpotLight(0xf4f4f1,0,80,.48,.16,2);
+  const skylight=new THREE.SpotLight(0xf4f4f1,0,80,.48,.16,3);
   skylight.name='garden-skylight';skylight.position.set(17,22,-10);skylight.target.position.set(1,-3.8,1);
+  // Preserve illumination at the floor target while increasing distance contrast.
+  const skylightIntensity=4000*Math.pow(skylight.position.distanceTo(skylight.target.position),skylight.decay-2);
   skylight.castShadow=true;skylight.visible=false;skylight.shadow.mapSize.set(2048,2048);
   // All gallery casters are well beyond eight units; avoid wasting perspective
   // depth precision near the source, which amplifies bias at the floor.
@@ -78,7 +80,7 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
   skylight.shadow.autoUpdate=false;skylight.shadow.camera.name='floor-shadow';
   scene.add(skylight,skylight.target);
   function setPresence(value){
-    fade(value);skylight.visible=value>0;skylight.intensity=4000*value;skylight.shadow.needsUpdate=true;
+    fade(value);skylight.visible=value>0;skylight.intensity=skylightIntensity*value;skylight.shadow.needsUpdate=true;
     if(exitWall){
       exitWall.geometry=value>0?doorwayWallGeometry:lobbyWallGeometry;
       exitWall.material=value>0?doorwayWallMaterial:lobbyWallMaterial;
