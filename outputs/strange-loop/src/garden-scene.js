@@ -4,8 +4,9 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import fontData from 'three/examples/fonts/optimer_regular.typeface.json';
 import { createExhibitFade } from './exhibit-fade.js';
 import { displayWord, rewriteSources } from './miu-system.js';
+import { passageGeometry, applyPassageOcclusion } from './passage-occlusion.js';
 
-export function createGardenScene(scene, reduced, { exitWall } = {}) {
+export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = {}) {
   const group = new THREE.Group(); group.visible = false; scene.add(group);
   const fade = createExhibitFade(group, { anchorY: -3.8, lift: .12, shrink: .018 });
   const font = new FontLoader().parse(fontData), geometries = new Map();
@@ -24,7 +25,11 @@ export function createGardenScene(scene, reduced, { exitWall } = {}) {
   table.scale.setScalar(tableScale);table.rotation.y=Math.PI/2;
 
   // Open the existing wall instead of placing a dark rectangle on its surface.
-  const lobbyWallGeometry = exitWall?.geometry, doorZ=-1.3, doorScale=.8;
+  const lobbyWallGeometry = exitWall?.geometry, lobbyWallMaterial=exitWall?.material;
+  const lobbyWallCastShadow=exitWall?.castShadow, doorZ=-1.3, doorScale=.8;
+  const doorwayWallMaterial=lobbyWallMaterial?.clone();
+  // The gallery wall must occlude light on both sides of the opening.
+  if(doorwayWallMaterial)doorwayWallMaterial.shadowSide=THREE.DoubleSide;
   let doorwayWallGeometry;
   if (exitWall) {
     exitWall.updateMatrixWorld(true);
@@ -37,17 +42,23 @@ export function createGardenScene(scene, reduced, { exitWall } = {}) {
     doorwayWallGeometry = new THREE.ShapeGeometry(shape);
   }
   const doorway = new THREE.Group();doorway.position.set(-3.8,-3.8*(1-doorScale),doorZ);doorway.scale.setScalar(doorScale);doorway.rotation.y=Math.PI/2;group.add(doorway);
-  function doorBox(w,h,d,material,x,y,z){const mesh=box(w,h,d,material,x,y,z);doorway.add(mesh);return mesh;}
+  function doorBox(w,h,d,material,x,y,z,occlusion=true){
+    const mesh=box(w,h,d,material,x,y,z);
+    if(occlusion){mesh.geometry.dispose();mesh.geometry=passageGeometry(w,h,d,x,y,z);}
+    doorway.add(mesh);return mesh;
+  }
   const reveal = new THREE.MeshStandardMaterial({color:0xd7d8d5,roughness:.94});
-  const interior = new THREE.MeshStandardMaterial({color:0x646864,roughness:.97,envMapIntensity:.08,fog:false});
+  const passageFloor=floorMaterial?.clone()||new THREE.MeshStandardMaterial({color:0xd6d6d5,roughness:.84});
+  for(const material of [reveal,passageFloor])applyPassageOcclusion(material);
   const darkness = new THREE.MeshStandardMaterial({color:0x101312,roughness:1,envMapIntensity:0,fog:false});
-  doorBox(.16,3.95,1.1,reveal,-1.03,-1.825,-.565);
-  doorBox(.16,3.95,1.1,reveal,1.03,-1.825,-.565);
-  doorBox(2.22,.16,3.4,reveal,0,.23,-1.715);
-  doorBox(.16,3.95,2.3,interior,-1.03,-1.825,-2.265);
-  doorBox(.16,3.95,2.3,interior,1.03,-1.825,-2.265);
-  doorBox(1.9,.06,3.4,interior,0,-3.8,-1.7);
-  doorBox(1.9,3.95,.1,darkness,0,-1.825,-3.4);
+  // Continuous jambs avoid a painted light/dark seam partway into the passage.
+  const passageDepth=.9;
+  doorBox(.16,3.95,passageDepth,reveal,-1.03,-1.825,-passageDepth/2-.015);
+  doorBox(.16,3.95,passageDepth,reveal,1.03,-1.825,-passageDepth/2-.015);
+  doorBox(2.22,.16,passageDepth,reveal,0,.23,-passageDepth/2-.015);
+  // The threshold meets the hall floor at exactly the same height and finish.
+  doorBox(1.9,.06,passageDepth,passageFloor,0,-3.83,-passageDepth/2);
+  doorBox(1.9,3.95,.1,darkness,0,-1.825,-passageDepth,false);
   const target = new THREE.Group(); target.position.set(0,.55,.08); doorway.add(target);
 
   // A distant skylight through a real rectangular roof aperture. Its shadow
@@ -68,7 +79,11 @@ export function createGardenScene(scene, reduced, { exitWall } = {}) {
   scene.add(skylight,skylight.target);
   function setPresence(value){
     fade(value);skylight.visible=value>0;skylight.intensity=4000*value;skylight.shadow.needsUpdate=true;
-    if(exitWall)exitWall.geometry=value>0?doorwayWallGeometry:lobbyWallGeometry;
+    if(exitWall){
+      exitWall.geometry=value>0?doorwayWallGeometry:lobbyWallGeometry;
+      exitWall.material=value>0?doorwayWallMaterial:lobbyWallMaterial;
+      exitWall.castShadow=value>0?true:lobbyWallCastShadow;
+    }
   }
   const letters = new THREE.Group();letters.position.set(1+.55*tableScale,-3.8+.5*tableScale,1);letters.scale.setScalar(tableScale);letters.rotation.y=Math.PI/2-.1;group.add(letters);
   const trails = new THREE.Group();group.add(trails);

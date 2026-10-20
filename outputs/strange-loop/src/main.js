@@ -217,7 +217,7 @@ async function init(){
   graphiteMaterial.shadowSide=THREE.DoubleSide;
   for(const material of [graphiteMaterial,floorMat,wallMat])applySoftShadows(material,innerWidth<=760);
   sculpture=new THREE.Mesh(geometry,graphiteMaterial);sculpture.position.y=-.12;sculpture.castShadow=sculpture.receiveShadow=true;scene.add(sculpture);fadeSculpture=createExhibitFade(sculpture);
-  gardenScene=createGardenScene(scene,reduced,{exitWall});
+  gardenScene=createGardenScene(scene,reduced,{exitWall,floorMaterial:floorMat});
   garden.setLocale(locale);
   if(inGarden){sculpture.visible=false;gardenScene.setVisible(true);}
   currentLetters=DEFAULT_LETTERS;
