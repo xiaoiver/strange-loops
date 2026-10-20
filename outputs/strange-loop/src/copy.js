@@ -20,7 +20,7 @@ export const COPY = {
     duration: '七段漫游 <span>·</span> 原创对白 <span>·</span> 循原书线索',
     caption: '一体 · 三影<small>ONE OBJECT, THREE SHADOWS</small>',
     lightLabel: '光源', viewLabel: '视角', dragHint: '拖动探索',
-    sculpture: { label: '字母', apply: '生成', hint: '三个大写拉丁字母 · 展签是书中彩蛋 · 可下载 STL / OBJ', generating: '生成中…', downloadStl: 'STL', downloadObj: 'OBJ' },
+    sculpture: { label: '字母', apply: '生成', download: '下载模型', hint: '三个大写拉丁字母 · 展签是书中彩蛋', generating: '生成中…', downloadStl: 'STL', downloadObj: 'OBJ' },
     // Letter plates: GEB cast, cited thinkers, and book-adjacent Easter eggs.
     letterNames: {
       A: '阿基里斯', B: '巴赫', C: '螃蟹', D: '灯神', E: '艾舍尔', F: '费马',
@@ -33,7 +33,7 @@ export const COPY = {
     actors: { achilles: '阿基里斯', tortoise: '乌龟' },
     dialogues: {
       free: ['achilles', '“G、E、B。三个读法，出自同一件东西？”'],
-      G: ['achilles', '“我认出了 G。认出一个符号，就算理解它了吗？”'],
+      G: ['achilles', letter => `“我认出了 ${letter}。认出一个符号，就算理解它了吗？”`],
       E: ['tortoise', '“你认出了形状。它在系统里做什么，还得另说。”'],
       B: ['achilles', '“那就给我几条规则。我想动手试试。”'],
       drag: ['tortoise', '“先试着变换符号。至于意义，我们还会遇到它。”'],
@@ -98,7 +98,7 @@ export const COPY = {
     duration: 'Seven rooms <span>·</span> Original dialogue <span>·</span> Inspired by GEB',
     caption: 'One object, three shadows<small>GÖDEL · ESCHER · BACH</small>',
     lightLabel: 'LIGHTS', viewLabel: 'VIEW', dragHint: 'Drag to explore',
-    sculpture: { label: 'LETTERS', apply: 'Generate', hint: 'Three Latin capitals · nameplates are book Easter eggs · STL / OBJ download', generating: 'Generating…', downloadStl: 'STL', downloadObj: 'OBJ' },
+    sculpture: { label: 'LETTERS', apply: 'Generate', download: 'Download model', hint: 'Three Latin capitals · nameplates are book Easter eggs', generating: 'Generating…', downloadStl: 'STL', downloadObj: 'OBJ' },
     // Letter plates: GEB cast, cited thinkers, and book-adjacent Easter eggs.
     letterNames: {
       A: 'Achilles', B: 'Bach', C: 'Crab', D: 'Djinn', E: 'Escher', F: 'Fermat',
@@ -111,7 +111,7 @@ export const COPY = {
     actors: { achilles: 'Achilles', tortoise: 'Tortoise' },
     dialogues: {
       free: ['achilles', '“G, E, B. Three readings of the same object?”'],
-      G: ['achilles', '“I can read the G. Does that mean I understand it?”'],
+      G: ['achilles', letter => `“I can read the ${letter}. Does that mean I understand it?”`],
       E: ['tortoise', '“You have named the shape. What does it do in a system?”'],
       B: ['achilles', '“Then give me a few rules. I would like to try.”'],
       drag: ['tortoise', '“Try moving symbols first. We will meet meaning again.”'],

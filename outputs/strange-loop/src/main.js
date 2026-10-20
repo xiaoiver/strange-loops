@@ -51,7 +51,7 @@ function announce(key,...args){
  lastStatus={key,args};const message=COPY[locale].status[key];status.textContent=typeof message==='function'?message(...args):message;
 }
 function updateDialogue(key=dialogueKey){
- dialogueKey=key;const [actor,line]=COPY[locale].dialogues[key];$('#speaker').textContent=COPY[locale].actors[actor];$('#dialogue-text').textContent=line;
+ dialogueKey=key;const [actor,line]=COPY[locale].dialogues[key];$('#speaker').textContent=COPY[locale].actors[actor];$('#dialogue-text').textContent=typeof line==='function'?line(displayLetter(key)):line;
  $('.dialogue').hidden=key==='free';
 }
 function renderChapterList(){
@@ -131,7 +131,8 @@ function syncLetterChrome(){
   apply.textContent=sculptureBusy?c.sculpture.generating:c.sculpture.apply;
  }
  const canDownload=canExportSculpture(sculpture)&&!sculptureBusy&&document.body.dataset.scene!=='fallback';
- for(const id of ['sculpture-download-stl','sculpture-download-obj']){
+ if(!canDownload)setDownloadOptions(false);
+ for(const id of ['sculpture-download-toggle','sculpture-download-stl','sculpture-download-obj']){
   const b=$(`#${id}`);
   if(b)b.disabled=!canDownload;
  }
@@ -147,6 +148,7 @@ function applySculptureBuffer(buffer,letters){
  sculpture.geometry=geometry;
  old?.dispose?.();
  currentLetters=letters;
+ updateDialogue();
  writeQueryLetters(letters);
  syncLetterChrome();
  refreshShadows();
@@ -276,7 +278,7 @@ for(const id of ['achilles','tortoise'])$(`#meet-${id}`).addEventListener('click
 
 let enterStart=new THREE.Vector3(),gardenTimer;
 $('#enter').addEventListener('click',()=>{
- if(transition||inGarden)return;transition=true;document.body.classList.add('entering');$('#enter').disabled=true;setIndex(false);
+ if(transition||inGarden)return;setDownloadOptions(false);transition=true;document.body.classList.add('entering');$('#enter').disabled=true;setIndex(false);
  if(canonState!=='idle')canon.stop();
  if(renderer&&camera&&!paused){stage='entering';cameraBlend=0;enterStart.copy(camera.position);}else{gardenTimer=setTimeout(showGarden,paused?20:600);}
  announce('entering');
@@ -313,8 +315,27 @@ sculptureForm?.addEventListener('submit',e=>{
  if(sculptureBusy||inGarden||transition)return;
  requestSculpture(sculptureInput.value);
 });
+function setDownloadOptions(open,{restoreFocus=false}={}){
+ const toggle=$('#sculpture-download-toggle'),options=$('#sculpture-download-options');
+ options.hidden=!open;
+ toggle.setAttribute('aria-expanded',String(open));
+ if(restoreFocus)toggle.focus({preventScroll:true});
+}
+$('#sculpture-download-toggle').addEventListener('click',()=>setDownloadOptions($('#sculpture-download-options').hidden));
+document.addEventListener('pointerdown',e=>{
+ if(!$('#sculpture-downloads').contains(e.target))setDownloadOptions(false);
+});
+$('#sculpture-downloads').addEventListener('focusout',e=>{
+ if(!e.currentTarget.contains(e.relatedTarget))setDownloadOptions(false);
+});
+$('#sculpture-downloads').addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&!$('#sculpture-download-options').hidden){
+  e.preventDefault();e.stopPropagation();setDownloadOptions(false,{restoreFocus:true});
+ }
+});
 function exportSculpture(kind){
  if(sculptureBusy||inGarden||transition||!canExportSculpture(sculpture))return;
+ setDownloadOptions(false,{restoreFocus:true});
  try{
   if(kind==='stl')downloadSculptureSTL(sculpture,currentLetters);
   else downloadSculptureOBJ(sculpture,currentLetters);

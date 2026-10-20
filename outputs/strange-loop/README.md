@@ -34,7 +34,7 @@
 
 默认雕塑由构建脚本写出：`npm run sculpture`（或 `node scripts/generate-sculpture.mjs [ABC]`），再 `npm run build`。字形来自 Three.js 示例的 Helvetiker Bold（仅拉丁大写）。
 
-序厅提供三字输入框：访客可输入任意 A–Z 三连，在 Web Worker 中用同一套 CSG 求交替换网格，并刷新阴影。视角展签按字母显示书中相关彩蛋人名（角色、引用思想家与意象，如螃蟹、蒯因、芝诺）；分享链接支持 `?s=CAT`；失败（空网格等）会保留当前雕塑并提示。当前屏幕上的雕塑可本地下载为二进制 STL / OBJ（本地坐标，便于打印）。`npm run build` 会同时打包 `assets/app.js` 与 `assets/sculpture-worker.js`。
+序厅提供三字输入框：访客可输入任意 A–Z 三连，在 Web Worker 中用同一套 CSG 求交替换网格，并刷新阴影。视角展签按字母显示书中相关彩蛋人名（角色、引用思想家与意象，如螃蟹、蒯因、芝诺）；分享链接支持 `?s=CAT`；失败（空网格等）会保留当前雕塑并提示。点击字母生成区的“下载模型”，再选择 STL / OBJ，即可下载当前屏幕上的雕塑（本地坐标，便于打印）；点击外部或按 Escape 可收起格式选项。`npm run build` 会同时打包 `assets/app.js` 与 `assets/sculpture-worker.js`。
 
 首屏精简：保留主标题、单句引导和入口；移除重复展签、标签及页脚标语。对白在切换视角或拖动后出现，恢复漫游视角时收起。完整书名和原创对白说明仍在章节地图内。
 

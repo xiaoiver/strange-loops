@@ -54,13 +54,21 @@ html[lang=en] .speaker{width:68px;min-width:0;line-height:1.4}
   html[lang=en] .speaker{width:52px;min-width:0}
 }
 
-.sculpture-form{position:absolute;left:8.2%;top:58%;z-index:3;display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;max-width:340px;pointer-events:auto}
+.sculpture-form{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;max-width:420px;margin-top:20px;pointer-events:auto}
+.intro .dialogue{position:static;margin-top:20px;max-width:380px}
 .sculpture-form label{font-size:10px;letter-spacing:.12em;color:var(--muted)}
 .sculpture-form input{width:88px;height:38px;padding:0 12px;border:1px solid var(--line);background:rgba(231,231,230,.82);font:18px Georgia,serif;letter-spacing:.28em;text-transform:uppercase;text-align:center;color:var(--ink)}
 .sculpture-form input:focus{outline:2px solid var(--red);outline-offset:3px}
 .sculpture-form button[type=submit]{height:38px;padding:0 16px;background:var(--ink);color:var(--paper);font-size:11px;letter-spacing:.12em}
 .sculpture-form button[type=submit]:disabled{opacity:.55}
-.sculpture-downloads{display:flex;gap:6px;align-items:center}
+.sculpture-downloads{position:relative}
+#sculpture-download-toggle{display:flex;align-items:center;gap:8px;border-color:transparent;padding:0 4px;white-space:nowrap}
+#sculpture-download-toggle svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.2;transition:transform .15s}
+#sculpture-download-toggle[aria-expanded=true] svg{transform:rotate(180deg)}
+.sculpture-download-options{position:absolute;top:calc(100% + 6px);right:0;z-index:6;min-width:132px;padding:6px;background:var(--paper);border:1px solid var(--line);box-shadow:0 6px 20px #24252514}
+.sculpture-download-options[hidden]{display:none}
+.sculpture-download-options button{display:block;width:100%;text-align:left;border:0!important}
+.sculpture-download-options button:hover{background:#2425250a}
 .sculpture-downloads button{height:38px;padding:0 12px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:10px;letter-spacing:.14em}
 .sculpture-downloads button:hover:not(:disabled){border-color:var(--ink);color:var(--red)}
 .sculpture-downloads button:disabled{opacity:.45;cursor:not-allowed}
@@ -71,9 +79,21 @@ html[lang=en] .speaker{width:68px;min-width:0;line-height:1.4}
 body.entering .sculpture-form{opacity:0;pointer-events:none}
 body.in-garden .sculpture-form{visibility:hidden}
 @media(max-width:760px){
- .sculpture-form{left:7%;top:auto;bottom:38%;max-width:92%;gap:8px}
+ .sculpture-form{position:fixed;left:7%;bottom:40%;max-width:86%;gap:8px;margin-top:0}
+ .sculpture-form label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+ .intro .dialogue{position:fixed;left:7%;margin-top:0;max-width:85%}
  .sculpture-form input{width:78px;height:34px;font-size:16px}
  .sculpture-form button[type=submit]{height:34px;padding:0 12px;font-size:10px}
  .sculpture-downloads button{height:34px;padding:0 10px;font-size:9px}
  .sculpture-hint{font-size:8px}
+}
+
+@media(min-width:761px) and (max-height:650px){
+ .intro{top:14%}
+ .intro h1{font-size:44px;line-height:1.2;margin-bottom:12px}
+ .intro-copy{margin-bottom:16px}
+ .enter{height:44px}
+ .sculpture-form,.intro .dialogue{margin-top:16px}
+ .intro .dialogue{min-height:44px}
+ .intro .dialogue p{font-size:12px}
 }
