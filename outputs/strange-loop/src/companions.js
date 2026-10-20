@@ -12,7 +12,7 @@ export async function loadCompanions(scene, reduced, onProject) {
   const loader=new GLTFLoader(),draco=new DRACOLoader(),actors=[];
   draco.setDecoderPath('assets/draco/');
   loader.setDRACOLoader(draco);
-  const loaded=await Promise.all(specifications.map(spec=>loader.loadAsync(`assets/characters/${spec.id}.glb?v=${spec.id==='tortoise'?'tripo2':'draco1'}`)));
+  const loaded=await Promise.all(specifications.map(spec=>loader.loadAsync(`assets/characters/${spec.id}.glb?v=${spec.id==='tortoise'?'tripo2':'mannequin1'}`)));
   draco.dispose();
   for(const [index,spec] of specifications.entries()){
     const gltf=loaded[index];

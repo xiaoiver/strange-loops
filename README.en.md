@@ -4,7 +4,7 @@
 
 An interactive narrative exhibition in Chinese and English, inspired by *Gödel, Escher, Bach: an Eternal Golden Braid*. The vestibule explores G, E, and B as projections of a single sculpture. Chapter one, MU Garden, lets you rewrite symbols using four formal rules. Achilles and the Tortoise accompany you in both rooms.
 
-Built with Three.js PBR materials, PCSS soft shadows, and GTAO, the vestibule supports drag-to-explore camera controls, three letter views, individual light switches, custom three-letter sculpture generation (`?s=XYZ`), Chinese/English switching, and skeletal idle animations for both characters. The writing is an original tribute. Achilles was modeled in Blender; the Tortoise uses a user-supplied Tripo mesh, optimized and rigged in Blender.
+Built with Three.js PBR materials, PCSS soft shadows, and GTAO, the vestibule supports drag-to-explore camera controls, three letter views, individual light switches, custom three-letter sculpture generation (`?s=XYZ`), Chinese/English switching, and skeletal idle animations for both characters. The writing is an original tribute. Achilles is adapted from POLLO28’s CC BY 4.0 mannequin; the Tortoise uses a user-supplied Tripo mesh. Both were optimized and adapted for animation in Blender. See [asset credits](THIRD_PARTY_NOTICES.md#achilles-mannequin).
 
 ![English vestibule screenshot showing the GEB sculpture, wall shadows, Achilles, and the Tortoise](outputs/strange-loop/docs/screenshots/vestibule-en.jpg)
 

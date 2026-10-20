@@ -91,3 +91,9 @@ This License becomes null and void to the extent applicable to Fonts or Font Sof
 The Font Software may be sold as part of a larger software package but no copy of one or more of the Font Software typefaces may be sold by itself.
 
 THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL MAGENTA OR PERSONS OR BODIES IN CHARGE OF ADMINISTRATION AND MAINTENANCE OF THE FONT SOFTWARE BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM OTHER DEALINGS IN THE FONT SOFTWARE.
+
+## Achilles mannequin
+
+[STYLE Fortnite-creative-mannequin](https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c) by [POLLO28](https://sketchfab.com/POLLO28), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The original author, title, source and license are recorded in the user-supplied GLB metadata.
+
+Adaptations in this project: mesh reduction, removal of unused helper bones and objects, grayscale PBR material, scale normalization, and new idle / walk / look animation adaptation. The source file is preserved as `outputs/characters/source/pollo28-mannequin.glb`; credit is also available in the bilingual chapter map and exported GLB extras.
