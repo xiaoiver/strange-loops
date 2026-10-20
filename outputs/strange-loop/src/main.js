@@ -20,7 +20,6 @@ import {
 import {
  canExportSculpture,
  downloadSculptureSTL,
- downloadSculptureOBJ,
 } from './sculpture-export.js';
 
 const $=s=>document.querySelector(s);
@@ -116,10 +115,7 @@ function syncLetterChrome(){
   apply.textContent=sculptureBusy?c.sculpture.generating:c.sculpture.apply;
  }
  const canDownload=canExportSculpture(sculpture)&&!sculptureBusy&&!inGarden&&!transition&&document.body.dataset.scene!=='fallback';
- for(const id of ['sculpture-download-stl','sculpture-download-obj']){
-  const b=$(`#${id}`);
-  if(b)b.disabled=!canDownload;
- }
+ $('#sculpture-download-stl').disabled=!canDownload;
 }
 function refreshShadows(){
  if(!renderer)return;
@@ -293,18 +289,16 @@ sculptureForm?.addEventListener('submit',e=>{
  if(sculptureBusy||inGarden||transition)return;
  requestSculpture(sculptureInput.value);
 });
-function exportSculpture(kind){
+function exportSculpture(){
  if(sculptureBusy||inGarden||transition||!canExportSculpture(sculpture))return;
  try{
-  if(kind==='stl')downloadSculptureSTL(sculpture,currentLetters);
-  else downloadSculptureOBJ(sculpture,currentLetters);
+  downloadSculptureSTL(sculpture,currentLetters);
   announce('sculptureExportReady',currentLetters);
  }catch(error){
   console.warn('Sculpture export failed',error);
   announce('sculptureExportFailed');
  }
 }
-$('#sculpture-download-stl')?.addEventListener('click',()=>exportSculpture('stl'));
-$('#sculpture-download-obj')?.addEventListener('click',()=>exportSculpture('obj'));
+$('#sculpture-download-stl')?.addEventListener('click',exportSculpture);
 
 applyLocale();init();

@@ -1,9 +1,7 @@
 import * as THREE from 'three';
 import { STLExporter } from 'three/addons/exporters/STLExporter.js';
-import { OBJExporter } from 'three/addons/exporters/OBJExporter.js';
 
 const stlExporter = new STLExporter();
-const objExporter = new OBJExporter();
 
 function fileStem(letters) {
   const safe = String(letters || 'GEB').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3) || 'GEB';
@@ -41,12 +39,4 @@ export function downloadSculptureSTL(mesh, letters) {
   const data = stlExporter.parse(temp, { binary: true });
   const blob = new Blob([data], { type: 'model/stl' });
   triggerDownload(blob, `${fileStem(letters)}.stl`);
-}
-
-/** Wavefront OBJ of the live mesh geometry in local space. */
-export function downloadSculptureOBJ(mesh, letters) {
-  const temp = localMesh(mesh);
-  const data = objExporter.parse(temp);
-  const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
-  triggerDownload(blob, `${fileStem(letters)}.obj`);
 }

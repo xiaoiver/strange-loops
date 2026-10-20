@@ -10,7 +10,7 @@ export const COPY = {
       chapterIndex: '七段漫游的章节地图', closeIndex: '关闭章节地图', target: '目标字符串 WU',
       talkAchilles: '与阿基里斯交谈', talkTortoise: '与乌龟交谈',
       sculptureForm: '自定义三个投影字母', sculptureInput: '三个大写拉丁字母', sculptureApply: '生成雕塑',
-      sculptureDownloadStl: '下载模型 · STL', sculptureDownloadObj: '下载当前雕塑为 OBJ',
+      sculptureDownloadStl: '下载模型 · STL',
     },
     edition: 'GÖDEL, ESCHER, BACH <i>／</i> 重访《集异璧》',
     menu: '章节', eyebrow: '序厅', room: '三重投影',
@@ -20,7 +20,7 @@ export const COPY = {
     duration: '七段漫游 <span>·</span> 原创对白 <span>·</span> 循原书线索',
     caption: '一体 · 三影<small>ONE OBJECT, THREE SHADOWS</small>',
     lightLabel: '光源', viewLabel: '视角', dragHint: '拖动探索',
-    sculpture: { label: '字母', apply: '生成', export: '模型导出', generating: '生成中…', downloadObj: '下载 OBJ' },
+    sculpture: { label: '字母', apply: '生成', generating: '生成中…' },
     // Letter plates: GEB cast, cited thinkers, and book-adjacent Easter eggs.
     letterNames: {
       A: '阿基里斯', B: '巴赫', C: '螃蟹', D: '灯神', E: '艾舍尔', F: '费马',
@@ -86,7 +86,7 @@ export const COPY = {
       chapterIndex: 'Map of the seven rooms', closeIndex: 'Close the chapter map', target: 'Target string MU',
       talkAchilles: 'Talk to Achilles', talkTortoise: 'Talk to the Tortoise',
       sculptureForm: 'Custom three projection letters', sculptureInput: 'Three uppercase Latin letters', sculptureApply: 'Generate sculpture',
-      sculptureDownloadStl: 'Download model · STL', sculptureDownloadObj: 'Download the current sculpture as OBJ',
+      sculptureDownloadStl: 'Download model · STL',
     },
     edition: 'GÖDEL, ESCHER, BACH <i>/</i> AN INTERACTIVE HOMAGE',
     menu: 'Rooms', eyebrow: 'VESTIBULE', room: 'THREE PROJECTIONS',
@@ -96,7 +96,7 @@ export const COPY = {
     duration: 'Seven rooms <span>·</span> Original dialogue <span>·</span> Inspired by GEB',
     caption: 'One object, three shadows<small>GÖDEL · ESCHER · BACH</small>',
     lightLabel: 'LIGHTS', viewLabel: 'VIEW', dragHint: 'Drag to explore',
-    sculpture: { label: 'LETTERS', apply: 'Generate', export: 'Model export', generating: 'Generating…', downloadObj: 'Download OBJ' },
+    sculpture: { label: 'LETTERS', apply: 'Generate', generating: 'Generating…' },
     // Letter plates: GEB cast, cited thinkers, and book-adjacent Easter eggs.
     letterNames: {
       A: 'Achilles', B: 'Bach', C: 'Crab', D: 'Djinn', E: 'Escher', F: 'Fermat',
