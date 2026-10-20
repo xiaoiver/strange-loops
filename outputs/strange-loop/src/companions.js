@@ -60,8 +60,11 @@ export async function loadCompanions(scene, reduced, onProject) {
     setSpace(space){
       for(const [index,actor] of actors.entries()){
         actor.from.copy(actor.root.position);
-        const destination=space==='garden' ? (index===0?[3.8,-.2]:[4.5,-.4]) : specifications[index].to;
+        const destination=space==='garden' ? (index===0?[1.8,-2.65]:[2.6,-2.45]) : specifications[index].to;
         actor.to.set(destination[0],-3.8,destination[1]);
+        // The garden's architecture shades the companions; keep lobby letter
+        // projections off their surfaces when returning to the vestibule.
+        actor.root.traverse(mesh=>{if(mesh.isMesh)mesh.receiveShadow=space==='garden';});
         actor.age=0;actor.walking=!reduced.matches;
         actor.target.set(space==='garden'?1.9:0,space==='garden'?-3:.1,0);
         if(reduced.matches)actor.root.position.copy(actor.to);
