@@ -8,6 +8,13 @@
 
 ![序厅实机截图：GEB 雕塑、墙面投影与阿基里斯和乌龟](outputs/strange-loop/docs/screenshots/vestibule.jpg)
 
+## 模型来源
+
+- **阿基里斯**：采用 POLLO28 的 [STYLE Fortnite-creative-mannequin](https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c)，许可为 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)。本项目进行了减面、材质调整和动作适配。
+- **乌龟**：由用户使用 **Tripo 生成**，随后在 Blender 中清理、减面、绑定骨骼并适配动画。
+
+原始模型与可编辑工程均保留，详见[角色文档](outputs/characters/README.md)和[素材声明](THIRD_PARTY_NOTICES.md)。
+
 ## 本地预览
 
 仓库已包含构建后的网页与模型，无需安装依赖即可预览：
