@@ -31,7 +31,7 @@
 @media(max-width:760px) and (max-height:700px){.intro,html:not([lang="zh-CN"]) .intro{top:15%}}
 
 /* Invisible, keyboard-accessible hit areas follow the two 3D companions. */
-#companion-controls{position:absolute;inset:0;z-index:4;pointer-events:none}.character-button{position:absolute;top:0;left:0;width:44px;height:52px;pointer-events:auto;border-radius:3px}.character-button[hidden]{display:none}.character-button span{position:absolute;left:50%;bottom:calc(100% + 5px);transform:translateX(-50%);white-space:nowrap;font-size:10px;letter-spacing:.05em;color:var(--ink);opacity:0;transition:opacity .15s}.character-button:hover span,.character-button:focus-visible span{opacity:1}body.entering #companion-controls,body.in-garden #companion-controls{visibility:hidden}
+#companion-controls{position:absolute;inset:0;z-index:4;pointer-events:none}.character-button{position:absolute;top:0;left:0;width:44px;height:52px;pointer-events:auto;border-radius:3px}.character-button[hidden]{display:none}body.entering #companion-controls,body.in-garden #companion-controls{visibility:hidden}
 
 /* The three existing view controls also introduce the names behind GEB. */
 .view-tools{right:19%;gap:12px}.view-label{display:none}.view-buttons{gap:8px}.view-buttons button{flex-direction:column;justify-content:center;gap:7px;min-width:70px;padding:10px 14px 13px;line-height:1}.view-buttons button span{display:block;font:11px/1.2 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;letter-spacing:.06em;color:var(--muted)}.view-buttons button:hover span,.view-buttons button[aria-pressed=true] span{color:var(--ink)}
