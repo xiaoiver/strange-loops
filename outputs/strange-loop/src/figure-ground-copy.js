@@ -10,7 +10,6 @@ export const FIGURE_COPY = {
     "next": "下一章预告 →",
     "preview": "和声小迷宫",
     "close": "关闭",
-    "contact": "器皿与侧脸，共用同一条边界。",
     "toContour": "走向共边墙",
     "toPosters": "走向海报",
     "dialogue": [
@@ -30,7 +29,6 @@ export const FIGURE_COPY = {
     "next": "Next chapter preview →",
     "preview": "Little Harmonic Labyrinth",
     "close": "Close",
-    "contact": "Vessel and faces share the same boundary.",
     "toContour": "Walk to the shared contour",
     "toPosters": "Walk to the posters",
     "dialogue": [
@@ -50,7 +48,6 @@ export const FIGURE_COPY = {
     "next": "次章の予告 →",
     "preview": "小さな和声の迷宮",
     "close": "閉じる",
-    "contact": "花瓶と横顔は同じ境界を共有する。",
     "toContour": "共通の輪郭の壁へ",
     "toPosters": "ポスターへ",
     "dialogue": [
@@ -70,7 +67,6 @@ export const FIGURE_COPY = {
     "next": "다음 장 미리보기 →",
     "preview": "작은 화성의 미로",
     "close": "닫기",
-    "contact": "꽃병과 두 얼굴은 같은 경계를 공유합니다.",
     "toContour": "공유 윤곽 벽으로",
     "toPosters": "포스터로",
     "dialogue": [
@@ -90,7 +86,6 @@ export const FIGURE_COPY = {
     "next": "Aperçu du chapitre suivant →",
     "preview": "Petit labyrinthe harmonique",
     "close": "Fermer",
-    "contact": "Vase et visages partagent la même frontière.",
     "toContour": "Aller au contour commun",
     "toPosters": "Aller aux affiches",
     "dialogue": [
@@ -110,7 +105,6 @@ export const FIGURE_COPY = {
     "next": "Vorschau auf das nächste Kapitel →",
     "preview": "Kleines harmonisches Labyrinth",
     "close": "Schließen",
-    "contact": "Vase und Gesichter teilen dieselbe Grenze.",
     "toContour": "Zur gemeinsamen Kontur gehen",
     "toPosters": "Zu den Plakaten gehen",
     "dialogue": [
@@ -130,7 +124,6 @@ export const FIGURE_COPY = {
     "next": "Avance del siguiente capítulo →",
     "preview": "Pequeño laberinto armónico",
     "close": "Cerrar",
-    "contact": "El jarrón y los rostros comparten el mismo límite.",
     "toContour": "Ir al contorno compartido",
     "toPosters": "Ir a los carteles",
     "dialogue": [

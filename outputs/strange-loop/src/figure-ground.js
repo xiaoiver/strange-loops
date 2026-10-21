@@ -23,7 +23,6 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
       <div class="figure-fallback" aria-hidden="true" ${isPoster ? 'hidden' : ''}><img src="assets/art/rubin-contour.svg" alt=""></div>
       <div class="figure-reading" ${isPoster ? 'hidden' : ''}>
         <div class="dialogue figure-dialogue" aria-live="polite" aria-atomic="true"><span class="speaker">${COPY[locale].actors[actor]}</span><p>${t.dialogue[index]}</p></div>
-        ${stage === 'ground' ? `<p class="figure-caption">${t.contact}</p>` : ''}
       </div>
       <div class="figure-action"><button class="figure-primary" id="fg-primary" data-fg="${primary[0]}">${primary[1]} <span aria-hidden="true">${primary[0] === 'poster' ? '←' : '→'}</span></button></div>
       <aside class="figure-notes">

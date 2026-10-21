@@ -9,7 +9,6 @@ html:not([lang="zh-CN"]) .figure-heading h2{font-family:var(--exhibit-serif);fon
 .figure-reading{position:absolute;left:8.2%;bottom:17%;width:26%;max-width:380px;max-height:29%;overflow:auto;scrollbar-width:thin;pointer-events:auto}
 .figure-dialogue{position:static!important;bottom:auto!important;max-width:none;min-height:0!important;margin:0;grid-template-columns:23px minmax(0,1fr);column-gap:16px}
 .figure-dialogue p{font:15px/1.85 "Strange Loops Serif SC",serif;letter-spacing:.03em;margin:0}
-.figure-caption{font-size:11px;line-height:1.9;color:var(--muted);margin:14px 0 0}
 .figure-action{position:absolute;left:56%;bottom:14%;transform:translateX(-50%);pointer-events:auto}
 .figure-primary{display:flex;align-items:center;justify-content:space-between;gap:36px;min-height:48px;padding:13px 24px;border:1px solid var(--ink);background:var(--paper);font-size:12px;letter-spacing:.06em;transition:background .15s,color .15s}
 .figure-primary:hover,.figure-primary:focus-visible{background:var(--ink);color:var(--paper)}.figure-primary:active{transform:translateY(1px)}
@@ -26,7 +25,7 @@ body[data-scene=fallback].in-figure #fallback{display:none}
  .figure-heading{left:7%;top:12%;max-width:86%}.figure-heading>p{font-size:9px;margin-bottom:10px}.figure-heading h2{font-size:29px}
  .figure-reading{left:7%;bottom:25%;width:86%;max-width:none;max-height:25%;overflow:auto;scrollbar-width:thin}
  .figure-dialogue p{font-size:13px;line-height:1.75}.figure-dialogue,html:not([lang="zh-CN"]) .figure-dialogue{position:static;max-width:none;grid-template-columns:50px minmax(0,1fr)}
- html[lang="zh-CN"] .figure-dialogue{grid-template-columns:20px minmax(0,1fr)}.figure-caption{margin-top:8px;font-size:10px}
+ html[lang="zh-CN"] .figure-dialogue{grid-template-columns:20px minmax(0,1fr)}
  .figure-action{left:50%;bottom:13%;width:max-content;max-width:86%}.figure-primary{min-height:48px;max-width:100%;gap:24px;padding:12px 20px;font-size:12px}
  .figure-notes{left:7%;top:22%;width:86%;max-width:none;max-height:16%;font-size:11px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:0 18px}
  .figure-notes .figure-link{font-size:9px;min-height:36px}.figure-note-copy{flex-basis:100%;font-size:12px;margin-bottom:8px}

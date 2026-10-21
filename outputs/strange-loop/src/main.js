@@ -37,7 +37,7 @@ import {
 const $=s=>document.querySelector(s);
 const world=$('#world'),status=$('#status'),loading=window.exhibitLoading;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-let paused=reduced.matches, inGarden=false, currentChapter=0, transition=false, currentView='free';
+let paused=reduced.matches, inGarden=false, keepGardenPositions=false, currentChapter=0, transition=false, currentView='free';
 const lobbySurfaces=[];let figureScene,figureArea='';
 let scene,renderer,camera,sculpture,clock,raf,composer,ao,fxaa,elapsed=0;
 let companions,gardenScene,fadeSculpture;
@@ -284,7 +284,7 @@ async function init(){
   const companionReady=loadCompanions(scene,reduced,(id,position)=>{
    const button=$(`#meet-${id}`);button.hidden=!position;
    if(position)button.style.transform=`translate(${position.x-22}px,${position.y-24}px)`;
-  }).then(value=>{companions=value;if(inGarden||stage==='entering')companions.setSpace('garden');renderer.shadowMap.needsUpdate=true;projectionLights.B.shadow.needsUpdate=true;})
+  }).then(value=>{companions=value;if(inGarden||stage==='entering')companions.setSpace('garden',{keepPosition:keepGardenPositions});renderer.shadowMap.needsUpdate=true;projectionLights.B.shadow.needsUpdate=true;})
     .catch(error=>{console.warn('Companion models unavailable',error);announce('companionsUnavailable');});
   const companionsReady=within(companionReady).catch(error=>{console.warn('Companion loading timed out',error);announce('companionsUnavailable');});
   const queryLetters=readQueryLetters();
@@ -389,7 +389,7 @@ let transitionLights={};
 function beginSceneTransition(entering){
  stage=entering?'entering':'returning';cameraBlend=0;
  enterStart.copy(camera.position);enterLookStart.copy(look);enterUpStart.copy(camera.up);
- gardenScene?.settle();companions?.setSpace(entering?'garden':'lobby');
+ gardenScene?.settle();companions?.setSpace(entering?'garden':'lobby',{keepPosition:keepGardenPositions});
  transitionLights={};
  for(const [id,light] of Object.entries(projectionLights)){
   const lobbyOn=$(`[data-light="${id}"]`).getAttribute('aria-pressed')==='true';
@@ -404,16 +404,17 @@ function finishSceneEffects(){
 }
 function enterGarden(){
  if(transition||inGarden)return;
+ keepGardenPositions=currentChapter===0;
  if(currentChapter===2)leaveFigure();transition=true;document.body.classList.add('entering');$('#enter').disabled=true;setIndex(false);
  if(document.body.dataset.scene==='ready'&&renderer&&camera&&!paused){beginSceneTransition(true);}else{gardenTimer=setTimeout(showGarden,paused?20:600);}
  announce('entering');
 }
 $('#enter').addEventListener('click',enterGarden);
 function showGarden(){
- const walkedIn=stage==='entering';
+ const transitionedIn=stage==='entering';
  inGarden=true;currentChapter=1;transition=false;stage='garden';document.body.classList.add('in-garden');document.body.classList.remove('entering');
  $('.intro').inert=true;$('#garden-intro').hidden=false;
- fadeSculpture?.(0);gardenScene?.setVisible(true);if(!walkedIn)companions?.setSpace('garden');finishSceneEffects();
+ fadeSculpture?.(0);gardenScene?.setVisible(true);if(!transitionedIn)companions?.setSpace('garden',{keepPosition:keepGardenPositions});finishSceneEffects();
  if(camera){camera.position.copy(gardenCamera);camera.up.copy(Y);look.copy(gardenLook);camera.lookAt(look);}
  // A chapter remains lit even if all sculpture projection lights were switched off.
  for(const light of Object.values(projectionLights))light.visible=true;
@@ -431,14 +432,14 @@ function backLobby(){
  finishLobby();
 }
 function finishLobby(){
- const walkedBack=stage==='returning';
+ const transitionedBack=stage==='returning';
  clearTimeout(gardenTimer);inGarden=false;currentChapter=0;transition=false;
  $('#garden-intro').hidden=true;$('.intro').inert=false;
  document.body.classList.remove('entering','in-garden','returning');$('#garden-intro').inert=false;$('#chapter-navigation').inert=false;$('#enter').disabled=false;
  currentView='free';camGoal.copy(home);camPos.copy(home);look.set(0,.1,0);up.copy(Y);
  manualAngle=null;stage='lobby';dialogueKey='free';
  fadeSculpture?.(1);
- gardenScene?.setVisible(false);if(!walkedBack)companions?.setSpace('lobby');setGardenLighting(false);finishSceneEffects();
+ gardenScene?.setVisible(false);if(!transitionedBack)companions?.setSpace('lobby',{keepPosition:keepGardenPositions});setGardenLighting(false);finishSceneEffects();
  if(camera){camera.position.copy(home);camera.up.copy(Y);camera.lookAt(look);}
  for(const button of document.querySelectorAll('[data-light]')){
   const light=projectionLights[button.dataset.light];
@@ -474,7 +475,7 @@ function enterFigure(){
 function showFigure(arriving=false){
  setIndex(false);gardenScene?.settle();gardenScene?.setVisible(false);
  $('#garden-intro').hidden=true;$('.intro').inert=true;
- inGarden=false;currentChapter=2;stage='figure';drag=null;
+ inGarden=false;keepGardenPositions=false;currentChapter=2;stage='figure';drag=null;
  fadeSculpture?.(0);figureScene?.setVisible(true);
  for(const surface of lobbySurfaces)surface.visible=false;
  for(const light of Object.values(projectionLights))light.visible=false;
