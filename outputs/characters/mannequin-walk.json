@@ -1,0 +1,10 @@
+{
+  "model_cycle_distance": 1.05,
+  "web_cycle_distance": 0.63,
+  "seconds": 1.2,
+  "stance_fraction": 0.62,
+  "frames": 37,
+  "glb_bytes": 243868,
+  "minimum_clearance": 0.00011786160757765174,
+  "maximum_clearance": 0.0005178472492843866
+}

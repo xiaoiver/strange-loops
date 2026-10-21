@@ -4,7 +4,7 @@
 
 ## 当前文件
 
-- `geb-companions-mannequin.blend`：当前双人可编辑工程，包含人偶、低模乌龟、骨架、材质、三套动作与摄影棚。默认显示 Idle 第一帧。
+- `geb-companions-walk.blend`：当前双人可编辑工程，包含人偶、低模乌龟、骨架、材质、三套动作与摄影棚。默认显示 Idle 第一帧。
 - `optimize_mannequin.py`、`mannequin-optimization.json`、`mannequin-preview.png`：人偶优化与动作适配脚本、统计和 Cycles 双人预览。
 - `source/pollo28-mannequin.glb`：未修改的人偶原文件，保留作者与许可元数据。
 - `source/achilles-prototype-animated.glb`：替换前的本地建模角色备份。
@@ -22,13 +22,13 @@
 
 [STYLE Fortnite-creative-mannequin](https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c) by [POLLO28](https://sketchfab.com/POLLO28)，[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)。原始 GLB 约 2.30 MB，包含 89 根骨骼、9,324 面主体与一个极小辅助网格。当前移除无用对象和辅助骨骼，主体保留 5,000 面、3,704 个源顶点和 73 根骨骼；继续使用原蒙皮，限制每顶点最多四个权重并重新归一化。材质改为浅灰哑光 PBR，粗糙度 0.82、金属度 0。
 
-保留原抱臂姿态并重新制作安静的 Idle、原地 Walk 和 Look；行走使用放松下垂的双臂，逐帧校正最低支撑足的高度。删除动画中重复的常量关键帧，再用 Draco 压缩网格，最终 GLB 约 241 KB（含完整三套动作）。作者、来源、许可与修改说明保存在 GLB extras、网页的中英文章节地图和 THIRD_PARTY_NOTICES.md。
+保留原抱臂姿态并重新制作安静的 Idle、原地 Walk 和 Look；行走使用放松下垂的双臂，步行使用双骨骼 IK 烘焙落脚、脚跟／脚尖滚动、骨盆重心变化与反向摆臂。删除动画中重复的常量关键帧，再用 Draco 压缩网格，最终 GLB 约 244 KB（含完整三套动作）。作者、来源、许可与修改说明保存在 GLB extras、网页的中英文章节地图和 THIRD_PARTY_NOTICES.md。
 
 ## 动作与比例
 
 每位角色有 `Idle`、`Walk`、`Look` 三套动画。网页单独控制行走路线，片段为原地动作，避免重复位移。新乌龟用空间权重绑定到现有骨架，龟壳、头和四肢分别控制；头部与四肢动作幅度适当降低，避免连续生成网格在接缝处过度拉伸。
 
-当前工程默认显示 Idle 的第一帧。各动作保存在骨架的 Action 中，可切换后播放。阿基里斯高约 2.5 个 Blender 单位，乌龟高 0.69；网页分别以 0.60 和 0.46 的比例放入展厅，序厅沿用既有站位，第一章停留点沿右侧阴影拉开，行走时长由路线距离和各自步速计算。
+当前工程默认显示 Idle 的第一帧。各动作保存在骨架的 Action 中，可切换后播放。阿基里斯高约 2.5 个 Blender 单位，乌龟高 0.69；网页分别以 0.60 和 0.46 的比例放入展厅，序厅沿用既有站位，序厅与第一章往返保持站位、仅转向；画廊行走时长由路线距离和各自步速计算。
 
 待机动画错开节奏：阿基里斯约 14 秒，抱臂呼吸、上身轻移和间歇转头；乌龟约 18 秒，包含探头、侧望和轻动前肢。交谈或望向投影后返回待机。系统开启减弱动态时直接显示停留姿态。
 
@@ -44,7 +44,19 @@
   --python outputs/characters/optimize_mannequin.py
 ```
 
-脚本更新人偶 GLB、当前双人工程、统计和预览，不改变乌龟 GLB。
+然后烘焙当前慢走动作：
+
+```sh
+/Applications/Blender.app/Contents/MacOS/Blender \
+  --background outputs/characters/geb-companions-mannequin.blend \
+  --python outputs/characters/refine_mannequin_walk.py
+```
+
+此步骤保留 `geb-companions-mannequin.blend`，另存 `geb-companions-walk.blend`，更新网页人偶 GLB 及 `mannequin-walk.json`，不改变乌龟 GLB。`mannequin-walk-preview.gif` 为当前动作的渲染预览。
+
+新版 Walk 每轮 1.2 秒，对应模型空间 1.05、网页空间 0.63 的前进距离。支撑期脚底随身体反向移动，抬脚期使用平滑轨迹；脚跟与脚尖支点从真实鞋底网格取得。网页按实际移动距离推进动作，并在低速起停时混合 Idle。路线两端缓入缓出，中段匀速，角色抵达后回到待机，延迟出发时不原地踏步。
+
+自动验证使用导出的实际骨骼动画，检查支撑脚位置、循环接缝、变速与等待时的动作时间；Blender 脚本逐帧检查网格最低点不穿地。
 
 ### 重新优化乌龟
 

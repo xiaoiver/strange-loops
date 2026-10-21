@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { exitRoute, entryRoute, routeSample } from './chapter-passage.js';
 import { playCompanionAnimation as play } from './companion-animation.js';
+import { walkProgress, syncWalkToDistance } from './companion-locomotion.js';
 
 // Blender-authored rigs and baked clips. World routes remain editable here.
 const specifications = [
@@ -14,7 +15,7 @@ export async function loadCompanions(scene, reduced, onProject) {
   const loader=new GLTFLoader(),draco=new DRACOLoader(),actors=[];
   draco.setDecoderPath('assets/draco/');
   loader.setDRACOLoader(draco);
-  const loaded=await Promise.all(specifications.map(spec=>loader.loadAsync(`assets/characters/${spec.id}.glb?v=${spec.id==='tortoise'?'tripo2':'mannequin1'}`)));
+  const loaded=await Promise.all(specifications.map(spec=>loader.loadAsync(`assets/characters/${spec.id}.glb?v=${spec.id==='tortoise'?'tripo2':'planted-walk2'}`)));
   draco.dispose();
   for(const [index,spec] of specifications.entries()){
     const gltf=loaded[index];
@@ -40,7 +41,9 @@ export async function loadCompanions(scene, reduced, onProject) {
       const name=clip.name.split('_').at(-1);
       actions[name]=mixer.clipAction(clip);
     }
-    actors.push({...spec,root,mixer,actions,age:0,clipAge:0,current:null,walking:!reduced.matches,
+    let walkCycleDistance;
+    gltf.scene.traverse(node=>{if(Number.isFinite(node.userData.walk_cycle_distance))walkCycleDistance=node.userData.walk_cycle_distance*spec.scale;});
+    actors.push({...spec,root,mixer,actions,walkCycleDistance,age:0,clipAge:0,current:null,walking:!reduced.matches,
       target:new THREE.Vector3(0,.1,0),from:new THREE.Vector3(spec.from[0],-3.8,spec.from[1]),to:new THREE.Vector3(spec.to[0],-3.8,spec.to[1])});
   }
   for(const actor of actors){
@@ -48,19 +51,19 @@ export async function loadCompanions(scene, reduced, onProject) {
     play(actor,reduced.matches?'Idle':'Walk');
     if(reduced.matches)actor.mixer.update(0);
   }
-  const projected=new THREE.Vector3(),aim=new THREE.Vector3(),rotation=new THREE.Quaternion(),yAxis=new THREE.Vector3(0,1,0);
+  const projected=new THREE.Vector3(),aim=new THREE.Vector3(),rotation=new THREE.Quaternion(),previousPosition=new THREE.Vector3(),yAxis=new THREE.Vector3(0,1,0);
   let showing=true, routeDone=null;
   function walkPassage(kind,onComplete,area='contour'){
     routeDone=onComplete;
     for(const [index,actor] of actors.entries()){
       actor.route=kind==='exit'?exitRoute([actor.root.position.x,actor.root.position.z],index):entryRoute(index,innerWidth<=760,area);
-      actor.duration=routeSample(actor.route,0).length/(index===0?1.65:1.35);
+      actor.duration=routeSample(actor.route,0).length/(index===0?.68:.56);
       actor.delay=index*.4;actor.age=0;actor.walking=true;
       actor.to.set(actor.route.at(-1)[0],-3.8,actor.route.at(-1)[1]);
       if(kind==='entry')actor.root.position.set(actor.route[0][0],-3.8,actor.route[0][1]);
       if(kind==='entry'&&area==='poster')actor.target.set(-6.69,-.4,3.6);
       else actor.target.set(kind==='entry'?0:-5,-.6,kind==='entry'?0:-1.3);
-      play(actor,'Walk');
+      play(actor,actor.delay?'Idle':'Walk');
     }
   }
   return {
@@ -74,7 +77,7 @@ export async function loadCompanions(scene, reduced, onProject) {
         if(keepPosition)actor.to.copy(actor.root.position);
         else actor.to.set(destination[0],-3.8,destination[1]);
         // Cross a visible stretch of the shaded floor, at each companion's pace.
-        actor.duration=Math.max(1.2,actor.from.distanceTo(actor.to)/(space.startsWith('figure-')?(index===0?1:.65):(index===0?.45:.23)));
+        actor.duration=Math.max(1.2,actor.from.distanceTo(actor.to)/(space.startsWith('figure-')?(index===0?.62:.52):(index===0?.45:.23)));
         // The garden's architecture shades the companions; keep lobby letter
         // projections off their surfaces when returning to the vestibule.
         actor.root.traverse(mesh=>{if(mesh.isMesh)mesh.receiveShadow=space!=='lobby';});
@@ -97,19 +100,23 @@ export async function loadCompanions(scene, reduced, onProject) {
         if(reduced.matches){
           if(actor.walking){actor.root.position.copy(actor.to);actor.walking=false;play(actor,'Idle');changed=true;}
         }else if(actor.walking){
+          previousPosition.copy(actor.root.position);
           const t=THREE.MathUtils.clamp((actor.age-(actor.delay||0))/actor.duration,0,1);
           if(actor.route){
-            const point=routeSample(actor.route,t*t*(3-2*t));
+            const point=routeSample(actor.route,walkProgress(t));
             actor.root.position.set(point.x,-3.8,point.z);aim.set(point.dx,0,point.dz);
           }else{
-            actor.root.position.lerpVectors(actor.from,actor.to,t*t*(3-2*t));aim.subVectors(actor.to,actor.from);
+            actor.root.position.lerpVectors(actor.from,actor.to,walkProgress(t));aim.subVectors(actor.to,actor.from);
           }
+          const distance=actor.root.position.distanceTo(previousPosition);
+          if(distance>1e-8&&actor.current!=='Walk')play(actor,'Walk');
+          if(actor.current==='Walk')syncWalkToDistance(actor,distance,dt);
           changed=true;
-          if(t>=1){actor.walking=false;play(actor,'Look');}
+          if(t>=1){actor.walking=false;play(actor,'Idle');}
         }
         if(!actor.walking)aim.subVectors(actor.target,actor.root.position);
         rotation.setFromAxisAngle(yAxis,Math.atan2(aim.x,aim.z));
-        actor.root.quaternion.slerp(rotation,reduced.matches?1:1-Math.exp(-dt*3));
+        actor.root.quaternion.slerp(rotation,reduced.matches?1:1-Math.exp(-dt*(actor.walking?8:3)));
         if(!reduced.matches){
           actor.mixer.update(dt);
           if(actor.current==='Idle'||actor.clipAge<(actor.actions[actor.current]?.getClip().duration??0))changed=true;
