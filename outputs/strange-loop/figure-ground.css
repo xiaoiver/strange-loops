@@ -1,0 +1,43 @@
+body.in-figure .intro,body.in-figure .light-tools,body.in-figure .view-tools,body.in-figure .drag-hint{visibility:hidden;pointer-events:none}
+body.in-figure .vignette{opacity:1;background:linear-gradient(90deg,rgba(231,231,230,.97),rgba(231,231,230,.82) 21%,rgba(231,231,230,.15) 35%,transparent 43%)}body.in-figure #companion-controls{visibility:visible}
+.figure-ground{position:absolute;inset:0;z-index:4;pointer-events:none}.figure-ground[hidden]{display:none}
+.figure-ground :is(button,a,dialog){pointer-events:auto}.figure-heading{position:absolute;left:8.2%;top:16%;max-width:36%}
+.figure-reading[hidden]{display:none}.figure-poster-fallback{display:none}body[data-scene=fallback] .figure-poster-fallback{display:block;width:100%;height:auto;max-height:260px;object-fit:contain;margin-bottom:12px}
+.figure-heading>p{font-size:10px;letter-spacing:.13em;color:var(--muted);margin:0 0 15px}
+.figure-heading h2{font:500 clamp(27px,3.2vw,48px)/1.35 "Strange Loops Serif SC","Songti SC",serif;letter-spacing:.02em;margin:0}
+html:not([lang="zh-CN"]) .figure-heading h2{font-family:var(--exhibit-serif);font-weight:400}
+.figure-reading{position:absolute;left:8.2%;bottom:17%;width:26%;max-width:380px;max-height:29%;overflow:auto;scrollbar-width:thin;pointer-events:auto}
+.figure-dialogue{position:static!important;bottom:auto!important;max-width:none;min-height:0!important;margin:0;grid-template-columns:23px minmax(0,1fr);column-gap:16px}
+.figure-dialogue p{font:15px/1.85 "Strange Loops Serif SC",serif;letter-spacing:.03em;margin:0}
+.figure-caption{font-size:11px;line-height:1.9;color:var(--muted);margin:14px 0 0}
+.figure-action{position:absolute;left:56%;bottom:14%;transform:translateX(-50%);pointer-events:auto}
+.figure-primary{display:flex;align-items:center;justify-content:space-between;gap:36px;min-height:48px;padding:13px 24px;border:1px solid var(--ink);background:var(--paper);font-size:12px;letter-spacing:.06em;transition:background .15s,color .15s}
+.figure-primary:hover,.figure-primary:focus-visible{background:var(--ink);color:var(--paper)}.figure-primary:active{transform:translateY(1px)}
+.figure-notes{position:absolute;left:8.2%;top:32%;width:25%;max-width:340px;max-height:20%;overflow:auto;pointer-events:auto;scrollbar-width:thin}
+.figure-ground[data-poster=true] .figure-notes{max-height:45%}
+.figure-link{display:block;min-height:38px;padding:8px 0;font-size:10px;text-align:left;color:var(--muted);line-height:1.5;letter-spacing:.02em;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:4px}
+.figure-link:hover{color:var(--ink)}.figure-note-copy{font-size:12px;line-height:1.8;background:var(--paper);padding:12px;margin:0 0 12px}.figure-note-copy p{margin:0 0 10px}
+.figure-check{border:0;padding:0;margin:20px 0 0}.figure-check legend{font:15px/1.7 "Strange Loops Serif SC",serif;margin-bottom:8px}.figure-check button{display:block;border-bottom:1px solid var(--line);text-align:left;padding:10px 0;min-height:44px;font-size:12px;line-height:1.6;width:100%}
+.figure-feedback{font-size:12px;line-height:1.7}.figure-end{font:17px/1.8 "Strange Loops Serif SC",serif}
+.figure-ground-data{position:absolute;left:38%;right:8%;top:30%;width:54%;clip:rect(0,0,0,0);height:1px;overflow:hidden}
+.figure-fallback{display:none}.figure-fallback[hidden]{display:none!important}
+body[data-scene=fallback] .figure-fallback{display:block;position:absolute;left:37%;top:24%;width:55%}.figure-fallback img{display:block;width:100%;max-height:53vh;object-fit:contain}
+body[data-scene=fallback].in-figure #fallback{display:none}
+body[data-scene=fallback] .figure-ground-data:not([hidden]){height:auto;clip:auto;overflow:visible}
+.figure-number-list{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.figure-number{padding:13px 4px;border:1px solid var(--line);text-align:center}.figure-number b{display:block;font:25px Georgia,serif}.figure-number small{font-size:10px;line-height:1.4;display:block;margin-top:6px}.figure-number.composite{background:var(--ink);color:var(--paper)}.figure-number.prime{outline:1px solid var(--ink);outline-offset:3px}
+@media(max-width:1000px) and (min-width:761px){.figure-heading{left:6%;max-width:37%}.figure-reading{left:6%;width:30%;bottom:17%;max-height:32%}.figure-notes{left:6%;width:29%;top:32%;max-height:17%}.figure-dialogue p{font-size:13px}.figure-action{left:62%;bottom:13%}}
+@media(max-width:760px){
+ body.in-figure .vignette{background:linear-gradient(180deg,rgba(231,231,230,.9),transparent 28%,transparent 63%,rgba(231,231,230,.92) 87%)}
+ .figure-heading{left:7%;top:12%;max-width:86%}.figure-heading>p{font-size:9px;margin-bottom:10px}.figure-heading h2{font-size:29px}
+ .figure-reading{left:7%;bottom:25%;width:86%;max-width:none;max-height:25%;overflow:auto;scrollbar-width:thin}
+ .figure-dialogue p{font-size:13px;line-height:1.75}.figure-dialogue,html:not([lang="zh-CN"]) .figure-dialogue{position:static;max-width:none;grid-template-columns:50px minmax(0,1fr)}
+ html[lang="zh-CN"] .figure-dialogue{grid-template-columns:20px minmax(0,1fr)}.figure-caption{margin-top:8px;font-size:10px}
+ .figure-action{left:50%;bottom:13%;width:max-content;max-width:86%}.figure-primary{min-height:48px;max-width:100%;gap:24px;padding:12px 20px;font-size:12px}
+ .figure-notes{left:7%;top:22%;width:86%;max-width:none;max-height:16%;font-size:11px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:0 18px}
+ .figure-notes .figure-link{font-size:9px;min-height:36px}.figure-note-copy{flex-basis:100%;font-size:12px;margin-bottom:8px}
+ .figure-check{margin-top:10px}.figure-check legend{font-size:13px}.figure-check button{font-size:12px;padding:8px 0}.figure-end{font-size:14px;margin:10px 0 0}
+ .figure-ground[data-step=eleven] .figure-reading{bottom:12%;max-height:35%}.figure-ground[data-step=complete] .figure-reading{bottom:15%;max-height:27%}
+ body[data-scene=fallback] .figure-fallback{left:8%;width:84%;top:29%}.figure-fallback img{max-height:32vh}
+ body[data-scene=fallback] .figure-ground-data:not([hidden]){left:7%;right:7%;top:29%;width:auto;max-height:24vh;overflow:auto}.figure-number-list{grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}.figure-number{padding:8px 2px}.figure-number b{font-size:20px}.figure-number small{font-size:8px}
+}
+@media(max-height:650px) and (min-width:761px){.figure-heading{top:16%}.figure-heading h2{font-size:28px}.figure-notes{top:32%;max-height:20%}.figure-reading{bottom:17%;max-height:30%;overflow:auto}.figure-dialogue p{font-size:13px}.figure-action{bottom:14%}}

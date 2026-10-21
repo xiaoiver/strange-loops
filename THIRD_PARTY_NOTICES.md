@@ -128,3 +128,12 @@ Chapter-one letter-pile rigid-body simulation. MIT License.
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+## The Lobster poster (chapter two)
+
+- File: `outputs/strange-loop/assets/art/the-lobster.jpg` (718 × 1024 JPEG, complete image, not cropped or repainted).
+- Work: *The Lobster* (2015), the black-and-white Colin Farrell / absent embrace poster. Design: **Vasilis Marmatakis**. Copyright remains with the respective rights holders; this image is not CC BY, public domain, or an original asset of this repository.
+- User-selected image source: https://images.justwatch.com/poster/319932850/s718/the-lobster.jpg (retrieved 2026-10-21).
+- Designer interview and official poster identification: https://origin.dazeddigital.com/film-tv/article/42750/1/yorgos-lanthimos-posters-the-favourite-lobster-vasilis-marmatakis-interview
+- Included at the user's request as a single, attributed work for specific visual commentary on negative space, with original commentary and a source link in all seven languages. It is optional to the mathematical narrative. This record documents provenance and context, not a grant of reproduction or sublicensing rights. No film stills or additional posters are bundled.
+- The Rubin-style shared contour (`assets/art/rubin-contour.svg` / `src/rubin-contour.js`) is drawn independently for this exhibition and is not traced from an Escher image or the poster.

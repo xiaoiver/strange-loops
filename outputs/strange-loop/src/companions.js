@@ -53,15 +53,17 @@ export async function loadCompanions(scene, reduced, onProject) {
     setSpace(space){
       for(const [index,actor] of actors.entries()){
         actor.from.copy(actor.root.position);
-        const destination=space==='garden' ? (index===0?[2.8,-1.95]:[3.6,-1.75]) : specifications[index].to;
+        const destination=space==='figure-poster'?(index===0?[-4.4,4.5]:[-3.5,4.8]):space==='figure-contour'?(innerWidth<=760?(index===0?[-2.5,.9]:[-1.5,1.2]):(index===0?[-3,3.9]:[-1.9,4.3])):space==='figure-numbers'?(innerWidth<=760?(index===0?[11.4,-2]:[12.2,-1.8]):(index===0?[10.6,1]:[11.75,1.1])):space==='garden' ? (index===0?[2.8,-1.95]:[3.6,-1.75]) : specifications[index].to;
         actor.to.set(destination[0],-3.8,destination[1]);
         // Cross a visible stretch of the shaded floor, at each companion's pace.
-        actor.duration=Math.max(1.2,actor.from.distanceTo(actor.to)/(index===0?.45:.23));
+        actor.duration=Math.max(1.2,actor.from.distanceTo(actor.to)/(space.startsWith('figure-')?(index===0?1:.65):(index===0?.45:.23)));
         // The garden's architecture shades the companions; keep lobby letter
         // projections off their surfaces when returning to the vestibule.
-        actor.root.traverse(mesh=>{if(mesh.isMesh)mesh.receiveShadow=space==='garden';});
+        actor.root.traverse(mesh=>{if(mesh.isMesh)mesh.receiveShadow=space!=='lobby';});
         actor.age=0;actor.walking=!reduced.matches;
-        actor.target.set(space==='garden'?1.9:0,space==='garden'?-3:.1,0);
+        if(space==='figure-poster')actor.target.set(-6.69,-.4,2.5);
+        else if(space.startsWith('figure-'))actor.target.set(space==='figure-numbers'?10:0,-.6,space==='figure-numbers'?-4.6:0);
+        else actor.target.set(space==='garden'?1.9:0,space==='garden'?-3:.1,0);
         if(reduced.matches)actor.root.position.copy(actor.to);
         play(actor,reduced.matches?'Idle':'Walk');
       }
@@ -95,6 +97,10 @@ export async function loadCompanions(scene, reduced, onProject) {
         onProject(actor.id,inFrame?{x:(projected.x+1)*innerWidth/2,y:(1-projected.y)*innerHeight/2}:null);
       }
       return changed;
+    },
+    observe(id){
+      const actor=actors.find(a=>a.id===id);
+      if(actor&&!actor.walking)play(actor,'Look');
     },
     react(view){
       const target={G:[0,-1,-3.7],E:[-3.7,-1,0],B:[0,-3.8,0],free:[0,.1,0]}[view];

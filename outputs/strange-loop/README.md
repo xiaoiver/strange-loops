@@ -1,6 +1,6 @@
-# 怪圈 · 序厅与 WU 花园
+# 怪圈 · 序厅与两章漫游
 
-《集异璧》原创致敬叙事展。包含真实三维 G/E/B 交集雕塑、三束正交平行光和实时阴影、三个观察方向、拖动观察、章节地图，以及可玩的第一章 WU / MU 花园。第二章及后续章节尚未开放，漫游地图置灰，右侧保留章节主题。制作计划见 `docs/chapter-02-plan.md`。
+《集异璧》原创致敬叙事展。包含真实三维 G/E/B 交集雕塑、三束正交平行光和实时阴影、三个观察方向、拖动观察、章节地图，以及可玩的 WU / MU 花园与图形与衬底画廊。第三章及后续章节尚未开放，漫游地图置灰，右侧保留章节主题。制作计划见 `docs/chapter-02-plan.md`。
 
 ## 语言与文案
 
@@ -28,7 +28,7 @@
 - 选出不变量理由才标记本章完成；“试过很多次”只显示解释，不会通关。完成页收起规则操作，提供下一章预告与可选自由探索。完成状态随语言切换、返回和刷新保留；旧版挑战进度直接进入数量观察，原推导保留。
 - 操作区限制单串 192 字符、600 个内部节点；超限可退一步或重新开始，不改变数学规则。重新开始有独立确认。
 - `src/garden.js` 负责 DOM 操作、键盘焦点与对话框；`src/garden-copy.js` 保存原创双语对白；`garden.css` 负责可滚动的小屏布局。`src/garden-scene.js` 提供字母堆与同步操作字串，角色继续使用现有 GLB。
-- 三维场景不可用时仍可完整操作规则；减少动态效果模式跳过镜头过渡与角色行走。第二章入口始终可用，但明确显示为预告。
+- 三维场景不可用时仍可完整操作规则；减少动态效果模式跳过镜头过渡与角色行走。第二章可由地图或下一章按钮进入。
 
 中央高台已移除。144 个石墨灰字母由 cannon-es 模拟重力与碰撞，堆成小山；每次进入第一章时，上层 48 个字母从半空落下，撞击底部并重新堆稳；操作字串单独排列在前方地面，随改写移动。真实顶光穿过矩形狭缝，在墙地形成连续亮带；墙面开出有纵深的门洞，门楣同步当前目标。地面不展示推导足迹，推导历史仅用于内部撤销与存档。减少动态效果时直接更新状态。
 
@@ -49,7 +49,7 @@ Esc 优先关闭弹窗与章节地图；在花园内先收起提示，最后才�
 - 限制设备像素比以控制移动端开销；支持减弱动态和 WebGL 不可用时的文字入口。
 - 桌面渲染像素比最高 2×，手机（宽度不超过 760px）最高 1.25×，均不超过屏幕原生 DPR。窗口尺寸或屏幕 DPR 变化时，画布和后处理使用相同的整像素分辨率，FXAA 的采样步长同步更新。
 
-序厅保持安静，不提供音频试听或播放控件。中文字体使用自行托管的 Noto Serif SC 子集（派生名 Strange Loops Serif SC），保留 400–700 字重，回退到本地宋体。没有使用书封、原书对白、埃舍尔图像或第三方实拍素材。
+序厅保持安静，不提供音频试听或播放控件。中文字体使用自行托管的 Noto Serif SC 子集（派生名 Strange Loops Serif SC），保留 400–700 字重，回退到本地宋体。没有使用书封、原书对白或埃舍尔图像；第二章按用户要求引用一幅署名电影海报用于负空间评论。
 
 ## 生成模型
 
@@ -87,3 +87,7 @@ The exhibit supports Chinese (`zh`), English (`en`), Japanese (`ja`), Korean (`k
 New original translations live in `src/locales/`. The mathematical engine always uses MIU; Chinese displays WJU, while the other six languages display MIU. Japanese and Korean use system fonts for their respective scripts. Existing published translations of the book are not quoted.
 
 The loader is authored in `src/loading.js` and bundled inline by `scripts/build-loading.mjs` during `npm run build`, so localized loading and retry messages work even if the main bundle fails. Do not edit the generated inline loader directly. Release output includes a static page and metadata for each language; the host must select the matching file for `?lang=`.
+
+## 第二章：图形与衬底
+
+可从地图或第一章的下一章按钮进入。原创 Rubin 共边墙体围出花瓶形留白；两个角色随观察位走向数字墙。五次操作依次观察留白、解释短划分组、生成 8、检查 11、确认“未列出不等于不可能”。七种语言共用独立证据存档 `geb.figure-ground.v1`，坏存档不会凭完成标记直接通关。侧墙挂有用户指定的《龙虾》海报，提供署名及可选原创评论。无 3D 时仍可通过 SVG 与 HTML 完成。素材来源见仓库 THIRD_PARTY_NOTICES.md。

@@ -48,7 +48,7 @@ The Blender character project includes rigs, materials, and Idle / Walk / Look a
 
 ## Current scope
 
-The vestibule and chapter one are playable. MU Garden starts with a small goal completed in four taps. Counting Is, grouping them in threes, and checking all four rules reveal the invariant. Choosing the reason MU is unreachable completes and saves the chapter; further exploration is optional. The original four rules apply in one tap, using the leftmost matching occurrence. Hints, undo, and restart are available; history records stay out of the interface. Animated 3D letters follow each rewrite. Progress survives language changes, lobby visits, and reloads. The rule interface also works without WebGL. Chapter two and later rooms are not yet open.
+The vestibule and chapter one are playable. MU Garden starts with a small goal completed in four taps. Counting Is, grouping them in threes, and checking all four rules reveal the invariant. Choosing the reason MU is unreachable completes and saves the chapter; further exploration is optional. The original four rules apply in one tap, using the leftmost matching occurrence. Hints, undo, and restart are available; history records stay out of the interface. Animated 3D letters follow each rewrite. Progress survives language changes, lobby visits, and reloads. The rule interface also works without WebGL. Chapter three and later rooms are not yet open.
 
 See the [chapter two production plan](outputs/strange-loop/docs/chapter-02-plan.md) (Chinese, with English UI copy and summary). Unreleased rooms are greyed out in the route, with their original topic labels retained.
 
@@ -59,3 +59,9 @@ See the [chapter two production plan](outputs/strange-loop/docs/chapter-02-plan.
 The repository does not include the book's full text, cover scans, or images of Escher's works. Dependency and font notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 See [publishing under the Gallery Mate website](outputs/strange-loop/docs/deploy-gallerymate.md) (Chinese).
+
+## Chapter two: Figure and Ground
+
+Now playable from the chapter map or chapter one's next button. Two solid, shared-contour walls surround an empty Rubin-style vase. Follow the companions to a number wall: interpret grouped marks, generate 8, check 11, and distinguish absence from evidence in five actions. Progress is validated and saved independently in `geb.figure-ground.v1`, across all seven languages. The selected *The Lobster* poster hangs on a side wall with designer credit and optional commentary. SVG and HTML provide the same learning path when 3D is unavailable. See THIRD_PARTY_NOTICES.md for artwork provenance.
+
+![Chapter two: the number wall and its evidence](outputs/strange-loop/docs/screenshots/figure-ground-en.jpg)
