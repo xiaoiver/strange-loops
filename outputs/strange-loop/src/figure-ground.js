@@ -6,7 +6,7 @@ import { FIGURE_STORAGE, NUMBERS, initialFigureState, restoreFigureState, advanc
 
 const stages = ['faces','ground','numbers','eight','eleven','complete'];
 export function createFigureGround(root, { locale: initialLocale, navigation, onState, onMeet, onBack, onLobby, onAnnounce }) {
-  let locale = initialLocale, state = initialFigureState(), active = false, wrong = false, help = false, poster = false, book = false, exploring = false;
+  let locale = initialLocale, state = initialFigureState(), active = false, wrong = false, help = false, poster = false, exploring = false;
   try { state = restoreFigureState(JSON.parse(localStorage.getItem(FIGURE_STORAGE))); } catch { /* Storage is optional. */ }
   const c = () => FIGURE_COPY[locale];
   function save() { try { localStorage.setItem(FIGURE_STORAGE, JSON.stringify(state)); } catch { /* Continue without persistence. */ } }
@@ -41,11 +41,9 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
           <div class="figure-poster-pair">${LOBSTER_POSTERS.map(art=>`<img class="figure-poster-fallback" src="${art.file}" width="${art.width}" height="${art.height}" alt="${label.title} · ${art.subject}">`).join('')}</div>
           <p class="figure-art-title">${label.title}<span>${LOBSTER_CREDIT.year}</span></p>
           <p class="figure-art-designer">${LOBSTER_CREDIT.designer}<small>${label.design}</small></p>
-          <p class="figure-art-medium">${label.medium}</p><p>${t.posterText}</p>
+          <p>${t.posterText}</p>
           <div class="figure-art-sources">${LOBSTER_POSTERS.map((art,i)=>`<a class="book-link" href="${art.source}" target="_blank" rel="noopener noreferrer">${label.source} ${String(i+1).padStart(2,'0')} ↗</a>`).join('')}</div>
         </section>` : ''}
-        <button class="figure-link" id="fg-book" data-fg="book" aria-expanded="${book}">${t.book}</button>
-        ${book ? `<p class="figure-note-copy">${t.bookText}</p>` : ''}
       </aside>
       <dialog class="garden-dialog" id="fg-preview"><h3>${t.preview}</h3><button data-fg="close">${t.close}</button></dialog>`;
     if (active) {
@@ -66,12 +64,11 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
       const dialog=root.querySelector('dialog');dialog.innerHTML=`<h3>${GARDEN_COPY[locale].resetTitle}</h3><p>${c().title}</p><button data-fg="close">${c().close}</button><button data-fg="reset-confirm">${GARDEN_COPY[locale].reset}</button>`;dialog.showModal();return;
     }
     if (action === 'reset-confirm') {
-      root.querySelector('dialog').close();state=initialFigureState();wrong=help=poster=book=exploring=false;save();render('fg-primary');sync();onAnnounce(c().eyebrow);return;
+      root.querySelector('dialog').close();state=initialFigureState();wrong=help=poster=exploring=false;save();render('fg-primary');sync();onAnnounce(c().eyebrow);return;
     }
     if (action === 'close') { const reset=root.querySelector('[data-fg="reset-confirm"]');root.querySelector('dialog').close();(reset?root.querySelector('#fg-restart'):navigation.querySelector('#fg-next'))?.focus();return; }
     if (action === 'help' || action === 'why') { help = !help; render(action === 'help' ? 'fg-help' : 'fg-why'); sync(); return; }
     if (action === 'poster') { poster = !poster; render('fg-poster'); sync(); return; }
-    if (action === 'book') { book = !book; render('fg-book'); return; }
     if (action === 'explore') { exploring = !exploring; poster = false; render('fg-explore'); sync(); return; }
     const before = figureStage(state);
     if (action === 'blank-prime' && before === 'eleven') { wrong = true; render('fg-answer-wrong'); return; }
@@ -91,7 +88,6 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
     hintsVisible: () => help,
     dismiss() {
       if (poster) { poster = false; render('fg-poster'); sync(); return true; }
-      if (book) { book = false; render('fg-book'); return true; }
       if (help) { help = false; render(figureStage(state) === 'faces' || figureStage(state) === 'ground' ? 'fg-help' : 'fg-why'); sync(); return true; }
       return false;
     },

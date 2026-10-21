@@ -5,11 +5,11 @@ export const LOBSTER_POSTERS = [
 ];
 export const LOBSTER_CREDIT = { title:'The Lobster', designer:'Vasilis Marmatakis', year:2015 };
 export const ART_LABELS = {
-  zh:{title:'《龙虾》',design:'海报设计',medium:'电影海报 · 两款',source:'来源：Dazed'},
-  en:{title:'The Lobster',design:'Poster design',medium:'Film posters · two versions',source:'Source: Dazed'},
-  ja:{title:'ロブスター',design:'ポスターデザイン',medium:'映画ポスター · 2 点',source:'出典：Dazed'},
-  ko:{title:'더 랍스터',design:'포스터 디자인',medium:'영화 포스터 · 2종',source:'출처: Dazed'},
-  fr:{title:'The Lobster',design:'Création des affiches',medium:'Affiches de film · deux versions',source:'Source : Dazed'},
-  de:{title:'The Lobster',design:'Plakatgestaltung',medium:'Filmplakate · zwei Fassungen',source:'Quelle: Dazed'},
-  es:{title:'The Lobster',design:'Diseño de carteles',medium:'Carteles de cine · dos versiones',source:'Fuente: Dazed'},
+  zh:{title:'《龙虾》',design:'海报设计',source:'来源：Dazed'},
+  en:{title:'The Lobster',design:'Poster design',source:'Source: Dazed'},
+  ja:{title:'ロブスター',design:'ポスターデザイン',source:'出典：Dazed'},
+  ko:{title:'더 랍스터',design:'포스터 디자인',source:'출처: Dazed'},
+  fr:{title:'The Lobster',design:'Création des affiches',source:'Source : Dazed'},
+  de:{title:'The Lobster',design:'Plakatgestaltung',source:'Quelle: Dazed'},
+  es:{title:'The Lobster',design:'Diseño de carteles',source:'Fuente: Dazed'},
 };

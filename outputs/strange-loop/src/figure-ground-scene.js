@@ -6,7 +6,7 @@ import { GALLERY_ENTRY } from './chapter-passage.js';
 import { traceProfile } from './rubin-contour.js';
 import { NUMBERS, figureStage, numberEvidence } from './figure-ground-system.js';
 import { FIGURE_COPY } from './figure-ground-copy.js';
-import { ART_LABELS, LOBSTER_POSTERS, LOBSTER_CREDIT } from './gallery-art.js';
+import { LOBSTER_POSTERS } from './gallery-art.js';
 import { applySoftShadows } from './soft-shadows.js';
 
 export function createFigureGroundScene(scene, reduced, invalidate) {
@@ -90,17 +90,6 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
       surface.material.map=texture;surface.material.needsUpdate=true;invalidate();
     },undefined,()=>{surface.visible=false;invalidate();});
   });
-  // A small, flush museum label lives on the wall, with accessible HTML alongside.
-  const labelCanvas=document.createElement('canvas');labelCanvas.width=1200;labelCanvas.height=480;
-  const labelTexture=new THREE.CanvasTexture(labelCanvas);labelTexture.colorSpace=THREE.SRGBColorSpace;
-  const label=new THREE.Mesh(new THREE.PlaneGeometry(2.15,.86),new THREE.MeshStandardMaterial({map:labelTexture,roughness:1}));
-  label.position.set(-1.29,-2.13,.008);label.receiveShadow=true;posterMount.add(label);posterTargets.push(label);
-  function paintLabel(locale){
-    const t=ART_LABELS[locale],ctx=labelCanvas.getContext('2d');ctx.fillStyle='#e8e8e3';ctx.fillRect(0,0,1200,480);ctx.fillStyle='#303330';ctx.textAlign='left';
-    const line=(v,size,y)=>{ctx.font=`${size}px system-ui`;const fitted=Math.min(size,size*1080/ctx.measureText(v).width);ctx.font=`${fitted}px system-ui`;ctx.fillText(v,56,y);};
-    line(`${t.title}, ${LOBSTER_CREDIT.year}`,68,108);line(LOBSTER_CREDIT.designer,49,210);
-    line(t.design,39,276);line(t.medium,39,342);line(t.source,34,419);labelTexture.needsUpdate=true;
-  }
   const raycaster=new THREE.Raycaster();
   let visible=false, state=null, currentLocale='zh', targetMode='contour';
   const startPosition=new THREE.Vector3(),startLook=new THREE.Vector3();
@@ -142,7 +131,7 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
       eightText.visible=['eight','eleven','complete'].includes(stage);note.visible=['eleven','complete'].includes(stage);
       for(const entry of entries){const e=numberEvidence(state,entry.n);entry.plate.material=e.kind==='composite'?ink:plateMat;entry.digit.material=e.kind==='composite'?paper:ink;if(e.kind==='prime'&&!entry.ring.visible)entry.reveal=reduced.matches?1:0;entry.ring.visible=e.kind==='prime';}
       layoutEvidence();
-      paintLabel(currentLocale);paintNote(FIGURE_COPY[currentLocale]);sun.shadow.needsUpdate=true;invalidate();
+      paintNote(FIGURE_COPY[currentLocale]);sun.shadow.needsUpdate=true;invalidate();
     },
     refreshShadows(){if(visible)sun.shadow.needsUpdate=true;},
     update(dt,camera,look){
