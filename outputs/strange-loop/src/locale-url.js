@@ -1,4 +1,4 @@
-const supported = value => value === 'en' ? 'en' : ['zh', 'zh-CN'].includes(value) ? 'zh' : null;
+import { supportedLocale as supported } from './languages.js';
 
 export function initialLocale(search, saved, pageLocale) {
   return supported(new URLSearchParams(search).get('lang')) || supported(pageLocale) || supported(saved) || 'zh';

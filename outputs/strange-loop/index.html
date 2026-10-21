@@ -5,19 +5,41 @@
   <meta name="theme-color" content="#e7e7e6">
   <meta name="description" content="与阿基里斯和乌龟，重访《集异璧》。从 WU 谜题出发，走向递归、自指与缠结的层次。">
   <title>怪圈 · 重访《集异璧》</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e7e7e6'/%3E%3Cpath d='M20 24h40v32H20zM30 14h20v52H30z' fill='none' stroke='%233d3e3d' stroke-width='5'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2036%2036%22%3E%3Crect%20width%3D%2236%22%20height%3D%2236%22%20fill%3D%22%23e7e7e6%22%2F%3E%3Cpath%20d%3D%22M6%2010h19v19H6zM12%204h19v19H12zM6%2010l6-6m13%206%206-6m-6%2025%206-6%22%20fill%3D%22none%22%20stroke%3D%22%23222321%22%20stroke-width%3D%221.3%22%2F%3E%3C%2Fsvg%3E">
+  <style id="loading-style">
+    #loading-screen{position:fixed;inset:0;z-index:100;background:#e7e7e6;color:#292c2b;display:grid;place-items:center;opacity:1;transition:opacity .45s ease}
+    #loading-screen[hidden]{display:none}#loading-screen.leaving{opacity:0;pointer-events:none}
+    .loading-content{width:min(240px,calc(100vw - 64px));text-align:center}.loading-letters{font:42px/1.3 Georgia,serif;letter-spacing:.18em;margin:0 0 30px;padding-left:.18em}
+    .loading-track{height:1px;background:#292c2b26;overflow:hidden}.loading-track span{display:block;width:38%;height:100%;background:#626560;animation:loading-pass 1.6s ease-in-out infinite}
+    #loading-message{min-height:20px;margin:18px 0 0;font:12px/1.8 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;letter-spacing:.06em;color:#60635f}
+    #loading-retry{display:inline-block;margin-top:16px;padding:8px 4px;color:#292c2b;font:12px/1.5 -apple-system,sans-serif;text-underline-offset:5px}#loading-retry[hidden]{display:none}
+    #loading-retry:focus-visible{outline:1px solid currentColor;outline-offset:4px}
+    #loading-screen[data-state="failed"] .loading-track span{animation:none;transform:none;width:100%}
+    @keyframes loading-pass{from{transform:translateX(-110%)}to{transform:translateX(370%)}}
+    @media(prefers-reduced-motion:reduce){#loading-screen{transition:none}.loading-track span{animation:none;width:100%;opacity:.5}}
+  </style>
   <link rel="preload" href="assets/fonts/serif-sc.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="style.css?v=site39-0c1a301f069d">
+  <link rel="stylesheet" href="style.css?v=site45-languages">
   <link rel="stylesheet" href="garden.css?v=site39-313f065e9034">
 </head>
 <body>
+  <div id="loading-screen" role="status" aria-live="polite" aria-atomic="true" data-state="loading">
+    <div class="loading-content">
+      <p class="loading-letters" aria-hidden="true">G · E · B</p>
+      <div class="loading-track" aria-hidden="true"><span></span></div>
+      <p id="loading-message">正在加载展厅</p>
+      <a id="loading-retry" href="" hidden>重新加载</a>
+      <noscript><style>.loading-track,#loading-message{display:none}</style><p>Please enable JavaScript to enter the exhibition.</p></noscript>
+    </div>
+  </div>
+  <div id="exhibit" inert aria-busy="true">
   <div id="world" data-i18n-aria="a11y.world" aria-label="可拖动观察的 G、E、B 三维雕塑与真实投影"></div>
   <div class="paper-grain" aria-hidden="true"></div>
   <div class="vignette" aria-hidden="true"></div>
   <div id="companion-controls"><button class="character-button" id="meet-achilles" hidden data-i18n-aria="a11y.talkAchilles" aria-label="与阿基里斯交谈"><span data-i18n="actors.achilles">阿基里斯</span></button><button class="character-button" id="meet-tortoise" hidden data-i18n-aria="a11y.talkTortoise" aria-label="与乌龟交谈"><span data-i18n="actors.tortoise">乌龟</span></button></div>
   <header class="masthead">
     <a class="wordmark" href="#" data-i18n-aria="a11y.home" aria-label="怪圈，返回序厅"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M6 10h19v19H6zM12 4h19v19H12zM6 10l6-6m13 6 6-6m-6 25 6-6"/></svg><span>怪圈<span class="wordmark-en">STRANGE LOOPS</span></span></a>
-    <div class="header-actions"><button class="language-switch" id="language-switch" lang="en" aria-label="Switch to English">EN</button><button class="index-trigger" id="index-trigger" aria-expanded="false" aria-controls="chapter-index"><span data-i18n="menu">章节</span> <span class="menu-icon"><i></i><i></i></span></button></div>
+    <div class="header-actions"><select class="language-switch" id="language-switch" aria-label="语言"></select><button class="index-trigger" id="index-trigger" aria-expanded="false" aria-controls="chapter-index"><span data-i18n="menu">章节</span> <span class="menu-icon"><i></i><i></i></span></button></div>
   </header>
   <main>
     <section class="intro" aria-labelledby="hero-title">
@@ -52,5 +74,9 @@
   <footer class="colophon"><span class="location"><b>00</b><span class="footer-line"></span>序厅</span><nav id="chapter-navigation" class="chapter-navigation" aria-label="章节导航" hidden></nav></footer>
   <div id="status" class="sr-only" role="status" aria-live="polite"></div>
   <div id="fallback" hidden><p data-i18n="fallback.title">一件雕塑，三个字母。</p><span>G · E · B</span><p data-i18n="fallback.note">当前设备无法显示三维场景，你仍可前往第一章体验。</p></div>
-  <script src="assets/app.js?v=site42-word-spacing" defer></script>
+  </div>
+  <script id="loading-bootstrap">
+(()=>{var f=["zh","en","ja","ko","fr","de","es"];function i(e){if(typeof e!="string")return null;let s=e.trim().toLowerCase().replaceAll("_","-");if(["zh","zh-cn","zh-hans","zh-hans-cn"].includes(s))return"zh";let a=s.split("-")[0];return a!=="zh"&&f.includes(a)?a:null}var h={app:"\u5C55\u793A\u3092\u8AAD\u307F\u8FBC\u307F\u4E2D",sculpture:"\u7ACB\u4F53\u3092\u8AAD\u307F\u8FBC\u307F\u4E2D",companions:"\u540C\u884C\u8005\u3092\u8AAD\u307F\u8FBC\u307F\u4E2D",custom:"\u6587\u5B57\u3092\u751F\u6210\u4E2D",ready:"\u6E96\u5099\u304C\u3067\u304D\u307E\u3057\u305F",slow:"\u8AAD\u307F\u8FBC\u307F\u4E2D\u3067\u3059\u3002\u5C11\u3057\u304A\u5F85\u3061\u304F\u3060\u3055\u3044\u3002",failed:"\u8AAD\u307F\u8FBC\u3081\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u3082\u3046\u4E00\u5EA6\u304A\u8A66\u3057\u304F\u3060\u3055\u3044\u3002",retry:"\u518D\u8AAD\u307F\u8FBC\u307F"};var m={app:"\uC804\uC2DC\uB97C \uBD88\uB7EC\uC624\uB294 \uC911",sculpture:"\uC870\uAC01\uC744 \uBD88\uB7EC\uC624\uB294 \uC911",companions:"\uB3D9\uD589\uC790\uB97C \uBD88\uB7EC\uC624\uB294 \uC911",custom:"\uAE00\uC790\uB97C \uC0DD\uC131\uD558\uB294 \uC911",ready:"\uC900\uBE44\uB418\uC5C8\uC2B5\uB2C8\uB2E4",slow:"\uBD88\uB7EC\uC624\uB294 \uC911\uC785\uB2C8\uB2E4. \uC7A0\uC2DC\uB9CC \uAE30\uB2E4\uB824 \uC8FC\uC138\uC694.",failed:"\uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uB2E4\uC2DC \uC2DC\uB3C4\uD574 \uC8FC\uC138\uC694.",retry:"\uC0C8\uB85C\uACE0\uCE68"};var b={app:"Chargement de l\u2019exposition",sculpture:"Chargement de la sculpture",companions:"Chargement des compagnons",custom:"Cr\xE9ation des lettres",ready:"Tout est pr\xEAt",slow:"Chargement en cours. Un instant.",failed:"\xC9chec du chargement. R\xE9essayez.",retry:"Recharger"};var v={app:"Ausstellung wird geladen",sculpture:"Skulptur wird geladen",companions:"Begleiter werden geladen",custom:"Buchstaben werden erzeugt",ready:"Bereit",slow:"Wird noch geladen. Einen Moment bitte.",failed:"Laden fehlgeschlagen. Bitte erneut versuchen.",retry:"Neu laden"};var I={app:"Cargando la exposici\xF3n",sculpture:"Cargando la escultura",companions:"Cargando a los compa\xF1eros",custom:"Creando las letras",ready:"Todo listo",slow:"La carga contin\xFAa. Un momento.",failed:"No se pudo cargar. Int\xE9ntalo de nuevo.",retry:"Recargar"};var c={zh:{app:"\u6B63\u5728\u52A0\u8F7D\u5C55\u5385",sculpture:"\u6B63\u5728\u52A0\u8F7D\u96D5\u5851",companions:"\u6B63\u5728\u52A0\u8F7D\u540C\u884C\u8005",custom:"\u6B63\u5728\u751F\u6210\u5B57\u6BCD",ready:"\u52A0\u8F7D\u5B8C\u6210",slow:"\u4ECD\u5728\u52A0\u8F7D\uFF0C\u8BF7\u7A0D\u7B49\u3002",failed:"\u65E0\u6CD5\u52A0\u8F7D\uFF0C\u8BF7\u91CD\u8BD5\u3002",retry:"\u91CD\u65B0\u52A0\u8F7D"},en:{app:"Loading the exhibition",sculpture:"Loading the sculpture",companions:"Loading your companions",custom:"Generating the letters",ready:"Ready to enter",slow:"Still loading. Please wait.",failed:"Unable to load. Please try again.",retry:"Reload"},ja:h,ko:m,fr:b,de:v,es:I};(()=>{let e=document.getElementById("loading-screen"),s=document.getElementById("loading-message"),a=document.getElementById("loading-retry"),d=document.getElementById("exhibit"),p;try{p=localStorage.getItem("geb.locale")}catch{}let o=i(new URLSearchParams(location.search).get("lang"))||i(document.documentElement.dataset.locale)||i(p)||"zh",l="app",u=!1,n=!1,t=()=>{s.textContent=c[o][e.dataset.state==="failed"?"failed":u?"slow":l],a.textContent=c[o].retry};a.href=location.href,t();let g=setTimeout(()=>{n||(u=!0,a.hidden=!1,t())},12e3);window.exhibitLoading={setLocale(r){o=i(r)||o,t()},setStage(r){n||(l=r,t())},fail(){n||(clearTimeout(g),e.dataset.state="failed",a.hidden=!1,t())},finish(){n||(n=!0,clearTimeout(g),u=!1,e.dataset.state="ready",l="ready",t(),requestAnimationFrame(()=>{e.classList.add("leaving"),setTimeout(()=>{let r=e.contains(document.activeElement);e.hidden=!0,d.inert=!1,d.setAttribute("aria-busy","false"),r&&document.getElementById("enter").focus()},matchMedia("(prefers-reduced-motion: reduce)").matches?0:450)}))}},document.addEventListener("error",r=>{r.target?.id==="app-script"&&window.exhibitLoading.fail()},!0),window.addEventListener("error",r=>{r.filename?.includes("/assets/app.js")&&window.exhibitLoading.fail()}),window.addEventListener("unhandledrejection",()=>window.exhibitLoading.fail())})();})();
+  </script>
+  <script id="app-script" src="assets/app.js?v=site46-pile-tap" defer></script>
 </body></html>

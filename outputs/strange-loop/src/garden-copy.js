@@ -1,5 +1,8 @@
+import { GARDEN_TRANSLATIONS } from './locales/index.js';
 export const GARDEN_COPY = {
+  ...GARDEN_TRANSLATIONS,
   zh: {
+    rulesLabel: '四条改写规则', navigationLabel: '章节导航',
     eyebrow: '第一章 / 形式系统', title: 'WU 花园',
     question: '从 WJ 出发，只用四条规则，能得到 WU 吗？',
     practiceQuestion: '先把 WJ 变成 WUJU。跟着提示试试。',
@@ -90,6 +93,7 @@ export const GARDEN_COPY = {
     },
   },
   en: {
+    rulesLabel: 'Four rewrite rules', navigationLabel: 'Chapter navigation',
     eyebrow: 'CHAPTER ONE / FORMAL SYSTEMS', title: 'MU Garden',
     question: 'Starting with MI, can four rules lead you to MU?',
     practiceQuestion: 'First, turn MI into MUIU. Follow the suggested rule.',

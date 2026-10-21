@@ -20,6 +20,7 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
   }
   const pileGroup=new THREE.Group();pileGroup.scale.setScalar(.85);pileGroup.position.y=-3.8*(1-.85);group.add(pileGroup);
   const pile=createLetterPile(pileGroup,font,reduced);
+  const pileRaycaster=new THREE.Raycaster();
 
   // Open the existing wall instead of placing a dark rectangle on its surface.
   const lobbyWallGeometry = exitWall?.geometry, lobbyWallMaterial=exitWall?.material;
@@ -123,6 +124,12 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
   return {
     setVisible(value){setPresence(value ? 1 : 0);},
     setPresence,
+    pickPile(pointer,camera){
+      if(!group.visible)return null;
+      pileRaycaster.setFromCamera(pointer,camera);
+      return pile.pick(pileRaycaster);
+    },
+    nudgePile(index){return pile.nudge(index);},
     refreshShadows(){skylight.shadow.needsUpdate=true;},
     settle(){
       clearMotion();

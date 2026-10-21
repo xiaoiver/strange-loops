@@ -6,6 +6,7 @@ python3 scripts/subset-font.py /path/to/NotoSerifSC.ttf
 import hashlib
 import json
 import sys
+import re
 from pathlib import Path
 from fontTools import subset
 from fontTools.ttLib import TTFont
@@ -16,7 +17,8 @@ source = Path(sys.argv[1])
 expected = '050080d9255a86808f2945bffac582b31ef32bc36411ce29563b4961670c66f9'
 assert hashlib.sha256(source.read_bytes()).hexdigest() == expected, 'Unexpected source font'
 files = [root / 'index.html', root / 'style.css', root / 'garden.css', *sorted((root / 'src').glob('*.js'))]
-characters = set(''.join(path.read_text() for path in files))
+# The inline loader also contains Japanese; those glyphs use system fonts.
+characters = set(''.join(re.sub(r'<script id="loading-bootstrap">[\s\S]*?</script>', '', path.read_text()) for path in files))
 characters.update(chr(code) for code in range(32, 127))
 font = TTFont(source, recalcTimestamp=False)
 supported = set(font.getBestCmap())

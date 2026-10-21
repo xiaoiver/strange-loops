@@ -8,10 +8,13 @@ import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { applySoftShadows } from './soft-shadows.js';
 import { COPY } from './copy.js';
+import { within } from './startup-assets.js';
 import { initialLocale, localeUrl } from './locale-url.js';
+import { LANGUAGES } from './languages.js';
 import { loadCompanions } from './companions.js';
 import { createGarden } from './garden.js';
 import { createGardenScene } from './garden-scene.js';
+import { bindPileInteraction } from './pile-interaction.js';
 import { createExhibitFade } from './exhibit-fade.js';
 import { renderResolution, observePixelRatio } from './render-resolution.js';
 import {
@@ -28,7 +31,7 @@ import {
 } from './sculpture-export.js';
 
 const $=s=>document.querySelector(s);
-const world=$('#world'),status=$('#status');
+const world=$('#world'),status=$('#status'),loading=window.exhibitLoading;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 let paused=reduced.matches, inGarden=false, transition=false, currentView='free';
 let scene,renderer,camera,sculpture,clock,raf,composer,ao,fxaa,elapsed=0;
@@ -68,10 +71,13 @@ function renderChapterList(){
   const li=document.createElement('li'),number=document.createElement('span'),title=document.createElement('strong'),note=document.createElement('em');
   const here=index===(inGarden?1:0),available=index<=1;
   li.classList.toggle('current',here);li.classList.toggle('unavailable',!available);
-  if(here)li.setAttribute('aria-current','location');
-  number.textContent=String(index).padStart(2,'0');title.textContent=name;
-  note.textContent=here?COPY[locale].index.here:topic;
-  li.append(number,title,note);list.append(li);
+  const row=document.createElement(available?'button':'div'),marker=document.createElement('span');
+  row.className='chapter-row';number.className='chapter-number';marker.className='chapter-marker';
+  if(available){row.type='button';row.dataset.chapter=String(index);}
+  if(here){row.setAttribute('aria-current','location');marker.title=COPY[locale].index.here;}
+  marker.setAttribute('aria-hidden','true');
+  number.textContent=String(index).padStart(2,'0');title.textContent=name;note.textContent=topic;
+  row.append(number,title,note,marker);li.append(row);list.append(li);
  });
 }
 function syncDynamicLabels(){
@@ -83,17 +89,22 @@ function syncDynamicLabels(){
  if(lastStatus){const message=c.status[lastStatus.key];status.textContent=typeof message==='function'?message(...lastStatus.args):message;}
 }
 function applyLocale(){
+ loading?.setLocale(locale);
  const c=COPY[locale];document.documentElement.lang=c.lang;document.title=c.title;document.querySelector('meta[name="description"]').content=c.description;
  for(const el of document.querySelectorAll('[data-i18n]'))el.textContent=textAt(el.dataset.i18n);
  for(const el of document.querySelectorAll('[data-i18n-html]'))el.innerHTML=textAt(el.dataset.i18nHtml);
  for(const el of document.querySelectorAll('[data-i18n-aria]'))el.setAttribute('aria-label',textAt(el.dataset.i18nAria));
- const toggle=$('#language-switch');toggle.textContent=locale==='zh'?'EN':'中文';toggle.lang=locale==='zh'?'en':'zh-CN';toggle.setAttribute('aria-label',locale==='zh'?'Switch to English':'切换为中文');
+ const select=$('#language-switch');select.value=locale;select.setAttribute('aria-label',c.languageLabel);
  syncDynamicLabels();
  garden.setLocale(locale);
- if(inGarden)world.setAttribute('aria-label',locale==='zh'?'WU 花园：字母与同行者':'MU Garden: letters and companions');
+ if(inGarden)world.setAttribute('aria-label',COPY[locale].gardenWorld);
 }
-$('#language-switch').addEventListener('click',()=>{
- locale=locale==='zh'?'en':'zh';try{localStorage.setItem('geb.locale',locale);}catch{}
+for(const value of LANGUAGES){
+ const copy=COPY[value];
+ const option=document.createElement('option');option.value=value;option.lang=copy.lang;option.textContent=copy.languageName;$('#language-switch').append(option);
+}
+$('#language-switch').addEventListener('change',event=>{
+ locale=event.target.value;try{localStorage.setItem('geb.locale',locale);}catch{}
  history.replaceState(null,'',localeUrl(location.href,locale));applyLocale();announce('language');
 });
 
@@ -121,7 +132,7 @@ function syncLetterChrome(){
    nameEl.hidden=false;
   }
  }
- const directions={G:locale==='zh'?'正面观察':'front view',E:locale==='zh'?'侧面观察':'side view',B:locale==='zh'?'顶部观察':'top view'};
+ const directions=c.directions;
  for(const b of document.querySelectorAll('[data-view]')){
   const slot=b.dataset.view,letter=displayLetter(slot),plate=letterPlate(letter);
   const sep=locale==='zh'?'：':': ';const label=currentLetters===DEFAULT_LETTERS&&c.viewAria[slot]?c.viewAria[slot]:`${letter} · ${plate}${sep}${directions[slot]}`;
@@ -180,11 +191,12 @@ async function requestSculpture(raw,{announceFailure=true}={}){
  }
  sculptureBusy=true;syncLetterChrome();announce('sculptureGenerating',letters);
  try{
-  const {letters:built,buffer}=await sculptureWorker.build(letters);
+  const {letters:built,buffer}=await within(sculptureWorker.build(letters));
   applySculptureBuffer(buffer,built);
   if(!inGarden)announce('sculptureReady',built);
   return true;
  }catch(error){
+  if(error?.code==='asset-timeout')sculptureWorker.dispose();
   console.warn('Sculpture generation failed',error);
   if(announceFailure)announce(error?.message==='invalid'?'sculptureInvalid':error?.message==='worker'||error?.message==='disposed'?'sculptureWorkerFailed':'sculptureFailed');
   syncLetterChrome();
@@ -200,7 +212,9 @@ function plane(w,h,mat,x,y,z,rx=0,ry=0){const m=new THREE.Mesh(new THREE.PlaneGe
 function box(w,h,d,mat,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);return m;}
 
 async function init(){
+ const fontReady=within(Promise.resolve().then(()=>document.fonts?.load('500 16px "Strange Loops Serif SC"')),8000).catch(()=>{});
  try{
+  loading?.setStage('sculpture');
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setSize(innerWidth,innerHeight);
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -218,7 +232,7 @@ async function init(){
   plane(42,42,wallMat,17.2,17.2,-3.8);
   const exitWall=plane(42,42,wallMat,-3.8,17.2,17.2,0,Math.PI/2);
   // An original solid created by intersecting three perpendicular letter extrusions.
-  const modelData=await fetch('assets/sculpture.bin?v=smooth4').then(r=>{if(!r.ok)throw Error('sculpture');return r.arrayBuffer()});
+  const modelData=await fetch('assets/sculpture.bin?v=smooth4',{signal:AbortSignal.timeout(20000)}).then(r=>{if(!r.ok)throw Error('sculpture');return r.arrayBuffer()});
   const geometry=binToGeometry(modelData);
   graphiteMaterial=new THREE.MeshStandardMaterial({color:0x292c2b,metalness:.18,roughness:.44,bumpMap:tex,bumpScale:.008});
   graphiteMaterial.shadowSide=THREE.DoubleSide;
@@ -243,16 +257,21 @@ async function init(){
   composer.addPass(new OutputPass());fxaa=new ShaderPass(FXAAShader);composer.addPass(fxaa);
   if(!paused&&!inGarden)camPos.set(0,.1,16.5);
   if(inGarden){camera.position.copy(gardenCamera);camera.lookAt(gardenLook);}
-  resize();document.body.dataset.scene='ready';announce('ready');tick();
-  loadCompanions(scene,reduced,(id,position)=>{
+  resize();
+  loading?.setStage('companions');
+  const companionReady=loadCompanions(scene,reduced,(id,position)=>{
    const button=$(`#meet-${id}`);button.hidden=!position;
    if(position)button.style.transform=`translate(${position.x-22}px,${position.y-24}px)`;
   }).then(value=>{companions=value;if(inGarden||stage==='entering')companions.setSpace('garden');renderer.shadowMap.needsUpdate=true;projectionLights.B.shadow.needsUpdate=true;})
     .catch(error=>{console.warn('Companion models unavailable',error);announce('companionsUnavailable');});
-  syncLetterChrome();
+  const companionsReady=within(companionReady).catch(error=>{console.warn('Companion loading timed out',error);announce('companionsUnavailable');});
   const queryLetters=readQueryLetters();
-  if(queryLetters&&queryLetters!==DEFAULT_LETTERS)requestSculpture(queryLetters,{announceFailure:true});
- }catch(e){console.error(e);$('#fallback').hidden=false;world.style.display='none';$('.drag-hint').style.display='none';$('.view-tools').style.display='none';$('.sculpture-form')&&($('.sculpture-form').style.display='none');document.body.dataset.scene='fallback';announce('fallback');}
+  const customReady=queryLetters&&queryLetters!==DEFAULT_LETTERS?requestSculpture(queryLetters,{announceFailure:true}):Promise.resolve();
+  if(queryLetters&&queryLetters!==DEFAULT_LETTERS)loading?.setStage('custom');
+  await Promise.all([fontReady,companionsReady,customReady]);
+  document.body.dataset.scene='ready';syncLetterChrome();tick();announce('ready');
+  loading?.finish();
+ }catch(e){console.error(e);$('#fallback').hidden=false;world.style.display='none';$('.drag-hint').style.display='none';$('.view-tools').style.display='none';$('.sculpture-form')&&($('.sculpture-form').style.display='none');document.body.dataset.scene='fallback';announce('fallback');loading?.finish();}
 }
 
 function updateCameraProjection(){
@@ -325,6 +344,12 @@ world.addEventListener('pointerdown',e=>{if(inGarden||transition||!camera)return
 world.addEventListener('pointermove',e=>{if(!drag)return;manualAngle={radius:drag.radius,theta:drag.theta-(e.clientX-drag.x)*.006,phi:THREE.MathUtils.clamp(drag.phi+(e.clientY-drag.y)*.006,.12,Math.PI-.2)};currentView='free';for(const b of document.querySelectorAll('[data-view]'))b.setAttribute('aria-pressed','false');});
 function endDrag(){if(drag){drag=null;world.classList.remove('dragging');updateDialogue('drag');}}
 world.addEventListener('pointerup',endDrag);world.addEventListener('pointercancel',endDrag);
+bindPileInteraction(document,{
+ surface:world,
+ enabled:()=>inGarden&&!transition&&!reduced.matches&&!!camera&&$('#chapter-index').hidden&&!document.querySelector('dialog[open]'),
+ pick:pointer=>gardenScene?.pickPile(pointer,camera)??null,
+ nudge:index=>gardenScene?.nudgePile(index),
+});
 window.addEventListener('resize',resize);
 observePixelRatio(resize);
 for(const id of ['achilles','tortoise'])$(`#meet-${id}`).addEventListener('click',()=>{
@@ -351,11 +376,12 @@ function finishSceneEffects(){
  for(const light of Object.values(projectionLights))light.shadow.intensity=1;
  if(ao)ao.blendIntensity=.65;
 }
-$('#enter').addEventListener('click',()=>{
+function enterGarden(){
  if(transition||inGarden)return;transition=true;document.body.classList.add('entering');$('#enter').disabled=true;setIndex(false);
  if(document.body.dataset.scene==='ready'&&renderer&&camera&&!paused){beginSceneTransition(true);}else{gardenTimer=setTimeout(showGarden,paused?20:600);}
  announce('entering');
-});
+}
+$('#enter').addEventListener('click',enterGarden);
 function showGarden(){
  const walkedIn=stage==='entering';
  inGarden=true;transition=false;stage='garden';document.body.classList.add('in-garden');document.body.classList.remove('entering');
@@ -366,7 +392,7 @@ function showGarden(){
  for(const light of Object.values(projectionLights))light.visible=true;
  setGardenLighting(true);
  resize();refreshShadows();syncDynamicLabels();garden.show();announce(garden.isComplete()?'gardenComplete':'garden');
- world.setAttribute('aria-label',locale==='zh'?'WU 花园：字母与同行者':'MU Garden: letters and companions');
+ world.setAttribute('aria-label',COPY[locale].gardenWorld);
 }
 function backLobby(){
  if(!inGarden||transition)return;
@@ -396,6 +422,15 @@ function finishLobby(){
  announce('back');
 }
 $('.wordmark').addEventListener('click',e=>{e.preventDefault();if(inGarden)backLobby();else setView('free');setIndex(false);});
+
+$('#chapter-list').addEventListener('click',event=>{
+ const button=event.target.closest('button[data-chapter]');
+ if(!button||transition)return;
+ setIndex(false);
+ const chapter=Number(button.dataset.chapter);
+ if(chapter===(inGarden?1:0)){$('#index-trigger').focus({preventScroll:true});return;}
+ if(chapter===0)backLobby();else if(chapter===1)enterGarden();
+});
 
 function setIndex(open){$('#chapter-index').hidden=!open;$('#index-trigger').setAttribute('aria-expanded',String(open));if(open)$('#close-index').focus({preventScroll:true});}
 $('#index-trigger').addEventListener('click',()=>setIndex($('#chapter-index').hidden));$('#close-index').addEventListener('click',()=>{setIndex(false);$('#index-trigger').focus()});

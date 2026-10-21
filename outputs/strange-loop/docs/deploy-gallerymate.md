@@ -42,3 +42,8 @@ GM 的既有 ECS workflow 会打包 public 文件。打包前验证发布清单�
 ## 回滚
 
 跟随 GM 的发布包回滚，或在 GM 中恢复上一份 `public/experiences/geb` 快照重新发布。展厅的存档在访客浏览器中；换域名会使用不同的浏览器存储，但同域、同路径的版本更新保留原有进度。
+
+
+### Seven-language release
+
+The release now includes `index.html` (Chinese), `en.html`, `ja.html`, `ko.html`, `fr.html`, `de.html`, and `es.html`. All pages declare the full set of language alternates. On the Gallery Mate side, extend the existing language-to-file routing and `gebHref` helper to these seven codes when syncing this release; the prior integration only distinguished Chinese and English. The client-side picker already resolves all seven languages, but correct initial metadata requires the server to select the matching HTML file. Keep query parameters such as `s` intact. Update route/sitemap tests and smoke-test each `?lang=` URL as part of that integration.

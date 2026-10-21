@@ -5,6 +5,7 @@ import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { COPY } from '../src/copy.js';
+import { LANGUAGES } from '../src/languages.js';
 
 export const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const basePath = '/experiences/geb/';
@@ -39,6 +40,7 @@ export async function verifyRelease(directory) {
   for (const required of ['index.html', 'en.html', 'style.css', 'garden.css', 'assets/app.js', 'assets/sculpture-worker.js', 'assets/letter-pile-worker.js', 'assets/sculpture.bin', 'assets/characters/achilles.glb', 'assets/characters/tortoise.glb', 'assets/draco/draco_decoder.wasm', 'assets/fonts/serif-sc.woff2', 'THIRD_PARTY_NOTICES.md']) {
     if (!expected.has(required)) throw new Error(`Missing runtime asset: ${required}`);
   }
+  for (const language of LANGUAGES) if (!expected.has(language === 'zh' ? 'index.html' : `${language}.html`)) throw new Error(`Missing language page: ${language}`);
   return manifest;
 }
 
@@ -46,30 +48,31 @@ async function verifyFontCoverage() {
   const manifest = JSON.parse(await readFile(path.join(root, 'assets/fonts/subset.json'), 'utf8'));
   if (digest(await readFile(path.join(root, 'assets/fonts/serif-sc.woff2'))) !== manifest.sha256) throw new Error('Font checksum mismatch');
   const covered = new Set(manifest.codepoints);
-  const sources = ['index.html', 'style.css', 'garden.css', ...(await filesIn(path.join(root, 'src'))).filter(name => name.endsWith('.js')).map(name => `src/${name}`)];
-  for (const source of sources) for (const char of await readFile(path.join(root, source), 'utf8')) {
+  // Japanese and Korean use their own system fonts, not the Chinese subset.
+  const sources = ['index.html', 'style.css', 'garden.css', ...(await filesIn(path.join(root, 'src'))).filter(name => name.endsWith('.js') && !name.startsWith('locales/')).map(name => `src/${name}`)];
+  for (const source of sources) for (const char of (await readFile(path.join(root, source), 'utf8')).replace(/<script id="loading-bootstrap">[\s\S]*?<\/script>/, '')) {
     const code = char.codePointAt(0);
     if (code >= 0x3400 && code <= 0x9fff && !covered.has(code)) throw new Error(`Rebuild the font subset: missing ${char} in ${source}`);
   }
 }
 
 function page(html, language, hashes) {
-  const copy = COPY[language], english = language === 'en';
-  const canonical = `${origin}${basePath.slice(0, -1)}${english ? '?lang=en' : ''}`;
-  html = html.replace('<html lang="zh-CN">', `<html lang="${copy.lang}"${english ? ' data-locale="en"' : ''}>`)
+  const copy = COPY[language], chinese = language === 'zh';
+  const canonical = `${origin}${basePath.slice(0, -1)}${chinese ? '' : `?lang=${language}`}`;
+  html = html.replace('<html lang="zh-CN">', `<html lang="${copy.lang}" data-locale="${language}">`)
     .replace(/<title>.*?<\/title>/, `<title>${escape(copy.title)}</title>`)
     .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${escape(copy.description)}">`)
     .replace('<head>', `<head>\n  <base href="${basePath}">`);
   for (const [file, hash] of Object.entries(hashes)) html = html.replace(new RegExp(`${file.replaceAll('.', '\\.')}\\?v=[^"\\s]+`, 'g'), `${file}?v=${hash.slice(0, 12)}`);
-  const image = `${origin}${basePath}assets/share-${english ? 'en' : 'zh'}.jpg`;
+  const image = `${origin}${basePath}assets/share-${chinese ? 'zh' : 'en'}.jpg`;
+  const ogLocale = { zh: 'zh_CN', en: 'en_US', ja: 'ja_JP', ko: 'ko_KR', fr: 'fr_FR', de: 'de_DE', es: 'es_ES' }[language];
   return html.replace('</head>', `  <link rel="canonical" href="${escape(canonical)}">
-  <link rel="alternate" hreflang="zh-CN" href="${origin}${basePath.slice(0, -1)}?lang=zh">
-  <link rel="alternate" hreflang="en" href="${origin}${basePath.slice(0, -1)}?lang=en">
+${LANGUAGES.map(key => `  <link rel="alternate" hreflang="${COPY[key].lang}" href="${origin}${basePath.slice(0, -1)}?lang=${key}">`).join('\n')}
   <meta property="og:type" content="website">
   <meta property="og:title" content="${escape(copy.title)}">
   <meta property="og:description" content="${escape(copy.description)}">
   <meta property="og:url" content="${escape(canonical)}">
-  <meta property="og:locale" content="${english ? 'en_US' : 'zh_CN'}">
+  <meta property="og:locale" content="${ogLocale}">
   <meta property="og:image" content="${image}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="${image}">
@@ -89,8 +92,7 @@ export async function buildRelease(directory = path.join(root, 'dist/experiences
     const hashes = {};
     for (const file of ['style.css', 'garden.css', 'assets/app.js']) hashes[file] = digest(await readFile(path.join(stage, file)));
     const html = await readFile(path.join(root, 'index.html'), 'utf8');
-    await writeFile(path.join(stage, 'index.html'), page(html, 'zh', hashes));
-    await writeFile(path.join(stage, 'en.html'), page(html, 'en', hashes));
+    for (const language of LANGUAGES) await writeFile(path.join(stage, language === 'zh' ? 'index.html' : `${language}.html`), page(html, language, hashes));
     const manifest = {
       schemaVersion: 1, basePath, canonicalOrigin: origin,
       source: {

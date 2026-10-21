@@ -74,3 +74,16 @@ G/E/B 的观察按钮已改为字母加人名的展签，手机与桌面都默�
 字形轮廓被拆成保留空洞的凸多面体组合，使用固定 1/60 秒步长。模拟在独立 Web Worker 中运行，离开第一章或页面隐藏时暂停；重新进入章节会重播上层字母落下，切回浏览器标签则接着原状态运行；全部字母静止后结束 Worker。Three.js 使用八组 InstancedMesh，并对物理快照插值。
 
 减少动态效果或 Worker 不可用时使用 `src/letter-pile-rest.json`，这是同一物理引擎生成的静止结果。调整字形、数量、随机种子或物理参数后，运行 `npm run letter-pile` 重新生成，再执行 `npm test` 和 `npm run build`。
+
+## 首次加载
+
+HTML 内置纸灰加载屏，在主脚本下载前即可显示。雕塑、同行者、字体及分享字母生成完成后，先渲染首帧再淡出；等待时展厅控件保持 inert。12 秒仍未完成会显示重试入口，主脚本失败也可重新加载。关键雕塑请求与可选模型等待有 20 秒期限，字体等待最长 8 秒；三维失败后退出遮罩，保留文字玩法。减少动态效果时不播放加载条和淡出动画。
+
+
+### Languages
+
+The exhibit supports Chinese (`zh`), English (`en`), Japanese (`ja`), Korean (`ko`), French (`fr`), German (`de`) and Spanish (`es`). The header selector updates `?lang=` while preserving the sculpture query and chapter progress. Shared URLs take precedence over the saved preference; unsupported language codes fall back safely.
+
+New original translations live in `src/locales/`. The mathematical engine always uses MIU; Chinese displays WJU, while the other six languages display MIU. Japanese and Korean use system fonts for their respective scripts. Existing published translations of the book are not quoted.
+
+The loader is authored in `src/loading.js` and bundled inline by `scripts/build-loading.mjs` during `npm run build`, so localized loading and retry messages work even if the main bundle fails. Do not edit the generated inline loader directly. Release output includes a static page and metadata for each language; the host must select the matching file for `?lang=`.

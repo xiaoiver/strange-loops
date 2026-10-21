@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test test/*.test.js",
-    "build": "esbuild src/main.js --bundle --minify --outfile=assets/app.js && esbuild src/sculpture-worker.js --bundle --minify --format=iife --outfile=assets/sculpture-worker.js && esbuild src/letter-pile-worker.js --bundle --minify --format=iife --outfile=assets/letter-pile-worker.js",
+    "build": "node scripts/build-loading.mjs && esbuild src/main.js --bundle --minify --outfile=assets/app.js && esbuild src/sculpture-worker.js --bundle --minify --format=iife --outfile=assets/sculpture-worker.js && esbuild src/letter-pile-worker.js --bundle --minify --format=iife --outfile=assets/letter-pile-worker.js",
     "start": "python3 -m http.server 4173",
     "sculpture": "node scripts/generate-sculpture.mjs",
     "compress-characters": "gltf-transform draco assets/characters/achilles.glb assets/characters/achilles.glb --method edgebreaker && gltf-transform draco assets/characters/tortoise.glb assets/characters/tortoise.glb --method edgebreaker",
