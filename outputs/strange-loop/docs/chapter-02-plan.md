@@ -4,7 +4,7 @@
 
 ## 首版范围
 
-一间画廊、一个共边轮廓、一个数字展面、一条短流程。沿用现有阿基里斯与乌龟，不再增加人物或学习新的符号操作规则。主流程约 5 次点击（不含入章与可选帮助）；解释默认收起，没有必须等待的演出。章节完成以理解确认为准，不以观看时长或尝试次数为准。
+一间画廊、一个 Rubin 花瓶式共边轮廓、一个数字展面、一条短流程。沿用现有阿基里斯与乌龟，不再增加人物或学习新的符号操作规则。主流程约 5 次点击（不含入章与可选帮助）；解释默认收起，没有必须等待的演出。章节完成以理解确认为准，不以观看时长或尝试次数为准。《龙虾》黑白海报作为可选的负空间延伸案例，不增加主流程步骤或完成条件。
 
 交付物包括原创轮廓源 SVG、可操作的三维展面、对应的无 WebGL 图文流程、七语言文案、独立进度保存及验收记录。空间沿用用户认可的黑白灰展厅、真实斜向天光和展品侧下方的同行者。
 
@@ -57,7 +57,7 @@
 
 延续黑白纸灰、PBR、AO、真实天光和小比例同行者。首版仅增加一面薄屏风与一处数字展面，不增加楼梯、迷宫或复杂园林。
 
-屏风采用原创的“器皿／双侧脸”共边轮廓：先用 SVG 验证两种形状都容易认出，再挤出成低面数几何。两块深灰侧面之间的留白形成器皿，白色后墙提供衬底。按钮只改变轮廓提示与叙述焦点，不增删几何，不把空隙突然实体化。建筑和物体的阴影继续来自场景灯光。
+主场景确定采用 Rubin 花瓶的图底原理，自行绘制“花瓶／双侧脸”的共边轮廓，不描摹某一张现成图片。先用 SVG 验证两种形状都容易认出，再挤出成低面数几何。两块深灰侧面之间的留白形成花瓶，白色后墙提供衬底。按钮只改变轮廓提示与叙述焦点，不增删几何，不把空隙突然实体化。建筑和物体的阴影继续来自场景灯光。
 
 识别镜头保留一个可一键恢复的正视观察位，拖动范围受限，避免大角度透视破坏共边关系。提示线只作阅读辅助，不冒充实体投影；不增加贴在墙上的假阴影、景深或音频控件。数字证据使用文字及下划线／轮廓区别状态，不单靠灰度变化。
 
@@ -72,6 +72,24 @@
 面板里的“生成进度”与“数学分类”分别存储：11 的素数结论来自试除证据，不能由它在生成批次里缺席推断。2、3、5、7 等未选数字仍显示“尚未分类”，首版不要求完成整张数字表。
 
 人物停在展品侧下方，初始靠屏风左前侧，进入数字段后转向相邻墙面，阿基里斯先认形、提出猜测，乌龟引导观察。两人每段最多各一句回应，不重复播报。移动端按“短引导 → 场景 → 当前操作”排列，所有操作可用按钮完成。
+
+## 可选延伸案例：《龙虾》的负空间海报
+
+案例锁定为用户确认的《龙虾》（The Lobster，2015）黑白海报：Colin Farrell 戴眼镜、拥抱着一个白色人形，另一人的轮廓融入白色背景。设计者为 Vasilis Marmatakis；不是龙虾动物剪影版，也不是其他未采用的海报草案。
+
+设计师在[访谈及官方海报展示](https://origin.dazeddigital.com/film-tv/article/42750/1/yorgos-lanthimos-posters-the-favourite-lobster-vasilis-marmatakis-interview)中，将这组作品联系到独处的感受与陪伴的需要。[用户确认版本的在线图像参考](https://images.justwatch.com/poster/319932850/s718/the-lobster.jpg)仅用于识别具体版本，不是图片使用授权来源。本计划不下载或收录海报文件。
+
+教学侧重点：Rubin 花瓶让同一边界产生人脸与花瓶两种读法；《龙虾》海报则利用拥抱姿态和空白轮廓，让观众感知一个没有被画出来的人。后者用于说明“空白也能承载叙事信息”，不要求它具有花瓶式的双稳态切换，也不把艺术中的推测当成数学证明。这是本展加入的当代案例，不是 GEB 原书中的插图。
+
+入口放在共边观察后的可选帮助中，使用低强调的“延伸：电影海报中的负空间”文字入口，不在主场景新增海报墙或按钮排。展开后保留当前观察位与章节步骤，显示短评、作品及设计者信息和外部查看链接；关闭后焦点回到入口。完成本章不要求打开此案例，后续数字墙仍按原流程推进。七种语言覆盖标题、短评、署名说明和链接的可访问名称。
+
+首版以原创短评和外部链接呈现，不内嵌、热链或打包海报。未来若直接展示图片，先确认对应版本的授权或针对最终用途的适当引用依据，再记录来源、署名、使用范围及是否允许修改；不能把宣传素材的可下载性视为展厅复用许可。可参考 [A24 宣传素材条款](https://press.a24films.com/terms)及[中国《著作权法》第二十四条](https://www.ncac.gov.cn/xxfb/flfg/flfg_532/202103/t20210309_50530.html)，具体海报的权利归属和适用范围仍需单独确认。外部链接不可用时，短评仍可阅读，主体验不受影响。
+
+原创短评草案：
+
+> 画面中的人正拥抱着一片空白。但顺着手臂和肩膀的轮廓，你仍能辨认出另一个人。这里，留白让“缺席”也有了形状。
+
+> The person in the poster embraces an empty space. Yet the contours of the arms and shoulders let you make out someone else. Here, absence takes shape.
 
 ## 概念图参考与落地取舍
 
@@ -175,6 +193,7 @@ Esc 依次关闭帮助、章节地图，再退出本章；焦点回到对应触�
 | 素材或模块 | 制作方式 | 首版约束 |
 | --- | --- | --- |
 | 共边屏风 | 原创 SVG 轮廓，运行时挤出；源文件随仓库保存 | 先验证识别再制作厚度，单件约千级三角面，不新增纹理 |
+| 《龙虾》延伸案例 | 原创短评、作品及设计者信息、外部来源链接 | 可选帮助内展示；首版不内嵌海报、不新增场景展品或完成条件 |
 | 数字展面 | 复用字体与现有 Three.js 材质，11 个数字 | 保留 HTML 等价入口，不重建整间场景 |
 | 同行者 | 复用现有 GLB、Walk / Look / Idle | 每段至多一次观察反应，不新增自动抱臂触发链 |
 | 空间与照明 | 复用白墙、地面、门洞与天光做局部调整 | 复用现有渲染器和阴影方案，离章恢复原场景状态 |
@@ -203,6 +222,7 @@ Esc 依次关闭帮助、章节地图，再退出本章；焦点回到对应触�
 - 每段只有一个主要操作，8、11 无需精确点选；场景中的证据在非 3D 后备页面中同样可读。
 - 屏风与数字墙属于同一空间；转场保留展品位置关系，减少动态时无需等待。角色和阴影没有跨章节残留。
 - 竖屏轮廓不被拉伸，角色不遮挡识别边界，footer 和主操作不互相遮挡；检查 11 的结果没有含义不明的勾号。
+- 主展品为自行绘制的 Rubin 花瓶式屏风；《龙虾》案例仅在可选帮助内出现。打开、关闭或跳过均不改变学习证据与完成状态，关闭恢复焦点；首版不请求外部海报图片，外链失败不阻断流程。
 - 理解条件未满足时不显示完成；完成状态可以恢复，重复点击不重复触发过场。
 - 七种语言、键盘、触屏、390 × 844、减少动态、无 WebGL 均有完整路径；语言切换保留步骤与证据状态。
 - 序厅与第一章的光照、四条规则、推导保存和角色动画保持正常。
@@ -222,4 +242,4 @@ Esc 依次关闭帮助、章节地图，再退出本章；焦点回到对应触�
 
 ## English summary
 
-Chapter two adapts the book's third chapter, Figure and Ground, with a short bridge from Meaning and Form. A shared contour introduces figure and ground; grouped marks then reveal a numerical relationship without teaching another rewrite system. A partial composite generator leaves 8 blank before generating it. A separate terminating check establishes that 11 is prime and gives it a visible outline and evidence marker in the 3D space, turning overlooked ground into an identified object. One short comprehension check completes the chapter. Each step has one primary action, and all seven existing languages are supported. The finite demonstration does not prove general undecidability, claim that primes are undecidable, or suggest that visual inversion changes formal derivability. The room remains unavailable until implemented and verified.
+Chapter two adapts the book's third chapter, Figure and Ground, with a short bridge from Meaning and Form. An independently drawn Rubin-vase contour introduces figure and ground; grouped marks then reveal a numerical relationship without teaching another rewrite system. A partial composite generator leaves 8 blank before generating it. A separate terminating check establishes that 11 is prime and gives it a visible outline and evidence marker in the 3D space, turning overlooked ground into an identified object. One short comprehension check completes the chapter. Each step has one primary action, and all seven existing languages are supported. The finite demonstration does not prove general undecidability, claim that primes are undecidable, or suggest that visual inversion changes formal derivability. An optional commentary on the black-and-white The Lobster poster extends the theme to narrative negative space, using external links only in the initial release. It adds no required step or completion condition. The room remains unavailable until implemented and verified.
