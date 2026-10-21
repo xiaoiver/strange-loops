@@ -2,31 +2,57 @@
 
 简体中文 | [English](README.en.md)
 
-以《哥德尔、艾舍尔、巴赫：集异璧之大成》为灵感的中英文可交互叙事展。序厅从一件三维雕塑的 G、E、B 投影出发，第一章「WU 花园」让你亲手改写符号。阿基里斯与乌龟在旁漫游、停留并与你交谈。
+与阿基里斯和乌龟一起，在三维空间中重访《哥德尔、艾舍尔、巴赫：集异璧之大成》。从同一件雕塑的三种投影，走到符号改写与图底互换，用观察和操作理解书中的线索。展厅对白与说明为原创致敬，中文术语参考商务印书馆译本。
 
-序厅使用 Three.js PBR 材质、PCSS 柔光阴影与 GTAO，支持拖动观察、三种字母视角、光源开关、自定义三字母雕塑生成（`?s=XYZ`）、当前雕塑 STL 本地下载、中英文切换和角色待机骨骼动画。文案为原创致敬；阿基里斯基于 POLLO28 的 CC BY 4.0 人偶模型，乌龟使用用户提供的 Tripo 生成网格，均经 Blender 优化与动画适配；详见[素材署名](THIRD_PARTY_NOTICES.md#achilles-mannequin)。
+**[进入在线展厅](https://www.gallerymate.xyz/experiences/geb?lang=zh)** · [English](https://www.gallerymate.xyz/experiences/geb?lang=en) · [试试自定义雕塑 CAT](https://www.gallerymate.xyz/experiences/geb?lang=zh&s=CAT)
 
-![序厅实机截图：GEB 雕塑、墙面投影与阿基里斯和乌龟](outputs/strange-loop/docs/screenshots/vestibule.jpg)
+目前开放序厅、第一章和第二章。支持中文、英文、日文、韩文、法文、德文和西班牙文；切换语言会保留游览与解谜进度。第三章至第七章仍在制作，章节地图中置灰显示。
 
-## 模型来源
+## 序厅：三重投影
 
-- **阿基里斯**：采用 POLLO28 的 [STYLE Fortnite-creative-mannequin](https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c)，许可为 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)。本项目进行了减面、材质调整和动作适配。
-- **乌龟**：由用户使用 **Tripo 生成**，随后在 Blender 中清理、减面、绑定骨骼并适配动画。
+一件雕塑在三束互相垂直的光下投出 G、E、B。拖动观察、切换字母视角，或分别开关光源。也可以输入任意三个大写拉丁字母，在浏览器里生成新的交集雕塑，并下载当前模型的 STL。
 
-原始模型与可编辑工程均保留，详见[角色文档](outputs/characters/README.md)和[素材声明](THIRD_PARTY_NOTICES.md)。
+![中文序厅：GEB 雕塑、真实投影与两位同行者](outputs/strange-loop/docs/screenshots/readme-vestibule-zh.jpg)
+
+## 第一章：WU 花园
+
+先跟随提示，用四次改写把 WJ 变为 WUJU，再观察 J 的数量、三个一组的余数和四条规则的影响，发现为什么 WU 不可达。理解不变量后即可完成本章，无需一直试下去；也可以继续自由探索。
+
+规则一键应用，多处匹配时使用最左一处；支持提示、退一步与重新开始。内部使用原版 MIU 系统，中文界面显示 WJU，其余语言显示 MIU。存档恢复时会逐步验证推导，三维字母与真实改写同步。
+
+![中文 WU 花园：字母堆、当前字串、四条规则与天光出口](outputs/strange-loop/docs/screenshots/readme-garden-zh.jpg)
+
+![中文第一章：理解不变量后完成，并可进入第二章](outputs/strange-loop/docs/screenshots/readme-garden-complete-zh.jpg)
+
+## 第二章：图形与衬底
+
+两位同行者穿过 WU／MU 出口，进入天光美术馆。先看并置的两款《龙虾》海报，沿拥抱的边界寻找缺席的人；再走向 Rubin 共边墙，在两张侧脸之间看见花瓶。页面展签介绍作者、年份与来源，可以往返观察。
+
+![中文第二章：《龙虾》双海报与页面展签](outputs/strange-loop/docs/screenshots/readme-posters-zh.jpg)
+
+![中文第二章：Rubin 共边墙、花瓶留白与左侧回看入口](outputs/strange-loop/docs/screenshots/readme-rubin-zh.jpg)
+
+角色穿门时慢跑，展品之间使用 Formal 步态；步频跟随实际位移，镜头先聚焦展品并恢复阅读，角色随后到位。第二章保留观察与展签，不设置数字墙、数学问答或完成徽标。
+
+## 画面与交互
+
+- Three.js PBR 材质、实时光源投影、PCSS 柔光阴影、GTAO 与 FXAA；黑白纸灰配色，无景深或背景音频。
+- 第一章的字母堆使用 cannon-es 在 Web Worker 中模拟重力与碰撞；改写字母单独呈现。
+- 角色骨骼待机、转头和行进；页脚以翻牌数字标记章节，地图提供已开放空间的导航。
+- 自托管中文字体、键盘操作和系统减弱动态支持；WebGL 不可用时仍可操作第一章规则、浏览第二章的 SVG 与 HTML 展项。
 
 ## 本地预览
 
-仓库已包含构建后的网页与模型，无需安装依赖即可预览：
+仓库包含构建后的网页和模型，无需安装依赖即可预览：
 
 ```sh
 cd outputs/strange-loop
 python3 -m http.server 4173
 ```
 
-打开 <http://localhost:4173>。需要 HTTP 服务，不能直接双击 HTML。
+打开 [中文预览](http://localhost:4173/?lang=zh) 或 [English](http://localhost:4173/?lang=en)。需通过 HTTP 访问。
 
-## 修改与构建
+修改源码时：
 
 ```sh
 cd outputs/strange-loop
@@ -36,38 +62,26 @@ npm run build
 npm start
 ```
 
-网页是静态页面，发布目录为 `outputs/strange-loop`。详细渲染、交互和文案说明见[网页 README](outputs/strange-loop/README.md)。
+`npm run build` 会更新网页主脚本、翻牌样式及两个 Worker；修改后刷新浏览器。详细实现见[网页文档](outputs/strange-loop/README.md)。
 
-## 项目结构
+## 发布到 Gallery Mate
 
-- `outputs/strange-loop/`：网页源码、锁定依赖版本、构建脚本、已构建 JavaScript、雕塑及角色 GLB。
-- `outputs/characters/`：Blender 可编辑工程、建模与动画生成脚本、渲染预览及[角色说明](outputs/characters/README.md)。
-- `PRODUCT.md`、`DESIGN.md`：产品方向与已确认的设计规范。
+在已提交的干净版本中运行：
 
-Blender 角色工程包含骨骼、材质及 Idle / Walk / Look 动画。重建命令见角色说明。
+```sh
+cd outputs/strange-loop
+npm run release
+```
 
-## 当前范围
+生成的 `dist/experiences/geb/` 包含七语言 HTML、运行资源、素材声明，以及记录来源提交和文件 SHA-256 的 `release.json`。源仓库 CI 会验证并上传发布包；更新官网时，将该包导入 GM 仓库，合并同步 PR 后由 GM 的 ECS 流程发布。
 
-序厅与第一章可完整体验。WU / MU 花园先用四次点击完成小目标，再通过数 J、三个分组和检查四条规则发现不变量。选出 WU 不可达的正确理由后，本章即完成并保存，无需反复尝试；自由探索为可选项。四条原版规则一键应用，多处符合时默认改写最左侧；界面只保留提示、退一步和重新开始，不展示历史记录。三维字母同步变化，中英文切换、返回序厅和刷新会保留进度；无 WebGL 也能操作规则。第三章及后续章节尚未开放。
+发布流程见[官网部署说明](outputs/strange-loop/docs/deploy-gallerymate.md)，第二章行为与检查记录见[本地验收文档](outputs/strange-loop/docs/chapter-02-verification.md)。
 
-下一章节见[第二章制作计划](outputs/strange-loop/docs/chapter-02-plan.md)。漫游地图将第三章至第七章置灰，右侧保留章节主题。
+## 素材与项目结构
 
-![第一章 WU 花园实机截图：斜向顶光、规则桌与有纵深的门洞](outputs/strange-loop/docs/screenshots/garden.jpg)
+- **阿基里斯模型**：POLLO28 的 [STYLE Fortnite-creative-mannequin](https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c)，[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)，经减面、材质与动作适配。
+- **角色动作**：Quaternius [Universal Animation Library](https://quaternius.com/packs/universalanimationlibrary.html) 的 `Walk_Formal_Loop` 与 `Jog_Fwd_Loop`，CC0，经 Blender 重定向；保留原模型的抱臂待机与转头。
+- **乌龟**：由用户使用 Tripo 生成，经 Blender 清理、减面与骨骼绑定。
+- **展品**：《龙虾》海报由 Vasilis Marmatakis 设计，逐幅来源见展签与[素材声明](THIRD_PARTY_NOTICES.md)；Rubin 墙体使用原创轮廓，标注研究出处。项目未包含原书全文、封面扫描或埃舍尔原画。
 
-![理解不变量后，第一章明确标记为已完成](outputs/strange-loop/docs/screenshots/garden-complete.jpg)
-
-项目未包含原书全文、封面扫描或艾舍尔作品图像。依赖及字体声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
-
-部署说明见[发布到 Gallery Mate 官网](outputs/strange-loop/docs/deploy-gallerymate.md)。
-
-## 第二章：图形与衬底
-
-可从地图或第一章的下一章按钮进入。两位角色穿过 WU／MU 出口，经侧墙入口来到《龙虾》双海报前，再走向 Rubin 共边墙，观察两张侧脸之间的花瓶形留白。页面上的美术馆式展签介绍设计者、年份和来源。看过共边墙后可回看海报，或打开下一章预告；当前不展示数字墙、数学问答或完成标记。七种语言共享观察进度，旧存档自动回到对应展品；无 3D 时使用 SVG 与 HTML 游览。素材来源见仓库 THIRD_PARTY_NOTICES.md。
-
-![第二章：共边墙体与天光画廊](outputs/strange-loop/docs/screenshots/figure-ground-rubin.jpg)
-
-阿基里斯的步行动作使用 [Quaternius Universal Animation Library](https://quaternius.com/packs/universalanimationlibrary.html) 的 `Walk_Formal_Loop`（CC0），通过 Blender 重定向到现有人偶；抱臂待机与转头保留。
-
-第一章到第二章穿门时，阿基里斯使用同一 CC0 动画库的 `Jog_Fwd_Loop` 轻慢跑，乌龟加快同行；展品之间仍用 Formal 步态。
-
-进入第二章后，镜头先聚焦当前展品并恢复阅读，同行者继续到位。章节数字使用翻牌动画，地图主题文字保持右对齐。
+`outputs/strange-loop/` 保存网页源码、测试与运行资源；`outputs/characters/` 保存 Blender 工程、重定向脚本、源模型和动画预览，详见[角色文档](outputs/characters/README.md)。[PRODUCT.md](PRODUCT.md) 与 [DESIGN.md](DESIGN.md) 记录产品方向和设计约定。全部依赖、字体及素材许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
