@@ -4,7 +4,7 @@ const dialogueActors = { free: 'achilles', G: 'achilles', E: 'tortoise', B: 'ach
 const gardenActors = { opening: 'tortoise', challenge: 'tortoise', understood: 'achilles', understoodTortoise: 'tortoise', observeAchilles: 'achilles', r1: 'achilles', r2: 'achilles', r3: 'tortoise', r4: 'achilles', choice: 'tortoise', back: 'tortoise', long: 'achilles', hypothesis: 'tortoise', practice: 'achilles', achilles: 'achilles', tortoise: 'tortoise', noU: 'achilles', hasChoice: 'tortoise' };
 
 export function exhibitionCopy(data) {
-  const { plates, intro, bookLabel, dialogues, index, lobby, lightActions, status, ...copy } = data;
+  const { plates, intro, bookLabel, dialogues, index, lightActions, status, ...copy } = data;
   const letterNames = Object.fromEntries([...('ABCDEFGHIJKLMNOPQRSTUVWXYZ')].map((key, i) => [key, plates[i]]));
   const book = `<a class="book-link" href="https://en.wikipedia.org/wiki/G%C3%B6del,_Escher,_Bach" target="_blank" rel="noopener noreferrer" aria-label="${bookLabel}" title="${bookLabel}">GEB</a>`;
   return {
@@ -15,8 +15,6 @@ export function exhibitionCopy(data) {
     intro: intro.replace('{book}', book),
     dialogues: Object.fromEntries(Object.entries(dialogues).map(([key, text]) => [key, [dialogueActors[key], key === 'G' ? letter => format(text, letter) : text]])),
     index: { ...index, note: `${index.note}<br>${letterNames.A}: <a class="book-link" href="https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c" target="_blank" rel="noopener noreferrer">STYLE Fortnite-creative-mannequin</a> · POLLO28 · <a class="book-link" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> (${index.adapted}).` },
-    lobbyLocation: `<b>00</b><span class="footer-line"></span>${lobby}`,
-    gardenLocation: '<b>01</b>',
     lightAria: (letter, on) => format(lightActions[on ? 1 : 0], letter),
     status: {
       ...status,

@@ -18,7 +18,7 @@ export const copy = {
   },
   index: { title: 'Le parcours', subtitle: 'SEPT SALLES, UNE BOUCLE ÉTRANGE', here: 'Vous êtes ici', adapted: 'adapté', note: 'Le vestibule et les deux premiers chapitres sont ouverts. Les autres suivront.<br>Un hommage interactif à Gödel, Escher, Bach de Douglas R. Hofstadter.<br>Les dialogues sont originaux, sans citations du livre.' },
   chapters: [['Trois projections','Représentation'],['Jardin MU','Systèmes formels'],['Figure et fond','Figure / fond'],['Petit labyrinthe harmonique','Récursion'],['Cour du canon en crabe','Rétrograde'],['Fugue des fourmis','Niveaux de description'],['Chambre de l’autoréférence','Codage / autoréférence'],['Tour des hiérarchies enchevêtrées','Boucles étranges']],
-  lobby: 'VESTIBULE',
+
   fallback: { title: 'Une sculpture. Trois lettres.', note: 'La scène 3D est indisponible sur cet appareil. Le premier chapitre reste accessible.' },
   lightActions: ['Allumer la lumière {0}', 'Éteindre la lumière {0}'],
   status: {

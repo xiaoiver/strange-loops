@@ -13,7 +13,7 @@ export const copy = {
   },
   index: { title: 'Der Rundgang', subtitle: 'SIEBEN RÄUME, EINE SELTSAME SCHLEIFE', here: 'Sie sind hier', adapted: 'bearbeitet', note: 'Die Vorhalle und die ersten beiden Kapitel sind geöffnet. Weitere Räume folgen.<br>Eine interaktive Hommage an Douglas R. Hofstadters Gödel, Escher, Bach.<br>Alle Dialoge wurden für diese Ausstellung geschrieben; sie sind keine Buchzitate.' },
   chapters: [['Drei Projektionen','Darstellung'],['MU-Garten','Formale Systeme'],['Figur und Grund','Figur / Grund'],['Kleines harmonisches Labyrinth','Rekursion'],['Hof des Krebskanons','Rückläufigkeit'],['Ameisenfuge','Beschreibungsebenen'],['Raum der Selbstbezüglichkeit','Codierung / Selbstbezug'],['Turm der verflochtenen Hierarchien','Seltsame Schleifen']],
-  lobby: 'VORHALLE', fallback: { title: 'Eine Skulptur. Drei Buchstaben.', note: 'Dieses Gerät kann die 3D-Szene nicht anzeigen. Kapitel eins bleibt spielbar.' },
+  fallback: { title: 'Eine Skulptur. Drei Buchstaben.', note: 'Dieses Gerät kann die 3D-Szene nicht anzeigen. Kapitel eins bleibt spielbar.' },
   lightActions: ['Projektionslicht {0} einschalten','Projektionslicht {0} ausschalten'],
   status: {
     ready: 'Der 3D-Raum ist bereit. Ziehen Sie die Skulptur oder wählen Sie G, E oder B.', fallback: 'Die 3D-Szene ist nicht verfügbar. Kapitel eins bleibt spielbar.', viewFree: 'Zur freien Ansicht zurückgekehrt.', view: 'Blickrichtung {0}.', entering: 'Kapitel eins wird betreten: das MU-Rätsel.', garden: 'Willkommen im MU-Garten.', gardenComplete: 'Kapitel eins abgeschlossen. Die Invariante beweist, dass MU unerreichbar ist.', back: 'Zur Vorhalle zurückgekehrt.',

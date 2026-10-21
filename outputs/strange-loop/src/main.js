@@ -103,7 +103,7 @@ function renderChapterList(){
 function syncDynamicLabels(){
  const c=COPY[locale];
  syncLetterChrome();
- $('.location').innerHTML=currentChapter===2?`<b>02</b><span class="footer-line"></span><span>${FIGURE_COPY[locale].title}</span>`:inGarden?c.gardenLocation:c.lobbyLocation;
+ $('.location').innerHTML=`<b>${String(currentChapter).padStart(2,'0')}</b>`;
  $('#chapter-navigation').hidden=currentChapter===0;
  updateDialogue();renderChapterList();
  if(lastStatus){const message=c.status[lastStatus.key];status.textContent=typeof message==='function'?message(...lastStatus.args):message;}
