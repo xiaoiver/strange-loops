@@ -68,7 +68,7 @@ const garden=createGarden($('#garden-intro'),{
 const figure=createFigureGround($('#figure-ground'),{
  locale,navigation:$('#chapter-navigation'),
  onState:(state,lang,options={})=>{
-  const area=options.poster?'poster':options.explore||['faces','ground'].includes(figureStage(state))?'contour':'numbers';
+  const area=options.poster?'poster':'contour';
   figureScene?.setState(state,lang,options);
   if(currentChapter===2&&!transition&&figureArea!==area){figureArea=area;companions?.setSpace(`figure-${area}`);}
   refreshShadows();
