@@ -70,7 +70,7 @@ const figure=createFigureGround($('#figure-ground'),{
  onState:(state,lang,options={})=>{
   const area=options.poster?'poster':options.explore||['faces','ground'].includes(figureStage(state))?'contour':'numbers';
   figureScene?.setState(state,lang,{...options,hint:figure.hintsVisible()});
-  if(currentChapter===2&&figureArea!==area){figureArea=area;companions?.setSpace(`figure-${area}`);}
+  if(currentChapter===2&&!transition&&figureArea!==area){figureArea=area;companions?.setSpace(`figure-${area}`);}
   refreshShadows();
  },
  onMeet:id=>companions?.observe(id),
@@ -329,7 +329,8 @@ function tick(){raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta
   }
   camPos.lerp(camGoal,a);camera.position.copy(camPos);look.lerp(new THREE.Vector3(0,.1,0),a);
   up.lerp(currentView==='B'?UPTOP:Y,a).normalize();camera.up.copy(up);camera.lookAt(look);
- }else if(stage==='figure'){figureScene?.update(dt,camera,look);
+ }else if(stage==='figure'){figureScene?.update(dt,camera,look);updatePassage(dt);
+ }else if(stage==='exiting-garden'||stage==='passage-cut'){updatePassage(dt);
  }else if(stage==='entering'||stage==='returning'){
   const entering=stage==='entering';
   cameraBlend=paused?1:Math.min(1,cameraBlend+dt/1.25);
@@ -351,7 +352,7 @@ function tick(){raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta
   updateCameraProjection();refreshShadows();
   if(cameraBlend>=1){if(entering)showGarden();else finishLobby();}
  }
- if(companions?.update(dt,camera,stage==='lobby'||stage==='entering'||stage==='returning'||stage==='garden'||stage==='figure')){projectionLights.B.shadow.needsUpdate=true;gardenScene?.refreshShadows();figureScene?.refreshShadows();renderer.shadowMap.needsUpdate=true;}
+ if(companions?.update(dt,camera,stage==='lobby'||stage==='entering'||stage==='returning'||stage==='garden'||stage==='figure'||stage==='exiting-garden'||stage==='passage-cut')){projectionLights.B.shadow.needsUpdate=true;gardenScene?.refreshShadows();figureScene?.refreshShadows();renderer.shadowMap.needsUpdate=true;}
  if(gardenScene?.update(dt))refreshShadows();
  composer.render(dt);
 }
@@ -364,7 +365,7 @@ function setView(view){if(currentChapter!==0||transition)return;currentView=view
 }
 for(const button of document.querySelectorAll('[data-view]'))button.addEventListener('click',()=>setView(button.dataset.view));
 $('#reset-view').addEventListener('click',()=>setView('free'));
-world.addEventListener('pointerdown',e=>{if(currentChapter===2){drag={x:e.clientX,y:e.clientY,figure:true,distance:0};world.setPointerCapture(e.pointerId);return;}if(inGarden||transition||!camera)return;const sphere=new THREE.Spherical().setFromVector3(camPos);drag={x:e.clientX,y:e.clientY,theta:sphere.theta,phi:sphere.phi,radius:sphere.radius};world.setPointerCapture(e.pointerId);world.classList.add('dragging');});
+world.addEventListener('pointerdown',e=>{if(transition)return;if(currentChapter===2){drag={x:e.clientX,y:e.clientY,figure:true,distance:0};world.setPointerCapture(e.pointerId);return;}if(inGarden||transition||!camera)return;const sphere=new THREE.Spherical().setFromVector3(camPos);drag={x:e.clientX,y:e.clientY,theta:sphere.theta,phi:sphere.phi,radius:sphere.radius};world.setPointerCapture(e.pointerId);world.classList.add('dragging');});
 world.addEventListener('pointermove',e=>{if(!drag)return;if(drag.figure){figureScene?.drag((e.clientX-drag.x)*.002);drag.distance+=Math.abs(e.clientX-drag.x);drag.x=e.clientX;return;}manualAngle={radius:drag.radius,theta:drag.theta-(e.clientX-drag.x)*.006,phi:THREE.MathUtils.clamp(drag.phi+(e.clientY-drag.y)*.006,.12,Math.PI-.2)};currentView='free';for(const b of document.querySelectorAll('[data-view]'))b.setAttribute('aria-pressed','false');});
 function endDrag(e){if(drag?.figure){if(e?.type==='pointerup'&&drag.distance<6&&figureScene?.pickPoster({x:e.clientX/innerWidth*2-1,y:1-e.clientY/innerHeight*2},camera))figure.showPoster();drag=null;return;}if(drag){drag=null;world.classList.remove('dragging');updateDialogue('drag');}}
 world.addEventListener('pointerup',endDrag);world.addEventListener('pointercancel',endDrag);
@@ -467,6 +468,10 @@ function leaveFigure(){
 }
 function enterFigure(){
  if(transition||currentChapter===2)return;
+ if(currentChapter===1&&document.body.dataset.scene==='ready'&&companions&&!reduced.matches){beginPassage();return;}
+ showFigure();
+}
+function showFigure(arriving=false){
  setIndex(false);gardenScene?.settle();gardenScene?.setVisible(false);
  $('#garden-intro').hidden=true;$('.intro').inert=true;
  inGarden=false;currentChapter=2;stage='figure';drag=null;
@@ -475,13 +480,46 @@ function enterFigure(){
  for(const light of Object.values(projectionLights))light.visible=false;
  document.body.classList.remove('in-garden','entering','returning');document.body.classList.add('in-figure');
  figure.show();syncDynamicLabels();resize();refreshShadows();
+ if(arriving){
+  $('#figure-ground').inert=true;figureScene?.beginEntry();passageAge=0;
+  companions.enterGallery(()=>{endPassage();figureArea='contour';figure.setLocale(locale);});
+ }
  world.setAttribute('aria-label',FIGURE_COPY[locale].title);
+}
+
+// The chapter boundary is crossed on foot. The dark threshold joins two rooms.
+let passageAge=0,passageStart=new THREE.Vector3(),passageLook=new THREE.Vector3();
+function beginPassage(){
+ transition=true;stage='exiting-garden';drag=null;passageAge=0;setIndex(false);
+ document.body.classList.add('in-passage');$('#companion-controls').inert=true;$('#language-switch').disabled=true;$('#index-trigger').disabled=true;$('#garden-intro').inert=true;$('#chapter-navigation').inert=true;
+ gardenScene?.settle();gardenScene?.markExit(locale);passageStart.copy(camera.position);passageLook.copy(look);
+ companions.walkThroughExit(()=>{stage='passage-cut';passageAge=0;});
+}
+function updatePassage(dt){
+ if(!transition||!document.body.classList.contains('in-passage'))return;
+ passageAge+=dt;
+ if(stage==='exiting-garden'){
+  const t=THREE.MathUtils.smoothstep(passageAge,0,2.5),mobile=innerWidth<=760;
+  camera.position.lerpVectors(passageStart,new THREE.Vector3(mobile?7:6,1.2,mobile?6:5),t);
+  look.lerpVectors(passageLook,new THREE.Vector3(-3.8,-2.1,-1.3),t);camera.lookAt(look);
+ }else if(stage==='passage-cut'){
+  const opacity=reduced.matches?0:1-Math.min(1,passageAge/.22);
+  document.body.style.setProperty('--passage-visibility',opacity);
+  if(opacity===0)showFigure(true);
+ }else if(stage==='figure'){
+  document.body.style.setProperty('--passage-visibility',reduced.matches?1:Math.min(1,passageAge/.35));
+ }
+}
+function endPassage(){
+ transition=false;document.body.classList.remove('in-passage');document.body.style.removeProperty('--passage-visibility');
+ $('#garden-intro').inert=false;$('#figure-ground').inert=false;$('#companion-controls').inert=false;$('#language-switch').disabled=false;$('#index-trigger').disabled=false;$('#chapter-navigation').inert=false;
+ $('#figure-title').focus({preventScroll:true});
 }
 
 function setIndex(open){$('#chapter-index').hidden=!open;$('#index-trigger').setAttribute('aria-expanded',String(open));if(open)$('#close-index').focus({preventScroll:true});}
 $('#index-trigger').addEventListener('click',()=>setIndex($('#chapter-index').hidden));$('#close-index').addEventListener('click',()=>{setIndex(false);$('#index-trigger').focus()});
 document.addEventListener('keydown',e=>{
- if(e.key!=='Escape'||e.repeat||e.defaultPrevented||document.querySelector('dialog[open]'))return;
+ if(transition||e.key!=='Escape'||e.repeat||e.defaultPrevented||document.querySelector('dialog[open]'))return;
  if(!$('#chapter-index').hidden){e.preventDefault();setIndex(false);$('#index-trigger').focus();}
  else if(currentChapter===2){e.preventDefault();if(!figure.dismiss())enterGarden();}
  else if(inGarden){e.preventDefault();if(!garden.dismiss())backLobby();}

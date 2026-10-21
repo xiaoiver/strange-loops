@@ -27,7 +27,7 @@ test('release is self-contained under the website subpath, with seven language p
   assert.equal((await readFile(path.join(release, 'assets/characters/achilles.glb'))).toString('ascii', 0, 4), 'glTF');
   assert.ok(manifest.files.some(file => file.path === 'figure-ground.css'));
   assert.ok(manifest.files.some(file => file.path === 'assets/art/rubin-contour.svg'));
-  assert.ok(manifest.files.some(file => file.path === 'assets/art/the-lobster.jpg'));
+  for (const file of ['assets/art/the-lobster.jpg','assets/art/the-lobster-weisz.jpg']) assert.ok(manifest.files.some(entry => entry.path === file));
   assert.ok(manifest.files.every(file => !file.path.includes('node_modules') && !file.path.startsWith('src/')));
 });
 

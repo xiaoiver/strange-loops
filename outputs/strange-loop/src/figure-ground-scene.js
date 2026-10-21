@@ -2,9 +2,11 @@ import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import fontData from 'three/examples/fonts/optimer_regular.typeface.json';
+import { GALLERY_ENTRY } from './chapter-passage.js';
 import { traceProfile } from './rubin-contour.js';
 import { NUMBERS, figureStage, numberEvidence } from './figure-ground-system.js';
 import { FIGURE_COPY } from './figure-ground-copy.js';
+import { ART_LABELS, LOBSTER_POSTERS, LOBSTER_CREDIT } from './gallery-art.js';
 import { applySoftShadows } from './soft-shadows.js';
 
 export function createFigureGroundScene(scene, reduced, invalidate) {
@@ -26,7 +28,14 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
   }
   box(45,.16,40,pale,2,-3.89,7);
   box(30,12,.35,paper,2,2.2,-5);
-  box(.35,12,27,pale,-6.9,2.2,8.3);
+  // An actual side-wall opening receives the companions from the previous room.
+  const entry=GALLERY_ENTRY,back=-5.2,front=21.8,left=entry.z-entry.halfWidth,right=entry.z+entry.halfWidth,top=-.64;
+  box(.35,12,left-back,pale,entry.x,2.2,(back+left)/2);
+  box(.35,12,front-right,pale,entry.x,2.2,(right+front)/2);
+  box(.35,8.2-top,right-left,pale,entry.x,(8.2+top)/2,entry.z);
+  box(entry.depth,3.16,.12,pale,entry.x-entry.depth/2,-2.22,left-.06);
+  box(entry.depth,3.16,.12,pale,entry.x-entry.depth/2,-2.22,right+.06);
+  box(.08,3.16,right-left,ink,entry.x-entry.depth,-2.22,entry.z);
   box(.35,12,27,pale,17,2.2,8.3);
   group.add(new THREE.HemisphereLight(0xf0f0ea,0x9a9e96,.35));
   // Two architectural piers share the vase boundary. The middle remains empty space.
@@ -68,22 +77,34 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
   const noteTexture=new THREE.CanvasTexture(noteCanvas);noteTexture.colorSpace=THREE.SRGBColorSpace;
   const note=new THREE.Mesh(new THREE.PlaneGeometry(6.5,.76),new THREE.MeshBasicMaterial({map:noteTexture,transparent:true,depthWrite:false}));
   note.position.set(11.3,-2.95,-4.64);group.add(note);
-  // The unmodified, user-selected poster is an optional work for visual commentary.
-  const posterMount=new THREE.Group();posterMount.position.set(-6.69,-.4,2.5);posterMount.rotation.y=Math.PI/2;group.add(posterMount);
-  const frame=box(2.19,3.11,.065,ink,0,0,-.03);posterMount.add(frame);
-  const poster=box(2.12,3.04,.02,paper,0,0,0);posterMount.add(poster);
-  const posterSurface=new THREE.Mesh(new THREE.PlaneGeometry(2.12,3.04),new THREE.MeshStandardMaterial({color:0xffffff,roughness:1}));
-  posterSurface.position.set(0,0,.02);posterSurface.receiveShadow=true;posterMount.add(posterSurface);
-  new THREE.TextureLoader().load('assets/art/the-lobster.jpg',texture=>{
-    texture.colorSpace=THREE.SRGBColorSpace; texture.anisotropy=4;
-    posterSurface.material.map=texture;posterSurface.material.needsUpdate=true;invalidate();
-  },undefined,()=>{posterSurface.visible=false;invalidate();});
-  posterMount.add(text('THE LOBSTER',.1,ink,0,-1.75,.04));
-  posterMount.add(text('Vasilis Marmatakis / 2015',.075,ink,0,-1.94,.04));
+  // Both original posters share a hanging line and retain their native aspect ratio.
+  const posterMount=new THREE.Group();posterMount.position.set(-6.69,-.4,3.6);posterMount.rotation.y=Math.PI/2;group.add(posterMount);
+  const posterTargets=[];
+  LOBSTER_POSTERS.forEach((art,index)=>{
+    const height=3.04,width=height*art.width/art.height,x=(index-.5)*2.58;
+    const frame=box(width+.06,height+.06,.045,ink,x,0,-.03);posterMount.add(frame);
+    const surface=new THREE.Mesh(new THREE.PlaneGeometry(width,height),new THREE.MeshStandardMaterial({color:0xffffff,roughness:1}));
+    surface.position.set(x,0,.004);surface.receiveShadow=true;posterMount.add(surface);posterTargets.push(frame,surface);
+    new THREE.TextureLoader().load(art.file,texture=>{
+      texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=4;
+      surface.material.map=texture;surface.material.needsUpdate=true;invalidate();
+    },undefined,()=>{surface.visible=false;invalidate();});
+  });
+  // A small, flush museum label lives on the wall, with accessible HTML alongside.
+  const labelCanvas=document.createElement('canvas');labelCanvas.width=1200;labelCanvas.height=480;
+  const labelTexture=new THREE.CanvasTexture(labelCanvas);labelTexture.colorSpace=THREE.SRGBColorSpace;
+  const label=new THREE.Mesh(new THREE.PlaneGeometry(2.15,.86),new THREE.MeshStandardMaterial({map:labelTexture,roughness:1}));
+  label.position.set(-1.29,-2.13,.008);label.receiveShadow=true;posterMount.add(label);posterTargets.push(label);
+  function paintLabel(locale){
+    const t=ART_LABELS[locale],ctx=labelCanvas.getContext('2d');ctx.fillStyle='#e8e8e3';ctx.fillRect(0,0,1200,480);ctx.fillStyle='#303330';ctx.textAlign='left';
+    const line=(v,size,y)=>{ctx.font=`${size}px system-ui`;const fitted=Math.min(size,size*1080/ctx.measureText(v).width);ctx.font=`${fitted}px system-ui`;ctx.fillText(v,56,y);};
+    line(`${t.title}, ${LOBSTER_CREDIT.year}`,68,108);line(LOBSTER_CREDIT.designer,49,210);
+    line(t.design,39,276);line(t.medium,39,342);line(t.source,34,419);labelTexture.needsUpdate=true;
+  }
   const raycaster=new THREE.Raycaster();
   let visible=false, state=null, currentLocale='zh', targetMode='contour';
   const startPosition=new THREE.Vector3(),startLook=new THREE.Vector3();
-  let blend=1, poseKey='', manualOffset=0;
+  let blend=1, poseKey='', manualOffset=0, entryTime=0;
   function layoutEvidence(){
     const mobile=innerWidth<=760,columns=mobile?4:6;
     entries.forEach((entry,i)=>{
@@ -97,7 +118,11 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
   }
   function pose() {
     const mobile=innerWidth<=760;
-    if(targetMode==='poster') return {position:new THREE.Vector3(mobile?1:1.2,1,mobile?13:12),look:new THREE.Vector3(-6.69,-1.6,2.5)};
+    if(entryTime>0)return {position:new THREE.Vector3(mobile?-.5:3.5,1.3,mobile?19:18),look:new THREE.Vector3(-5.7,-1.8,9)};
+    if(targetMode==='poster'){
+      const distance=mobile?16.2:Math.max(12,15/(innerWidth/innerHeight));
+      return {position:new THREE.Vector3(-6.69+distance*(mobile?1:.944),mobile?.5:1,3.6+distance*(mobile?.05:.33)),look:new THREE.Vector3(-6.69,mobile?-.8:-1.3,3.6)};
+    }
     if(targetMode==='numbers') return {position:new THREE.Vector3(mobile?10.3:13,mobile?1.4:1.2,mobile?13.5:14.5),look:new THREE.Vector3(mobile?9.7:9.8,mobile?-1.15:-1.5,-4.6)};
     return {position:new THREE.Vector3(mobile?.2:3,mobile?1.8:1.9,mobile?20:17.8),look:new THREE.Vector3(mobile?-.4:-.6,-.7,0)};
   }
@@ -107,7 +132,8 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
     line(t.checked,44,45);line(`11 · ${t.prime}`,34,100);noteTexture.needsUpdate=true;
   }
   return {
-    setVisible(value){visible=value;group.visible=value;sun.visible=value;sun.shadow.needsUpdate=true;blend=0;poseKey='';manualOffset=0;},
+    beginEntry(){entryTime=3.2;poseKey='';},
+    setVisible(value){visible=value;group.visible=value;sun.visible=value;sun.shadow.needsUpdate=true;blend=0;poseKey='';manualOffset=0;entryTime=0;},
     setState(value,locale,{hint=false,explore=false,poster=false}={}) {
       state=value;currentLocale=locale;
       const stage=figureStage(state), mode=['faces','ground'].includes(stage)?'contour':'numbers';
@@ -116,20 +142,21 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
       eightText.visible=['eight','eleven','complete'].includes(stage);note.visible=['eleven','complete'].includes(stage);
       for(const entry of entries){const e=numberEvidence(state,entry.n);entry.plate.material=e.kind==='composite'?ink:plateMat;entry.digit.material=e.kind==='composite'?paper:ink;if(e.kind==='prime'&&!entry.ring.visible)entry.reveal=reduced.matches?1:0;entry.ring.visible=e.kind==='prime';}
       layoutEvidence();
-      paintNote(FIGURE_COPY[currentLocale]);sun.shadow.needsUpdate=true;invalidate();
+      paintLabel(currentLocale);paintNote(FIGURE_COPY[currentLocale]);sun.shadow.needsUpdate=true;invalidate();
     },
     refreshShadows(){if(visible)sun.shadow.needsUpdate=true;},
     update(dt,camera,look){
       if(!visible)return false;
       let revealing=false;
       for(const entry of entries)if(entry.ring.visible){entry.reveal=reduced.matches?1:Math.min(1,entry.reveal+dt/.45);const ease=1-(1-entry.reveal)**3;entry.ring.material.opacity=ease;entry.ring.scale.setScalar(.97+.03*ease);revealing ||= entry.reveal<1;}
-      const p=pose(),key=`${targetMode}:${innerWidth<=760}`;
+      entryTime=Math.max(0,entryTime-dt);
+      const p=pose(),key=`${entryTime>0?'entry':targetMode}:${innerWidth<=760}`;
       if(poseKey!==key){poseKey=key;layoutEvidence();startPosition.copy(camera.position);startLook.copy(look);blend=0;manualOffset=0;}
       blend=reduced.matches?1:Math.min(1,blend+dt/1.25);const t=blend*blend*(3-2*blend);
       p.position.x+=manualOffset;camera.position.lerpVectors(startPosition,p.position,t);look.lerpVectors(startLook,p.look,t);
       camera.up.set(0,1,0);camera.lookAt(look);return blend<1||revealing;
     },
     drag(delta){manualOffset=THREE.MathUtils.clamp(manualOffset+delta,-.65,.65);},
-    pickPoster(pointer,camera){if(!visible)return false;raycaster.setFromCamera(pointer,camera);return raycaster.intersectObjects([posterSurface,poster,frame]).length>0;},
+    pickPoster(pointer,camera){if(!visible)return false;raycaster.setFromCamera(pointer,camera);return raycaster.intersectObjects(posterTargets).length>0;},
   };
 }

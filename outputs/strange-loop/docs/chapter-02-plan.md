@@ -75,7 +75,7 @@
 
 ## 墙上延伸展品：《龙虾》的负空间海报
 
-按用户 2026-10-21 的新要求，Rubin 共边轮廓成为具有厚度的两片墙体，花瓶部分保持为空。原来的可选外链案例改为侧墙上的《龙虾》（The Lobster，2015）黑白拥抱海报，设计者 Vasilis Marmatakis。海报保留完整画幅，来自[用户确认版本的图像](https://images.justwatch.com/poster/319932850/s718/the-lobster.jpg)；作品与设计者信息见 [Dazed 设计师访谈](https://origin.dazeddigital.com/film-tv/article/42750/1/yorgos-lanthimos-posters-the-favourite-lobster-vasilis-marmatakis-interview)。来源与使用记录见仓库 `THIRD_PARTY_NOTICES.md`。
+按用户 2026-10-21 的新要求，Rubin 共边轮廓成为具有厚度的两片墙体，花瓶部分保持为空。原来的可选外链案例改为侧墙上的两款《龙虾》（The Lobster，2015）黑白拥抱海报，设计者 Vasilis Marmatakis。海报保留完整画幅，来自用户在 [PR #5 评论](https://github.com/xiaoiver/strange-loops/pull/5#issuecomment-6313129108)指定的 Dazed 两款官方版本；作品与设计者信息见 [Dazed 设计师访谈](https://origin.dazeddigital.com/film-tv/article/42750/1/yorgos-lanthimos-posters-the-favourite-lobster-vasilis-marmatakis-interview)。来源与使用记录见仓库 `THIRD_PARTY_NOTICES.md`。
 
 点击海报或低强调的作品标题可转向侧墙，阅读原创短评和署名来源；再次点击或 Esc 返回原观察位。打开或跳过作品均不改变数学证据和完成条件。运行时从本地加载图片，不热链，也不依赖外部网站可用性。海报不是本展原创或公版素材，不纳入项目代码或原创素材的再许可范围。
 
@@ -234,4 +234,8 @@ Esc 依次关闭帮助、章节地图，再退出本章；焦点回到对应触�
 
 ## English summary
 
-Chapter two adapts the book's third chapter, Figure and Ground, with a short bridge from Meaning and Form. An independently drawn Rubin-vase contour introduces figure and ground; grouped marks then reveal a numerical relationship without teaching another rewrite system. A partial composite generator leaves 8 blank before generating it. A separate terminating check establishes that 11 is prime and gives it a visible outline and evidence marker in the 3D space, turning overlooked ground into an identified object. One short comprehension check completes the chapter. Each step has one primary action, and all seven existing languages are supported. The finite demonstration does not prove general undecidability, claim that primes are undecidable, or suggest that visual inversion changes formal derivability. An optional commentary on the black-and-white The Lobster poster extends the theme to narrative negative space, with a locally hosted, credited poster on the side wall, as requested on 21 October 2026. It adds no required step or completion condition. The implemented room is available from the chapter map; local verification is recorded in chapter-02-verification.md.
+Chapter two adapts the book's third chapter, Figure and Ground, with a short bridge from Meaning and Form. An independently drawn Rubin-vase contour introduces figure and ground; grouped marks then reveal a numerical relationship without teaching another rewrite system. A partial composite generator leaves 8 blank before generating it. A separate terminating check establishes that 11 is prime and gives it a visible outline and evidence marker in the 3D space, turning overlooked ground into an identified object. One short comprehension check completes the chapter. Each step has one primary action, and all seven existing languages are supported. The finite demonstration does not prove general undecidability, claim that primes are undecidable, or suggest that visual inversion changes formal derivability. An optional commentary on the black-and-white The Lobster poster extends the theme to narrative negative space, with two locally hosted official posters and a museum label on the side wall, as requested on 21 October 2026. It adds no required step or completion condition. The implemented room is available from the chapter map; local verification is recorded in chapter-02-verification.md.
+
+### 2026-10-21 展陈与动线补充
+
+两款官方海报等高并置，保留完整原图与比例。墙上共享展签列出作品名、海报设计者 Vasilis Marmatakis、2015 年、媒介及 Dazed 来源，HTML 提供相同的可访问内容和分别对应两幅作品的链接；原创短评只解释留白。第一章进入第二章时，两位角色沿同一门洞依次穿过 WU（中文）／MU（其他语言）出口，以门内暗部衔接镜头，在第二章的侧墙入口继续走向共边墙。减弱动态与后备模式直接进入，数学目标与视觉出口互不设限。

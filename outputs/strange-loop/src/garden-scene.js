@@ -5,6 +5,7 @@ import fontData from 'three/examples/fonts/optimer_regular.typeface.json';
 import { createExhibitFade } from './exhibit-fade.js';
 import { createLetterPile } from './letter-pile.js';
 import { displayWord, rewriteSources } from './miu-system.js';
+import { GARDEN_EXIT } from './chapter-passage.js';
 import { passageGeometry, applyPassageOcclusion } from './passage-occlusion.js';
 
 export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = {}) {
@@ -24,7 +25,7 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
 
   // Open the existing wall instead of placing a dark rectangle on its surface.
   const lobbyWallGeometry = exitWall?.geometry, lobbyWallMaterial=exitWall?.material;
-  const lobbyWallCastShadow=exitWall?.castShadow, doorZ=-1.3, doorScale=.8;
+  const lobbyWallCastShadow=exitWall?.castShadow, doorZ=GARDEN_EXIT.z, doorScale=.8;
   const doorwayWallMaterial=lobbyWallMaterial?.clone();
   // The gallery wall must occlude light on both sides of the opening.
   if(doorwayWallMaterial)doorwayWallMaterial.shadowSide=THREE.DoubleSide;
@@ -124,6 +125,7 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
   return {
     setVisible(value){setPresence(value ? 1 : 0);},
     setPresence,
+    markExit(locale){setTarget(displayWord('MU',locale));},
     pickPile(pointer,camera){
       if(!group.visible)return null;
       pileRaycaster.setFromCamera(pointer,camera);

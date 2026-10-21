@@ -41,3 +41,23 @@ body[data-scene=fallback] .figure-ground-data:not([hidden]){height:auto;clip:aut
  body[data-scene=fallback] .figure-ground-data:not([hidden]){left:7%;right:7%;top:29%;width:auto;max-height:24vh;overflow:auto}.figure-number-list{grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}.figure-number{padding:8px 2px}.figure-number b{font-size:20px}.figure-number small{font-size:8px}
 }
 @media(max-height:650px) and (min-width:761px){.figure-heading{top:16%}.figure-heading h2{font-size:28px}.figure-notes{top:32%;max-height:20%}.figure-reading{bottom:17%;max-height:30%;overflow:auto}.figure-dialogue p{font-size:13px}.figure-action{bottom:14%}}
+
+/* Museum label: quiet metadata, title/year first, designer and medium below. */
+.figure-art-label{background:none;padding:12px 0;border-top:1px solid var(--line)}
+.figure-art-title{font:16px/1.5 var(--exhibit-serif);display:flex;justify-content:space-between;gap:12px}
+.figure-art-title span{font:11px/1.8 system-ui;color:var(--muted)}
+.figure-art-designer{font-size:12px;line-height:1.5}.figure-art-designer small{display:block;font-size:10px;color:var(--muted);margin-top:3px}
+.figure-art-medium{font-size:10px;color:var(--muted);margin-bottom:16px!important}
+.figure-art-sources{display:flex;gap:18px;font-size:10px}.figure-poster-pair{display:none}
+body[data-scene=fallback] .figure-poster-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+body.in-passage .vignette{opacity:0}body.in-passage :is(#garden-intro,#figure-ground,#companion-controls,#chapter-navigation){visibility:hidden;pointer-events:none}
+body.in-passage #world{pointer-events:none;cursor:default}body.in-passage .masthead{pointer-events:none}
+body.in-passage #world canvas{opacity:var(--passage-visibility,1)}
+
+@media(max-width:760px){
+ .figure-ground[data-poster=true] .figure-notes{top:auto;bottom:12%;max-height:26%;display:block;background:var(--paper);padding:0 12px}
+ .figure-ground[data-poster=true] .figure-notes>:is(#fg-help,#fg-why,#fg-book){display:none}
+ .figure-ground[data-poster=true] .figure-art-label{font-size:11px;padding:8px 0;margin:0}
+ .figure-ground[data-poster=true] .figure-art-label p{margin-bottom:6px}
+ .figure-ground[data-poster=true] .figure-art-medium{margin-bottom:9px!important}
+}

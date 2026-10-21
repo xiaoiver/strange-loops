@@ -129,11 +129,13 @@ Chapter-one letter-pile rigid-body simulation. MIT License.
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-## The Lobster poster (chapter two)
+## The Lobster posters (chapter two)
 
-- File: `outputs/strange-loop/assets/art/the-lobster.jpg` (718 × 1024 JPEG, complete image, not cropped or repainted).
-- Work: *The Lobster* (2015), the black-and-white Colin Farrell / absent embrace poster. Design: **Vasilis Marmatakis**. Copyright remains with the respective rights holders; this image is not CC BY, public domain, or an original asset of this repository.
-- User-selected image source: https://images.justwatch.com/poster/319932850/s718/the-lobster.jpg (retrieved 2026-10-21).
-- Designer interview and official poster identification: https://origin.dazeddigital.com/film-tv/article/42750/1/yorgos-lanthimos-posters-the-favourite-lobster-vasilis-marmatakis-interview
-- Included at the user's request as a single, attributed work for specific visual commentary on negative space, with original commentary and a source link in all seven languages. It is optional to the mathematical narrative. This record documents provenance and context, not a grant of reproduction or sublicensing rights. No film stills or additional posters are bundled.
-- The Rubin-style shared contour (`assets/art/rubin-contour.svg` / `src/rubin-contour.js`) is drawn independently for this exhibition and is not traced from an Escher image or the poster.
+- Files: `outputs/strange-loop/assets/art/the-lobster.jpg` and `the-lobster-weisz.jpg`, each 786 × 1113 JPEG. Both are complete images, not cropped, mirrored, recolored or repainted.
+- Work: *The Lobster* (2015), the Colin Farrell and Rachel Weisz official absent-embrace poster pair. Poster design: **Vasilis Marmatakis**. The film's director is Yorgos Lanthimos; the exhibition credits Marmatakis specifically for poster design. Copyright remains with the respective rights holders; these images are not CC BY, public domain, or original assets of this repository.
+- User selection: https://github.com/xiaoiver/strange-loops/pull/5#issuecomment-6313129108
+- Colin Farrell version: https://origin.dazeddigital.com/film-tv/gallery/26029/4/yorgos-lanthimos-s-movie-posters . Image: https://images-prod.dazeddigital.com/786/azure/dazed-prod/1250/6/1256972.jpg
+- Rachel Weisz version: https://origin.dazeddigital.com/film-tv/gallery/26029/5/yorgos-lanthimos-s-movie-posters . Image: https://images-prod.dazeddigital.com/786/azure/dazed-prod/1250/6/1256973.jpg
+- Retrieved 2026-10-21. Both gallery slides identify the work as an official poster. Designer interview: https://origin.dazeddigital.com/film-tv/article/42750/1/yorgos-lanthimos-posters-the-favourite-lobster-vasilis-marmatakis-interview
+- Included at the user's request as two attributed works for specific commentary on negative space. A wall-mounted museum label and accessible HTML identify title, designer, year, medium and individual sources in all seven languages. Viewing is optional to the mathematical narrative. This record documents provenance and context, not a grant of reproduction or sublicensing rights.
+- The Rubin-style shared contour (`assets/art/rubin-contour.svg` / `src/rubin-contour.js`) is drawn independently for this exhibition and is not traced from an Escher image or either poster.

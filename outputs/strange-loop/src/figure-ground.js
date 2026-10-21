@@ -1,3 +1,4 @@
+import { ART_LABELS, LOBSTER_POSTERS, LOBSTER_CREDIT } from './gallery-art.js';
 import { FIGURE_COPY } from './figure-ground-copy.js';
 import { COPY } from './copy.js';
 import { GARDEN_COPY } from './garden-copy.js';
@@ -11,7 +12,7 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
   function save() { try { localStorage.setItem(FIGURE_STORAGE, JSON.stringify(state)); } catch { /* Continue without persistence. */ } }
   function sync() { onState(state, locale, { poster, explore: exploring }); }
   function render(focus) {
-    const t = c(), stage = figureStage(state), index = stages.indexOf(stage), numbers = index >= 2;
+    const t = c(), label = ART_LABELS[locale], stage = figureStage(state), index = stages.indexOf(stage), numbers = index >= 2;
     const retainedFocus = root.contains(document.activeElement) ? document.activeElement.id : null;
     const actor = ['achilles','tortoise','achilles','tortoise','tortoise','tortoise'][index];
     root.dataset.step = stage;
@@ -36,7 +37,13 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
         ${index < 2 ? `<button class="figure-link" id="fg-help" data-fg="help" aria-expanded="${help}">${t.help}</button>` : index >= 4 ? `<button class="figure-link" id="fg-why" data-fg="why" aria-expanded="${help}">${t.why}</button>` : ''}
         ${help ? `<p class="figure-note-copy">${numbers ? t.reason : t.contact}</p>` : ''}
         <button class="figure-link" id="fg-poster" data-fg="poster" aria-expanded="${poster}">${poster ? t.close + ' · ' : ''}${t.poster} ↗</button>
-        ${poster ? `<div class="figure-note-copy"><img class="figure-poster-fallback" src="assets/art/the-lobster.jpg" width="718" height="1024" alt="${t.posterText}"><p>${t.posterText}</p><p>The Lobster (2015) · Vasilis Marmatakis</p><a class="book-link" href="https://origin.dazeddigital.com/film-tv/article/42750/1/yorgos-lanthimos-posters-the-favourite-lobster-vasilis-marmatakis-interview" target="_blank" rel="noopener noreferrer">${t.source}</a></div>` : ''}
+        ${poster ? `<section class="figure-note-copy figure-art-label" aria-label="${t.poster}">
+          <div class="figure-poster-pair">${LOBSTER_POSTERS.map(art=>`<img class="figure-poster-fallback" src="${art.file}" width="${art.width}" height="${art.height}" alt="${label.title} · ${art.subject}">`).join('')}</div>
+          <p class="figure-art-title">${label.title}<span>${LOBSTER_CREDIT.year}</span></p>
+          <p class="figure-art-designer">${LOBSTER_CREDIT.designer}<small>${label.design}</small></p>
+          <p class="figure-art-medium">${label.medium}</p><p>${t.posterText}</p>
+          <div class="figure-art-sources">${LOBSTER_POSTERS.map((art,i)=>`<a class="book-link" href="${art.source}" target="_blank" rel="noopener noreferrer">${label.source} ${String(i+1).padStart(2,'0')} ↗</a>`).join('')}</div>
+        </section>` : ''}
         <button class="figure-link" id="fg-book" data-fg="book" aria-expanded="${book}">${t.book}</button>
         ${book ? `<p class="figure-note-copy">${t.bookText}</p>` : ''}
       </aside>
