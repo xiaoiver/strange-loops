@@ -1,0 +1,12 @@
+import { readFile, writeFile } from 'node:fs/promises';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { glyphCollider } from '../src/letter-pile-geometry.js';
+import { PILE_LETTERS } from '../src/letter-pile-config.js';
+import { createLetterPilePhysics } from '../src/letter-pile-physics.js';
+const font=new FontLoader().parse(JSON.parse(await readFile(new URL('../node_modules/three/examples/fonts/optimer_regular.typeface.json',import.meta.url))));
+const definitions=[...PILE_LETTERS].map(ch=>glyphCollider(font,ch));
+const simulation=createLetterPilePhysics(definitions),start=performance.now();
+while(simulation.time<60&&!simulation.finished)simulation.step();
+if(!simulation.finished)throw new Error(`Pile still moving after ${simulation.time}s (${simulation.bodies.filter(b=>b.sleepState===2).length} asleep)`);
+await writeFile(new URL('../src/letter-pile-rest.json',import.meta.url),JSON.stringify(Array.from(simulation.snapshot(),n=>+n.toFixed(5)))+'\n');
+console.log({milliseconds:performance.now()-start,seconds:simulation.time,bodies:simulation.bodies.length,x:simulation.bodies.map(b=>b.position.x).sort((a,b)=>a-b).filter((v,i)=>i===0||i===143),height:Math.max(...simulation.bodies.map(b=>b.position.y))+3.8});

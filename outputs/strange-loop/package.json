@@ -5,13 +5,15 @@
   "type": "module",
   "scripts": {
     "test": "node --test test/*.test.js",
-    "build": "esbuild src/main.js --bundle --minify --outfile=assets/app.js && esbuild src/sculpture-worker.js --bundle --minify --format=iife --outfile=assets/sculpture-worker.js",
+    "build": "esbuild src/main.js --bundle --minify --outfile=assets/app.js && esbuild src/sculpture-worker.js --bundle --minify --format=iife --outfile=assets/sculpture-worker.js && esbuild src/letter-pile-worker.js --bundle --minify --format=iife --outfile=assets/letter-pile-worker.js",
     "start": "python3 -m http.server 4173",
     "sculpture": "node scripts/generate-sculpture.mjs",
     "compress-characters": "gltf-transform draco assets/characters/achilles.glb assets/characters/achilles.glb --method edgebreaker && gltf-transform draco assets/characters/tortoise.glb assets/characters/tortoise.glb --method edgebreaker",
-    "release": "npm run build && node scripts/site-release.mjs"
+    "release": "npm run build && node scripts/site-release.mjs",
+    "letter-pile": "node scripts/generate-letter-pile.mjs"
   },
   "dependencies": {
+    "cannon-es": "^0.20.0",
     "three": "0.180.0",
     "three-bvh-csg": "0.0.17"
   },
