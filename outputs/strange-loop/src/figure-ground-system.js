@@ -14,14 +14,25 @@ export function trialDivision(number) {
 }
 
 export function initialFigureState() {
-  return { version: 1, ground: false, meaning: false, products: [], check: null, answer: null };
+  return { version: 3, ground: false, posters: false, meaning: false, products: [], check: null, answer: null };
 }
 
 // Restore evidence, never trust a saved stage or an isolated completion flag.
 export function restoreFigureState(saved) {
   const state = initialFigureState();
-  if (saved?.version !== 1 || saved.ground !== true) return state;
-  state.ground = true;
+  if (![1,2,3].includes(saved?.version)) return state;
+  if (saved.version === 3) {
+    if (saved.posters !== true) { state.ground = saved.ground === true; return state; }
+    state.posters = true;
+    if (saved.ground !== true) return state;
+    state.ground = true;
+  } else {
+    if (saved.ground !== true) return state;
+    state.ground = true;
+    // Preserve older contour observations and already-earned number evidence.
+    if (!(saved.version === 2 && saved.posters === true) && !(saved.version === 1 && saved.meaning === true)) return state;
+    state.posters = true;
+  }
   if (saved.meaning !== true) return state;
   state.meaning = true;
   state.products = INITIAL_PRODUCTS.map(pair => [...pair]);
@@ -35,6 +46,7 @@ export function restoreFigureState(saved) {
 }
 
 export function figureStage(state) {
+  if (!state.posters) return 'posters';
   if (state.answer === 'not-listed' && state.check) return 'complete';
   if (state.check) return 'eleven';
   if (state.products.some(([a, b]) => a * b === 8)) return 'eight';
@@ -45,6 +57,7 @@ export function figureStage(state) {
 export function advanceFigure(state, action) {
   const next = restoreFigureState(state), stage = figureStage(next);
   if (action === 'ground' && stage === 'faces') next.ground = true;
+  if (action === 'to-contour' && stage === 'posters') next.posters = true;
   if (action === 'meaning' && stage === 'ground') {
     next.meaning = true; next.products = INITIAL_PRODUCTS.map(pair => [...pair]);
   }

@@ -25,3 +25,12 @@ test('distance-based passage movement remains continuous at bends and clamps end
   assert.ok(Math.hypot(a.x-b.x,a.z-b.z)<.00002);
   assert.equal(a.length,7);assert.equal(routeSample(points,-2).x,0);assert.equal(routeSample(points,2).z,4);
 });
+
+test('the new gallery route visits the nearby poster wall before crossing toward the contour',()=>{
+  for(const mobile of [false,true])for(const index of [0,1]){
+    const route=entryRoute(index,mobile,'poster'),end=route.at(-1);
+    assert.equal(route[0][1],GALLERY_ENTRY.z);
+    assert.ok(end[0]<-4.8&&end[1]>4,'Stop beside the poster wall, outside the shared-contour piers');
+    assert.ok(route.every(point=>point[1]>.48),'Arrival never cuts through the contour wall');
+  }
+});

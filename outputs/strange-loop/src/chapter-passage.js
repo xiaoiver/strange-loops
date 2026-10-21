@@ -5,9 +5,9 @@ export function exitRoute(start, index) {
   const {x,z,depth}=GARDEN_EXIT;
   return [start, [x+1.35,z+(index===0?-.12:.12)], [x+.15,z], [x-depth-.4,z]];
 }
-export function entryRoute(index, mobile=false) {
+export function entryRoute(index, mobile=false, area='contour') {
   const {x,z,depth}=GALLERY_ENTRY;
-  const end=mobile?(index===0?[-2.5,.9]:[-1.5,1.2]):(index===0?[-3,3.9]:[-1.9,4.3]);
+  const end=area==='poster'?(index===0?[-4.9,5.2]:[-5.1,4.6]):mobile?(index===0?[-2.5,.9]:[-1.5,1.2]):(index===0?[-3,3.9]:[-1.9,4.3]);
   return [[x-depth+.15,z], [x+.7,z], [-5,7+index*.35], end];
 }
 // Interpolate by travelled distance, so crossing the threshold does not pause a walk.

@@ -137,5 +137,13 @@ Chapter-one letter-pile rigid-body simulation. MIT License.
 - Colin Farrell version: https://origin.dazeddigital.com/film-tv/gallery/26029/4/yorgos-lanthimos-s-movie-posters . Image: https://images-prod.dazeddigital.com/786/azure/dazed-prod/1250/6/1256972.jpg
 - Rachel Weisz version: https://origin.dazeddigital.com/film-tv/gallery/26029/5/yorgos-lanthimos-s-movie-posters . Image: https://images-prod.dazeddigital.com/786/azure/dazed-prod/1250/6/1256973.jpg
 - Retrieved 2026-10-21. Both gallery slides identify the work as an official poster. Designer interview: https://origin.dazeddigital.com/film-tv/article/42750/1/yorgos-lanthimos-posters-the-favourite-lobster-vasilis-marmatakis-interview
-- Included at the user's request as two attributed works for specific commentary on negative space. An accessible on-page museum label identifies title, designer, year and individual sources in all seven languages. Viewing is optional to the mathematical narrative. This record documents provenance and context, not a grant of reproduction or sublicensing rights.
+- Included at the user's request as two attributed works for specific commentary on negative space. An accessible on-page museum label identifies title, designer, year and individual sources in all seven languages. The pair is the first main-route stop by the gallery entrance, followed by the shared-contour wall and the number wall. It supplies visual commentary, not mathematical evidence; no viewing timer or external link visit is required. This record documents provenance and context, not a grant of reproduction or sublicensing rights.
 - The Rubin-style shared contour (`assets/art/rubin-contour.svg` / `src/rubin-contour.js`) is drawn independently for this exhibition and is not traced from an Escher image or either poster.
+
+## Rubin vase research label (chapter two)
+
+- The independently drawn `rubin-contour.svg` and shared-contour walls remain original exhibit geometry; no historical plate or third-party illustration is bundled.
+- The on-page label credits Edgar Rubin’s figure–ground research, published in 1915 in *Synsoplevede Figurer: Studier i psykologisk Analyse*. The year labels the research, not this exhibition’s wall design.
+- Primary publication, digitized by the Royal Danish Library: https://www.kb.dk/e-mat/dod/111408024790-bw.pdf . Bibliographic details and 1915 date are identified on the library’s cover sheet.
+- Supporting explanation of shared contours and the face/vase interpretation: Hanover College, *Ambiguous Figure-Ground Perception*: https://isle.hanover.edu/Ch05Object/Ch05AmbigFigGround_evt.html
+- The seven-language introduction is original short commentary. Sources are linked, not reproduced or packaged.

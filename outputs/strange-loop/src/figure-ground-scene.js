@@ -40,16 +40,12 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
   group.add(new THREE.HemisphereLight(0xf0f0ea,0x9a9e96,.35));
   // Two architectural piers share the vase boundary. The middle remains empty space.
   const contour = new THREE.Group(); contour.position.set(0,-3.8,0); group.add(contour);
-  const edges = new THREE.Group(); contour.add(edges);
   for (const sign of [-1,1]) {
     const shape = traceProfile(new THREE.Shape(), sign);
     shape.lineTo(sign * 5.2,0); shape.lineTo(sign * 5.2,6); shape.closePath();
     const geo = new THREE.ExtrudeGeometry(shape,{ depth: .48, bevelEnabled: false, curveSegments: 18 });
     const wall = new THREE.Mesh(geo,ink); wall.castShadow = wall.receiveShadow = true; contour.add(wall);
-    const outline = traceProfile(new THREE.Path(), sign).getPoints(90).map(p => new THREE.Vector3(p.x,p.y,.49));
-    edges.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(outline),new THREE.LineBasicMaterial({color:0xf0f0e9})));
   }
-  edges.visible = false;
   // A real roof aperture casts the diagonal light band onto walls, floor and actors.
   box(40,.18,19,pale,4,6.1,-5.1);
   box(40,.18,22,pale,4,6.1,18.6);
@@ -123,11 +119,11 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
   return {
     beginEntry(){entryTime=3.2;poseKey='';},
     setVisible(value){visible=value;group.visible=value;sun.visible=value;sun.shadow.needsUpdate=true;blend=0;poseKey='';manualOffset=0;entryTime=0;},
-    setState(value,locale,{hint=false,explore=false,poster=false}={}) {
+    setState(value,locale,{explore=false,poster=false}={}) {
       state=value;currentLocale=locale;
-      const stage=figureStage(state), mode=['faces','ground'].includes(stage)?'contour':'numbers';
+      const stage=figureStage(state), mode=stage==='posters'?'poster':['faces','ground'].includes(stage)?'contour':'numbers';
       targetMode=poster?'poster':explore?'contour':mode;
-      edges.visible=hint||stage==='ground';relation.visible=mode==='numbers';
+      relation.visible=mode==='numbers';
       eightText.visible=['eight','eleven','complete'].includes(stage);note.visible=['eleven','complete'].includes(stage);
       for(const entry of entries){const e=numberEvidence(state,entry.n);entry.plate.material=e.kind==='composite'?ink:plateMat;entry.digit.material=e.kind==='composite'?paper:ink;if(e.kind==='prime'&&!entry.ring.visible)entry.reveal=reduced.matches?1:0;entry.ring.visible=e.kind==='prime';}
       layoutEvidence();

@@ -50,21 +50,22 @@ export async function loadCompanions(scene, reduced, onProject) {
   }
   const projected=new THREE.Vector3(),aim=new THREE.Vector3(),rotation=new THREE.Quaternion(),yAxis=new THREE.Vector3(0,1,0);
   let showing=true, routeDone=null;
-  function walkPassage(kind,onComplete){
+  function walkPassage(kind,onComplete,area='contour'){
     routeDone=onComplete;
     for(const [index,actor] of actors.entries()){
-      actor.route=kind==='exit'?exitRoute([actor.root.position.x,actor.root.position.z],index):entryRoute(index,innerWidth<=760);
+      actor.route=kind==='exit'?exitRoute([actor.root.position.x,actor.root.position.z],index):entryRoute(index,innerWidth<=760,area);
       actor.duration=routeSample(actor.route,0).length/(index===0?1.65:1.35);
       actor.delay=index*.4;actor.age=0;actor.walking=true;
       actor.to.set(actor.route.at(-1)[0],-3.8,actor.route.at(-1)[1]);
       if(kind==='entry')actor.root.position.set(actor.route[0][0],-3.8,actor.route[0][1]);
-      actor.target.set(kind==='entry'?0:-5,-.6,kind==='entry'?0:-1.3);
+      if(kind==='entry'&&area==='poster')actor.target.set(-6.69,-.4,3.6);
+      else actor.target.set(kind==='entry'?0:-5,-.6,kind==='entry'?0:-1.3);
       play(actor,'Walk');
     }
   }
   return {
     walkThroughExit(onComplete){walkPassage('exit',onComplete);},
-    enterGallery(onComplete){walkPassage('entry',onComplete);},
+    enterGallery(onComplete,area){walkPassage('entry',onComplete,area);},
     setSpace(space){
       routeDone=null;
       for(const [index,actor] of actors.entries()){

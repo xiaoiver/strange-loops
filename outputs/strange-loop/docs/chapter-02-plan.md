@@ -4,7 +4,7 @@
 
 ## 首版范围
 
-一间画廊、一个 Rubin 花瓶式共边轮廓、一个数字展面、一条短流程。沿用现有阿基里斯与乌龟，不再增加人物或学习新的符号操作规则。主流程约 5 次点击（不含入章与可选帮助）；解释默认收起，没有必须等待的演出。章节完成以理解确认为准，不以观看时长或尝试次数为准。《龙虾》黑白海报作为可选的负空间延伸案例，不增加主流程步骤或完成条件。
+一间画廊、一个 Rubin 花瓶式共边轮廓、一个数字展面、一条短流程。沿用现有阿基里斯与乌龟，不再增加人物或学习新的符号操作规则。主流程约 6 次点击（不含入章与可选帮助）；解释默认收起，没有必须等待的演出。章节完成以理解确认为准，不以观看时长或尝试次数为准。《龙虾》双海报是入口侧墙的第一站，随后走向共边墙与数字墙；以按钮继续，不要求停留时长或访问外部来源。
 
 交付物包括原创轮廓源 SVG、可操作的三维展面、对应的无 WebGL 图文流程、七语言文案、独立进度保存及验收记录。空间沿用用户认可的黑白灰展厅、真实斜向天光和展品侧下方的同行者。
 
@@ -12,7 +12,7 @@
 
 第一章发现：没有找到 WU，并不是证明；不变量才给出了理由。
 
-第二章接着问：当规则画出了“能生成的东西”，剩下的空白是否也已经被我们理解？玩家先体验同一条边界的两种读法，再通过符号与数量的对应进入数字展面，发现“尚未生成”与“确定无法生成”需要不同的证据。最后，曾被忽略的数字获得自己的判定依据和轮廓，从背景成为被确认的对象。
+第二章接着问：当规则画出了“能生成的东西”，剩下的空白是否也已经被我们理解？玩家先看两款《龙虾》海报如何用留白表达缺席，再体验同一条边界的两种读法，随后通过符号与数量的对应进入数字展面，发现“尚未生成”与“确定无法生成”需要不同的证据。最后，曾被忽略的数字获得自己的判定依据和轮廓，从背景成为被确认的对象。
 
 故事线：**看见空白 → 猜测空白的含义 → 用新证据修正猜测 → 主动判断，让留白成为图形。** 玩家应能说出：“还没出现，不能说明永远不会出现；要判断它属于哪一类，需要一个有依据的方法。”
 
@@ -31,9 +31,10 @@
 
 | 段落 | 玩家操作 | 看到的变化 | 理解点 |
 | --- | --- | --- | --- |
-| 进入 | 从第一章继续，或由地图进入 | 字母堆与操作字串退场，人物走向白色屏风；门洞和天光延续 | 从操作符号转向观察边界 |
+| 进入 | 从第一章继续，或由地图进入 | 字母堆与操作字串退场，人物走向入口附近的海报侧墙；门洞和天光延续 | 从操作符号转向观察边界 |
+| 拥抱与缺席 | 入馆先看双海报，点击“走向共边墙”继续 | 镜头和角色转向侧墙上的两幅海报，页面展示设计者、年份、原创短评与来源 | 留白也可以承载叙事信息 |
 | 换一种看法 | 点击“看留白” | 先辨认深灰的两张侧脸，再注意到中间留白中的器皿 | 图形与衬底共享边界 |
-| 符号获得意义 | 点击“看看规则”，进入数字展面 | 两组各三枚短划与总共六枚短划对应，旁边浮现 2 × 3 = 6；随后保留为第一批合数证据 | 符号能被解释，是因为关系对应得上 |
+| 符号获得意义 | 点击“走向数字墙”，进入数字展面 | 两组各三枚短划与总共六枚短划对应，旁边浮现 2 × 3 = 6；随后保留为第一批合数证据 | 符号能被解释，是因为关系对应得上 |
 | 空白的证据 | 点击“再生成一批” | 展面自动提示尚未列出的 8，随后由 2 × 4 点亮 | 还没出现，不代表不会出现 |
 | 有限判断 | 点击“检查 11” | 展面自动聚焦 11，检查 2、3 后确认它为素数；11 获得独立的细轮廓和证据标记 | 留白也可以通过另一种方法获得确定依据 |
 | 收束 | 回答一个简短问题 | 8 的乘法证据与 11 的判定标记并置；标记本章完成，显示第三章预告 | 区分“未生成”和“已证明不属于” |
@@ -45,8 +46,9 @@
 | 镜头 | 参考时长 | 构图与灯光 | 操作与反馈 |
 | --- | --- | --- | --- |
 | 过门 | 5 秒 | 第一章字母堆与操作字串退场，沿原出口方向衔接白色画廊；保留门的比例、斜向天光与人物尺度 | 进入后焦点落在章节标题；减少动态时直接到达 |
+| 海报观赏 | 15–20 秒 | 两款海报等高并置，角色走向侧墙，保持完整画幅与页面署名 | 入馆先到海报侧墙，“走向共边墙”继续，不设观看计时 |
 | 共边 | 15–20 秒 | 大幅薄屏风近正视，深灰双侧脸之间留出器皿；天光照出厚度，避免阴影覆盖关键轮廓 | “看留白”只转移观察重点；细轮廓线提示两种读法，完成后可继续 |
-| 符号解释 | 15–20 秒 | 镜头转向相邻数字墙，屏风仍留在画面边缘；两组各三枚短划对应六枚总量 | “看看规则”触发过门，显示 2 × 3 = 6，保留为合数证据；无需额外确认 |
+| 符号解释 | 15–20 秒 | 镜头转向相邻数字墙，屏风仍留在画面边缘；两组各三枚短划对应六枚总量 | “走向数字墙”触发过门，显示 2 × 3 = 6，保留为合数证据；无需额外确认 |
 | 尚未生成 | 20–25 秒 | 数字墙展示 2–12，屏风仍在同一空间；自动聚焦 8 | 8 初始显示“尚未列出”；点击“再生成一批”后以短动画呈现 2 × 4 = 8，留白转为已有证据 |
 | 有限检查 | 20–25 秒 | 展面突出 11，保留 8 的乘法证据作对照；两个角色转向展面 | 点“检查 11”，依次显示除以 2、3 均不能整除，随后显现细轮廓并标记“已验证素数”；可立即显示全部结果 |
 | 收束 | 15–25 秒 | 展面保留两条证据，左侧只呈现一个理解问题 | 答对后保存完成状态，提供自由观察、返回与第三章预告；不要求继续生成 |
@@ -73,13 +75,13 @@
 
 人物停在展品侧下方，初始靠屏风左前侧，进入数字段后转向相邻墙面，阿基里斯先认形、提出猜测，乌龟引导观察。两人每段最多各一句回应，不重复播报。移动端按“短引导 → 场景 → 当前操作”排列，所有操作可用按钮完成。
 
-## 墙上延伸展品：《龙虾》的负空间海报
+## 主线第一站：《龙虾》的负空间海报
 
 按用户 2026-10-21 的新要求，Rubin 共边轮廓成为具有厚度的两片墙体，花瓶部分保持为空。原来的可选外链案例改为侧墙上的两款《龙虾》（The Lobster，2015）黑白拥抱海报，设计者 Vasilis Marmatakis。海报保留完整画幅，来自用户在 [PR #5 评论](https://github.com/xiaoiver/strange-loops/pull/5#issuecomment-6313129108)指定的 Dazed 两款官方版本；作品与设计者信息见 [Dazed 设计师访谈](https://origin.dazeddigital.com/film-tv/article/42750/1/yorgos-lanthimos-posters-the-favourite-lobster-vasilis-marmatakis-interview)。来源与使用记录见仓库 `THIRD_PARTY_NOTICES.md`。
 
-点击海报或低强调的作品标题可转向侧墙，阅读原创短评和署名来源；再次点击或 Esc 返回原观察位。打开或跳过作品均不改变数学证据和完成条件。运行时从本地加载图片，不热链，也不依赖外部网站可用性。海报不是本展原创或公版素材，不纳入项目代码或原创素材的再许可范围。
+穿过入口后先到海报侧墙，阅读原创短评和署名来源；点击「走向共边墙」转向双侧脸与花瓶，完成「看留白」后再走向数字墙。看过后仍可点击海报或作品标题回看，再次点击或 Esc 返回原观察位。海报观赏不提供任何合数或素数证据，也不依赖外部链接打开。运行时从本地加载图片，不热链，也不依赖外部网站可用性。海报不是本展原创或公版素材，不纳入项目代码或原创素材的再许可范围。
 
-原创短评：画面中的人正拥抱着一片空白。但顺着手臂和肩膀的轮廓，你仍能辨认出另一个人。这里，留白让“缺席”也有了形状。
+原创短评：两次拥抱，两片空白。顺着手臂与肩膀的边界，缺席的人仍然可见。
 
 Rubin 轮廓提供两种读法，海报的空白承载叙事信息；两者均不替代数学证明。空间取意于安静的天光美术馆，不复制某座具体建筑，不标称为安藤忠雄作品。
 
@@ -133,7 +135,8 @@ Rubin 轮廓提供两种读法，海报的空白承载叙事信息；两者均�
 | 视觉操作 | 看留白 | Look at the ground |
 | 阿基里斯 | 两张脸，正看着对方。 | Two faces, looking at each other. |
 | 乌龟 | 看看它们之间。器皿的轮廓一直在那里。 | Look between them. The vessel's outline was there all along. |
-| 过门操作 | 看看规则 | Look at the rules |
+| 海报到共边墙 | 走向共边墙 | Walk to the shared contour |
+| 共边墙到数字墙 | 走向数字墙 | Walk to the number wall |
 | 过门解释 | 两组，每组三枚。换成数字，这个关系仍然成立。 | Two groups of three. Written as numbers, the relationship still holds. |
 | 阿基里斯的猜测 | 剩下没出现的，就是素数吧？ | So the ones that haven't appeared must be prime? |
 | 数字提示 | 8 还没出现。现在能下结论吗？ | 8 has not appeared yet. Can we conclude anything? |
@@ -152,21 +155,22 @@ Rubin 轮廓提供两种读法，海报的空白承载叙事信息；两者均�
 
 ## 完成条件与数学边界
 
-1. 看过两种共边读法，或主动查看轮廓说明。
-2. 看过短划分组与乘法数量关系的对应。
-3. 见过 8 从“尚未列出”变成有生成证据的合数。
-4. 看过 11 的有限判定依据及其独立轮廓标记。
-5. 正确区分“未列出”与“已确定不属于”。选错只补充解释，读过解释后可重新选择，不重置体验。
+1. 在入口看过《龙虾》双海报，并主动走向共边墙。
+2. 看过两种共边读法，或主动查看轮廓说明。
+3. 看过短划分组与乘法数量关系的对应。
+4. 见过 8 从“尚未列出”变成有生成证据的合数。
+5. 看过 11 的有限判定依据及其独立轮廓标记。
+6. 正确区分“未列出”与“已确定不属于”。选错只补充解释，读过解释后可重新选择，不重置体验。
 
 完成后保存状态并收起教学操作，可选择自由观察或下一章预告。返回、刷新、语言切换不取消完成记录。第一章完成作为推荐进入路径，不做硬性通关锁。
 
 不要把本演示说成一般不可判定性的证明。素数与合数都能判定；有限窗口的留白也不自动代表无限集合的补集。试除说明明确：若 11 是合数，必有一个不大于 √11 的因数，因此检查 2、3 足够。不能暗示检查两个数对任意整数都足够。
 
-可选“与原书的联系”说明承接更深的问题：能不断列出系统中的定理，并不保证存在一个对任意输入都结束、判断其是否为定理的方法。有些形式系统具有这种差异，但本章有限数字演示不证明它。首屏不引入“可枚举／可判定”等术语，也不能让视觉上的图底互换改变 MU 的不可达结论。
+制作资料保留更深的问题，网页不再展示“与原书的联系”入口：能不断列出系统中的定理，并不保证存在一个对任意输入都结束、判断其是否为定理的方法。有些形式系统具有这种差异，但本章有限数字演示不证明它。首屏不引入“可枚举／可判定”等术语，也不能让视觉上的图底互换改变 MU 的不可达结论。
 
 ## 状态、返回与异常
 
-流程状态为 `contour → meaning-bridge → pending-eight → generated-eight → checked-eleven → reflection → complete`。过门动画使用独立的导航状态，不能自行标记学习步骤完成。
+实际流程状态为 `posters → faces → ground → numbers → eight → eleven → complete`。状态版本升至 3，沿用现有存储键；旧版已进入数字墙或已完成的有效证据会自动迁移，不重置进度。过门动画使用独立的导航状态，不能自行标记学习步骤完成。
 
 - `contour`：完成两种读法的提示或主动展开轮廓说明后继续。没有图形识别测验。
 - `meaning-bridge`：展示短划分组与 2 × 3 = 6 的对应；解释与展面稳定后进入 `pending-eight`，不依赖动画回调，减少动态时直接呈现。
@@ -185,7 +189,7 @@ Esc 依次关闭帮助、章节地图，再退出本章；焦点回到对应触�
 | 素材或模块 | 制作方式 | 首版约束 |
 | --- | --- | --- |
 | 共边屏风 | 原创 SVG 轮廓，运行时挤出；源文件随仓库保存 | 先验证识别再制作厚度，单件约千级三角面，不新增纹理 |
-| 《龙虾》延伸案例 | 本地海报、原创短评、设计者信息与来源链接 | 按最新要求挂在侧墙，署名、短评和来源可查看；不增加完成条件 |
+| 《龙虾》主线首站 | 本地海报、原创短评、设计者信息与来源链接 | 按最新要求挂在侧墙，署名、短评和来源可查看；在入口先作为主线一站，不设观看计时或额外问题 |
 | 数字展面 | 复用字体与现有 Three.js 材质，11 个数字 | 保留 HTML 等价入口，不重建整间场景 |
 | 同行者 | 复用现有 GLB、Walk / Look / Idle | 每段至多一次观察反应，不新增自动抱臂触发链 |
 | 空间与照明 | 复用白墙、地面、门洞与天光做局部调整 | 复用现有渲染器和阴影方案，离章恢复原场景状态 |
@@ -214,7 +218,7 @@ Esc 依次关闭帮助、章节地图，再退出本章；焦点回到对应触�
 - 每段只有一个主要操作，8、11 无需精确点选；场景中的证据在非 3D 后备页面中同样可读。
 - 屏风与数字墙属于同一空间；转场保留展品位置关系，减少动态时无需等待。角色和阴影没有跨章节残留。
 - 竖屏轮廓不被拉伸，角色不遮挡识别边界，footer 和主操作不互相遮挡；检查 11 的结果没有含义不明的勾号。
-- 主展品为自行绘制的 Rubin 花瓶式共边墙体；《龙虾》挂在侧墙。打开、关闭或跳过观赏均不改变学习证据与完成状态，关闭恢复焦点；海报本地加载，外链失败不阻断流程。
+- 主展品为自行绘制的 Rubin 花瓶式共边墙体；《龙虾》挂在侧墙。入馆先按主线观赏，以「走向共边墙」继续；回看不改变学习证据与完成状态，关闭恢复焦点；海报本地加载，外链失败不阻断流程。
 - 理解条件未满足时不显示完成；完成状态可以恢复，重复点击不重复触发过场。
 - 七种语言、键盘、触屏、390 × 844、减少动态、无 WebGL 均有完整路径；语言切换保留步骤与证据状态。
 - 序厅与第一章的光照、四条规则、推导保存和角色动画保持正常。
@@ -234,8 +238,16 @@ Esc 依次关闭帮助、章节地图，再退出本章；焦点回到对应触�
 
 ## English summary
 
-Chapter two adapts the book's third chapter, Figure and Ground, with a short bridge from Meaning and Form. An independently drawn Rubin-vase contour introduces figure and ground; grouped marks then reveal a numerical relationship without teaching another rewrite system. A partial composite generator leaves 8 blank before generating it. A separate terminating check establishes that 11 is prime and gives it a visible outline and evidence marker in the 3D space, turning overlooked ground into an identified object. One short comprehension check completes the chapter. Each step has one primary action, and all seven existing languages are supported. The finite demonstration does not prove general undecidability, claim that primes are undecidable, or suggest that visual inversion changes formal derivability. An optional commentary on the black-and-white The Lobster poster extends the theme to narrative negative space, with two locally hosted official posters on the side wall and an on-page museum label, as requested on 21 October 2026. It adds no required step or completion condition. The implemented room is available from the chapter map; local verification is recorded in chapter-02-verification.md.
+Chapter two adapts the book's third chapter, Figure and Ground, with a short bridge from Meaning and Form. An independently drawn Rubin-vase contour introduces figure and ground; grouped marks then reveal a numerical relationship without teaching another rewrite system. A partial composite generator leaves 8 blank before generating it. A separate terminating check establishes that 11 is prime and gives it a visible outline and evidence marker in the 3D space, turning overlooked ground into an identified object. One short comprehension check completes the chapter. Each step has one primary action, and all seven existing languages are supported. The finite demonstration does not prove general undecidability, claim that primes are undecidable, or suggest that visual inversion changes formal derivability. A main-route stop at the black-and-white The Lobster poster pair extends the theme to narrative negative space, with two locally hosted official posters on the side wall and an on-page museum label, as requested on 21 October 2026. It is the first stop by the entrance, followed by the shared contour and the number wall, adding one primary action without a timer, quiz, or mathematical evidence. The implemented room is available from the chapter map; local verification is recorded in chapter-02-verification.md.
 
 ### 2026-10-21 展陈与动线补充
 
-两款官方海报等高并置，保留完整原图与比例。页面上共享展签列出作品名、海报设计者 Vasilis Marmatakis、2015 年及 Dazed 来源，HTML 提供相同的可访问内容和分别对应两幅作品的链接；原创短评只解释留白。第一章进入第二章时，两位角色沿同一门洞依次穿过 WU（中文）／MU（其他语言）出口，以门内暗部衔接镜头，在第二章的侧墙入口继续走向共边墙。减弱动态与后备模式直接进入，数学目标与视觉出口互不设限。
+两款官方海报等高并置，保留完整原图与比例。页面上共享展签列出作品名、海报设计者 Vasilis Marmatakis、2015 年及 Dazed 来源，HTML 提供相同的可访问内容和分别对应两幅作品的链接；原创短评只解释留白。第一章进入第二章时，两位角色沿同一门洞依次穿过 WU（中文）／MU（其他语言）出口，以门内暗部衔接镜头，在第二章的侧墙入口继续走向双海报。减弱动态与后备模式直接进入，数学目标与视觉出口互不设限。
+
+### 2026-10-21 主线顺序修订
+
+用户确认将《龙虾》置于主线：双海报中的缺席 → 共边墙两种读法 → 数字墙的生成与判定。初次体验不再显示单独的海报支线入口，入馆先进入海报段，只有「走向共边墙」一个主操作；之后仍可自由回看。存档版本 3 显式记录海报先于共边墙的步骤，兼容版本 1、2 的有效数学证据与完成状态。
+
+### 鲁宾花瓶介绍
+
+共边墙观察位增加页面展签，沿用双海报的标题／年份、作者／研究主题、短介绍、来源结构。署名 Edgar Rubin，年份 1915 指《Synsoplevede Figurer》的发表时间；花瓶与双侧脸共享轮廓的说明参考 Hanover College 教学材料。链接至丹麦皇家图书馆原始研究扫描件，展厅仍使用独立绘制的轮廓，不引用历史图版。七语言一致，墙面不加重复展签。
