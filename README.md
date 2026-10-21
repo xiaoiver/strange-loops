@@ -48,9 +48,9 @@ Blender 角色工程包含骨骼、材质及 Idle / Walk / Look 动画。重建�
 
 ## 当前范围
 
-序厅与第一章可完整体验。WU / MU 花园先用四次点击完成小目标，再通过数 J、三个分组和检查四条规则发现不变量。选出 WU 不可达的正确理由后，本章即完成并保存，无需反复尝试；自由探索为可选项。四条原版规则一键应用，多处符合时默认改写最左侧；界面只保留提示、退一步和重新开始，不展示历史记录。三维字母同步变化，中英文切换、返回序厅和刷新会保留进度；无 WebGL 也能操作规则。第二章及后续章节尚未开放。
+序厅与第一章可完整体验。WU / MU 花园先用四次点击完成小目标，再通过数 J、三个分组和检查四条规则发现不变量。选出 WU 不可达的正确理由后，本章即完成并保存，无需反复尝试；自由探索为可选项。四条原版规则一键应用，多处符合时默认改写最左侧；界面只保留提示、退一步和重新开始，不展示历史记录。三维字母同步变化，中英文切换、返回序厅和刷新会保留进度；无 WebGL 也能操作规则。第三章及后续章节尚未开放。
 
-下一章节见[第二章制作计划](outputs/strange-loop/docs/chapter-02-plan.md)。漫游地图将第二章至第七章置灰，右侧保留章节主题。
+下一章节见[第二章制作计划](outputs/strange-loop/docs/chapter-02-plan.md)。漫游地图将第三章至第七章置灰，右侧保留章节主题。
 
 ![第一章 WU 花园实机截图：斜向顶光、规则桌与有纵深的门洞](outputs/strange-loop/docs/screenshots/garden.jpg)
 
@@ -59,3 +59,15 @@ Blender 角色工程包含骨骼、材质及 Idle / Walk / Look 动画。重建�
 项目未包含原书全文、封面扫描或艾舍尔作品图像。依赖及字体声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 部署说明见[发布到 Gallery Mate 官网](outputs/strange-loop/docs/deploy-gallerymate.md)。
+
+## 第二章：图形与衬底
+
+可从地图或第一章的下一章按钮进入。两位角色穿过 WU／MU 出口，经侧墙入口来到《龙虾》双海报前，再走向 Rubin 共边墙，观察两张侧脸之间的花瓶形留白。页面上的美术馆式展签介绍设计者、年份和来源。看过共边墙后可回看海报，或打开下一章预告；当前不展示数字墙、数学问答或完成标记。七种语言共享观察进度，旧存档自动回到对应展品；无 3D 时使用 SVG 与 HTML 游览。素材来源见仓库 THIRD_PARTY_NOTICES.md。
+
+![第二章：共边墙体与天光画廊](outputs/strange-loop/docs/screenshots/figure-ground-rubin.jpg)
+
+阿基里斯的步行动作使用 [Quaternius Universal Animation Library](https://quaternius.com/packs/universalanimationlibrary.html) 的 `Walk_Formal_Loop`（CC0），通过 Blender 重定向到现有人偶；抱臂待机与转头保留。
+
+第一章到第二章穿门时，阿基里斯使用同一 CC0 动画库的 `Jog_Fwd_Loop` 轻慢跑，乌龟加快同行；展品之间仍用 Formal 步态。
+
+进入第二章后，镜头先聚焦当前展品并恢复阅读，同行者继续到位。章节数字使用翻牌动画，地图主题文字保持右对齐。

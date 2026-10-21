@@ -1,6 +1,6 @@
-# 怪圈 · 序厅与 WU 花园
+# 怪圈 · 序厅与两章漫游
 
-《集异璧》原创致敬叙事展。包含真实三维 G/E/B 交集雕塑、三束正交平行光和实时阴影、三个观察方向、拖动观察、章节地图，以及可玩的第一章 WU / MU 花园。第二章及后续章节尚未开放，漫游地图置灰，右侧保留章节主题。制作计划见 `docs/chapter-02-plan.md`。
+《集异璧》原创致敬叙事展。包含真实三维 G/E/B 交集雕塑、三束正交平行光和实时阴影、三个观察方向、拖动观察、章节地图，以及可玩的 WU / MU 花园与图形与衬底画廊。第三章及后续章节尚未开放，漫游地图置灰，右侧保留章节主题。制作计划见 `docs/chapter-02-plan.md`。
 
 ## 语言与文案
 
@@ -28,7 +28,7 @@
 - 选出不变量理由才标记本章完成；“试过很多次”只显示解释，不会通关。完成页收起规则操作，提供下一章预告与可选自由探索。完成状态随语言切换、返回和刷新保留；旧版挑战进度直接进入数量观察，原推导保留。
 - 操作区限制单串 192 字符、600 个内部节点；超限可退一步或重新开始，不改变数学规则。重新开始有独立确认。
 - `src/garden.js` 负责 DOM 操作、键盘焦点与对话框；`src/garden-copy.js` 保存原创双语对白；`garden.css` 负责可滚动的小屏布局。`src/garden-scene.js` 提供字母堆与同步操作字串，角色继续使用现有 GLB。
-- 三维场景不可用时仍可完整操作规则；减少动态效果模式跳过镜头过渡与角色行走。第二章入口始终可用，但明确显示为预告。
+- 三维场景不可用时仍可完整操作规则；减少动态效果模式跳过镜头过渡与角色行走。第二章可由地图或下一章按钮进入。
 
 中央高台已移除。144 个石墨灰字母由 cannon-es 模拟重力与碰撞，堆成小山；每次进入第一章时，上层 48 个字母从半空落下，撞击底部并重新堆稳；操作字串单独排列在前方地面，随改写移动。真实顶光穿过矩形狭缝，在墙地形成连续亮带；墙面开出有纵深的门洞，门楣同步当前目标。地面不展示推导足迹，推导历史仅用于内部撤销与存档。减少动态效果时直接更新状态。
 
@@ -49,7 +49,7 @@ Esc 优先关闭弹窗与章节地图；在花园内先收起提示，最后才�
 - 限制设备像素比以控制移动端开销；支持减弱动态和 WebGL 不可用时的文字入口。
 - 桌面渲染像素比最高 2×，手机（宽度不超过 760px）最高 1.25×，均不超过屏幕原生 DPR。窗口尺寸或屏幕 DPR 变化时，画布和后处理使用相同的整像素分辨率，FXAA 的采样步长同步更新。
 
-序厅保持安静，不提供音频试听或播放控件。中文字体使用自行托管的 Noto Serif SC 子集（派生名 Strange Loops Serif SC），保留 400–700 字重，回退到本地宋体。没有使用书封、原书对白、埃舍尔图像或第三方实拍素材。
+序厅保持安静，不提供音频试听或播放控件。中文字体使用自行托管的 Noto Serif SC 子集（派生名 Strange Loops Serif SC），保留 400–700 字重，回退到本地宋体。没有使用书封、原书对白或埃舍尔图像；第二章按用户要求引用两款署名电影海报用于负空间评论。
 
 ## 生成模型
 
@@ -61,7 +61,7 @@ Esc 优先关闭弹窗与章节地图；在花园内先收起提示，最后才�
 
 已移除右下角的独立漫游播放/暂停按钮，保留拖动和 G/E/B 视角切换。场景仍遵循系统的减弱动态偏好。
 
-同行者模型详见 ../characters/README.md。乌龟由用户提供的 Tripo 网格从 15,515 减至 598 个三角面，保留造型、灰色哑光材质与平面法线。角色 GLB 经 Draco 压缩（阿基里斯约 241 KB，乌龟约 85 KB），运行时用本地 `assets/draco/` 解码；当前乌龟生成脚本直接导出压缩 GLB。两个模型具有骨骼与 Idle / Walk / Look 动画，角色标签和对白支持中英文；点击人物可交谈。首次载入短距离行走后停留，不持续循环走动。序厅到第一章的停留点沿右侧阴影拉开，阿基里斯约行走 3.6 秒、乌龟约 6 秒，实际时长按距离和各自步速计算，往返均缓进缓停。模型加载失败不会阻断序厅和其他交互。
+同行者模型详见 ../characters/README.md。乌龟由用户提供的 Tripo 网格从 15,515 减至 598 个三角面，保留造型、灰色哑光材质与平面法线。角色 GLB 经 Draco 压缩（阿基里斯约 340 KB，乌龟约 85 KB），运行时用本地 `assets/draco/` 解码；当前乌龟生成脚本直接导出压缩 GLB。两个模型具有骨骼与 Idle / Walk / Look 动画，阿基里斯另有 Jog，角色标签和对白支持中英文；点击人物可交谈。首次载入短距离行走后停留，不持续循环走动。序厅与第一章往返时角色保留当前位置与待机动作，仅平滑调整朝向；第一章到第二章仍沿门洞路线行走。模型加载失败不会阻断序厅和其他交互。
 
 停留时使用缓慢循环的骨骼待机动画：阿基里斯约 14 秒一段，抱臂呼吸、上身轻移和间歇转头；乌龟约 18 秒一段，包含探头、侧望和轻动前肢。交谈后恢复待机，转头与待机使用等长交叉淡化，避免混入张臂默认姿态而重复抱臂；减少动态效果时首帧直接显示完整姿态。角色和 G/E/B 触发的对白共用固定的正文起点，避免文本长短或说话人变化造成跳位。
 
@@ -87,3 +87,11 @@ The exhibit supports Chinese (`zh`), English (`en`), Japanese (`ja`), Korean (`k
 New original translations live in `src/locales/`. The mathematical engine always uses MIU; Chinese displays WJU, while the other six languages display MIU. Japanese and Korean use system fonts for their respective scripts. Existing published translations of the book are not quoted.
 
 The loader is authored in `src/loading.js` and bundled inline by `scripts/build-loading.mjs` during `npm run build`, so localized loading and retry messages work even if the main bundle fails. Do not edit the generated inline loader directly. Release output includes a static page and metadata for each language; the host must select the matching file for `?lang=`.
+
+## 第二章：图形与衬底
+
+可从地图或第一章的下一章按钮进入。两位角色穿过 WU／MU 出口，经侧墙入口来到《龙虾》双海报前，再走向 Rubin 共边墙，观察两张侧脸之间的花瓶形留白。页面上的美术馆式展签介绍设计者、年份和来源。看过共边墙后可回看海报，或打开下一章预告；当前不展示数字墙、数学问答或完成标记。七种语言共享观察进度，旧存档自动回到对应展品；无 3D 时使用 SVG 与 HTML 游览。素材来源见仓库 THIRD_PARTY_NOTICES.md。
+
+阿基里斯的 Walk 使用 Quaternius `Walk_Formal_Loop`（CC0），经 Blender 重定向到现有 POLLO28 骨架，保留现有外形与抱臂 Idle / Look。步行循环 1.333 秒，对应网页每轮约 1.158 世界单位；播放速度绑定实际行进距离，根骨骼不额外前进。起停混合 Idle，序厅与第一章往返仍仅转向。当前工程与 Blender 渲染预览见 `../characters/geb-companions-ual.blend`、`../characters/mannequin-ual-walk-preview.gif`，来源与许可见 THIRD_PARTY_NOTICES.md。
+
+章节穿门过渡中，阿基里斯使用 `Jog_Fwd_Loop`，乌龟加快自己的步行与步频；普通展品漫游恢复 `Walk_Formal_Loop` 与原速。新双人可编辑工程为 `../characters/geb-companions-jog.blend`。

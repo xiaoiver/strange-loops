@@ -1,0 +1,17 @@
+{
+  "source": "Quaternius Universal Animation Library Standard",
+  "clip": "Jog_Fwd_Loop",
+  "license": "CC0-1.0",
+  "source_cycle_distance": 4.999998092651003,
+  "leg_scale": 1.4850225885735593,
+  "stride_gain": 0.3,
+  "lift_gain": 0.65,
+  "root_based_cycle_distance": 2.2275330331234353,
+  "model_cycle_distance": 2.8722424432635307,
+  "web_cycle_distance": 1.7233454659581184,
+  "seconds": 0.9333333333333333,
+  "frames": 29,
+  "glb_bytes": 340204,
+  "minimum_clearance": 0.0009998054010793567,
+  "maximum_reach_correction": 0
+}

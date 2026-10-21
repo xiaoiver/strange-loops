@@ -25,6 +25,9 @@ test('release is self-contained under the website subpath, with seven language p
   assert.ok(!css.includes('fonts.googleapis.com'));
   assert.ok(css.includes('assets/fonts/serif-sc.woff2'));
   assert.equal((await readFile(path.join(release, 'assets/characters/achilles.glb'))).toString('ascii', 0, 4), 'glTF');
+  assert.ok(manifest.files.some(file => file.path === 'figure-ground.css'));
+  assert.ok(manifest.files.some(file => file.path === 'assets/art/rubin-contour.svg'));
+  for (const file of ['assets/art/the-lobster.jpg','assets/art/the-lobster-weisz.jpg']) assert.ok(manifest.files.some(entry => entry.path === file));
   assert.ok(manifest.files.every(file => !file.path.includes('node_modules') && !file.path.startsWith('src/')));
 });
 

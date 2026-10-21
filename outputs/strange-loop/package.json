@@ -13,6 +13,7 @@
     "letter-pile": "node scripts/generate-letter-pile.mjs"
   },
   "dependencies": {
+    "@pqina/flip": "1.8.4",
     "cannon-es": "^0.20.0",
     "three": "0.180.0",
     "three-bvh-csg": "0.0.17"

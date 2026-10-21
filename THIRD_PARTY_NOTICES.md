@@ -128,3 +128,64 @@ Chapter-one letter-pile rigid-body simulation. MIT License.
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+## The Lobster posters (chapter two)
+
+- Files: `outputs/strange-loop/assets/art/the-lobster.jpg` and `the-lobster-weisz.jpg`, each 786 × 1113 JPEG. Both are complete images, not cropped, mirrored, recolored or repainted.
+- Work: *The Lobster* (2015), the Colin Farrell and Rachel Weisz official absent-embrace poster pair. Poster design: **Vasilis Marmatakis**. The film's director is Yorgos Lanthimos; the exhibition credits Marmatakis specifically for poster design. Copyright remains with the respective rights holders; these images are not CC BY, public domain, or original assets of this repository.
+- User selection: https://github.com/xiaoiver/strange-loops/pull/5#issuecomment-6313129108
+- Colin Farrell version: https://origin.dazeddigital.com/film-tv/gallery/26029/4/yorgos-lanthimos-s-movie-posters . Image: https://images-prod.dazeddigital.com/786/azure/dazed-prod/1250/6/1256972.jpg
+- Rachel Weisz version: https://origin.dazeddigital.com/film-tv/gallery/26029/5/yorgos-lanthimos-s-movie-posters . Image: https://images-prod.dazeddigital.com/786/azure/dazed-prod/1250/6/1256973.jpg
+- Retrieved 2026-10-21. Both gallery slides identify the work as an official poster. Designer interview: https://origin.dazeddigital.com/film-tv/article/42750/1/yorgos-lanthimos-posters-the-favourite-lobster-vasilis-marmatakis-interview
+- Included at the user's request as two attributed works for specific commentary on negative space. An accessible on-page museum label identifies title, designer, year and individual sources in all seven languages. The pair is the first main-route stop by the gallery entrance, followed by the shared-contour wall and the number wall. It supplies visual commentary, not mathematical evidence; no viewing timer or external link visit is required. This record documents provenance and context, not a grant of reproduction or sublicensing rights.
+- The Rubin-style shared contour (`assets/art/rubin-contour.svg` / `src/rubin-contour.js`) is drawn independently for this exhibition and is not traced from an Escher image or either poster.
+
+## Rubin vase research label (chapter two)
+
+- The independently drawn `rubin-contour.svg` and shared-contour walls remain original exhibit geometry; no historical plate or third-party illustration is bundled.
+- The on-page label credits Edgar Rubin’s figure–ground research, published in 1915 in *Synsoplevede Figurer: Studier i psykologisk Analyse*. The year labels the research, not this exhibition’s wall design.
+- Primary publication, digitized by the Royal Danish Library: https://www.kb.dk/e-mat/dod/111408024790-bw.pdf . Bibliographic details and 1915 date are identified on the library’s cover sheet.
+- Supporting explanation of shared contours and the face/vase interpretation: Hanover College, *Ambiguous Figure-Ground Perception*: https://isle.hanover.edu/Ch05Object/Ch05AmbigFigGround_evt.html
+- The seven-language introduction is original short commentary. Sources are linked, not reproduced or packaged.
+
+## PQINA Flip (chapter counter)
+
+- Package: `@pqina/flip` 1.8.4.
+- Source: https://github.com/pqina/flip
+- Used for the footer split-flap chapter numbers; local styles adapt the panels to the exhibition.
+
+```text
+MIT License
+
+Copyright (c) 2020 PQINA | Rik Schennink <rik@pqina.nl>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## Quaternius Walk_Formal_Loop (Achilles animation)
+
+- Author: **Quaternius**. Source: https://quaternius.com/packs/universalanimationlibrary.html
+- License: **CC0 1.0 Universal**, https://creativecommons.org/publicdomain/zero/1.0/ . The supplied archive's license is preserved at `outputs/characters/source/quaternius-LICENSE.txt`.
+- The user supplied `Universal Animation Library[Standard].zip`. `Walk_Formal_Loop` and its reference mannequin were extracted from `Unreal-Godot/UAL1_Standard_RM.glb`; the extracted clip is preserved in `outputs/characters/source/quaternius-walk-formal-loop.glb`. The earlier `Walk_Loop` reference is preserved separately as `quaternius-walk-loop.glb`; the retargeted formal walk and chapter-passage jog are shipped in the website runtime.
+- Adaptation: Blender rest-pose calibration and retargeting to the existing POLLO28 skeleton, proportional pelvis/limb movement, shoe-contact fitting, removal of root translation, and distance-driven playback. The runtime `Achilles_Walk` is derived from this clip. The POLLO28 mesh and its CC BY 4.0 attribution remain separate and unchanged.
+- Editable project: `outputs/characters/geb-companions-ual.blend`; reproducible retarget script: `outputs/characters/retarget_ual_walk.py`. Original Idle / Look and the tortoise are preserved.
+
+The chapter-map credits show the animation package, selected clips, Quaternius author and CC0 1.0 license links beside the model credit in all seven interface languages; the Chinese static HTML fallback includes the same animation credit.
+
+The chapter passage additionally uses Quaternius `Jog_Fwd_Loop` from the same CC0 Standard archive, preserved as `outputs/characters/source/quaternius-jog-fwd-loop.glb`. The original source's large stride and flight height are adapted to a light jog (30% longitudinal excursion, 65% sole clearance and pelvis lift), then fitted to the existing rig and shoes; root translation is removed. The runtime `Achilles_Jog` is distance-driven. Both selected clip names are listed in the seven-language map credit. The editable four-action studio is `outputs/characters/geb-companions-jog.blend`.

@@ -48,7 +48,7 @@ The Blender character project includes rigs, materials, and Idle / Walk / Look a
 
 ## Current scope
 
-The vestibule and chapter one are playable. MU Garden starts with a small goal completed in four taps. Counting Is, grouping them in threes, and checking all four rules reveal the invariant. Choosing the reason MU is unreachable completes and saves the chapter; further exploration is optional. The original four rules apply in one tap, using the leftmost matching occurrence. Hints, undo, and restart are available; history records stay out of the interface. Animated 3D letters follow each rewrite. Progress survives language changes, lobby visits, and reloads. The rule interface also works without WebGL. Chapter two and later rooms are not yet open.
+The vestibule and chapter one are playable. MU Garden starts with a small goal completed in four taps. Counting Is, grouping them in threes, and checking all four rules reveal the invariant. Choosing the reason MU is unreachable completes and saves the chapter; further exploration is optional. The original four rules apply in one tap, using the leftmost matching occurrence. Hints, undo, and restart are available; history records stay out of the interface. Animated 3D letters follow each rewrite. Progress survives language changes, lobby visits, and reloads. The rule interface also works without WebGL. Chapter three and later rooms are not yet open.
 
 See the [chapter two production plan](outputs/strange-loop/docs/chapter-02-plan.md) (Chinese, with English UI copy and summary). Unreleased rooms are greyed out in the route, with their original topic labels retained.
 
@@ -59,3 +59,15 @@ See the [chapter two production plan](outputs/strange-loop/docs/chapter-02-plan.
 The repository does not include the book's full text, cover scans, or images of Escher's works. Dependency and font notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 See [publishing under the Gallery Mate website](outputs/strange-loop/docs/deploy-gallerymate.md) (Chinese).
+
+## Chapter two: Figure and Ground
+
+Enter from the chapter map or chapter one’s next button. The companions walk through the WU/MU exit into the gallery, stopping first at two *The Lobster* posters, then at the Rubin shared-contour walls. Look between the facing profiles to find the vase. On-page museum labels name the creators, dates and sources. Revisit the posters or open the next chapter preview afterwards. The number wall, mathematical questions and completion badge are currently removed. All seven languages share observation progress; older saves return to the corresponding artwork. SVG and HTML support the same tour without 3D. See THIRD_PARTY_NOTICES.md for artwork provenance.
+
+![Chapter two: the shared-contour gallery](outputs/strange-loop/docs/screenshots/figure-ground-en.jpg)
+
+Achilles’ walk is retargeted in Blender from Quaternius’ [Universal Animation Library](https://quaternius.com/packs/universalanimationlibrary.html), `Walk_Formal_Loop` (CC0), while preserving the current mannequin, folded-arm idle and look animations.
+
+During the chapter-one-to-two doorway passage, Achilles uses the same CC0 library’s `Jog_Fwd_Loop`, adapted to a light jog, while the Tortoise walks faster alongside. Exhibit-to-exhibit movement retains the formal walk.
+
+On gallery arrival, the camera focuses the active exhibit and unlocks reading before the companions reach their places. Chapter numbers use a split-flap animation; map topics remain right-aligned.

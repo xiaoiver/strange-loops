@@ -5,7 +5,7 @@ import { restoreDiscovery, letterGroups, discoveryAnswer } from './garden-discov
 
 const STORAGE = 'geb.garden.v1';
 
-export function createGarden(root, { locale: initialLocale, navigation, onWord, onMeet, onExit, onAnnounce, onHighlight }) {
+export function createGarden(root, { locale: initialLocale, navigation, onWord, onMeet, onExit, onAnnounce, onHighlight, onNext, nextLabel }) {
   let locale = initialLocale, history = createHistory(), notice = '';
   let practice = true, message = 'opening', helpOpen = false;
   let discovery = 'count', answerWrong = false, exploring = false, conversationOpen = false;
@@ -22,7 +22,7 @@ export function createGarden(root, { locale: initialLocale, navigation, onWord, 
     }
   } catch { /* The puzzle also works without a saved session. */ }
   message = practice ? 'opening' : discovery === 'complete' ? 'understood' : 'challenge';
-  const c = () => GARDEN_COPY[locale];
+  const c = () => ({ ...GARDEN_COPY[locale], next: nextLabel?.(locale) || GARDEN_COPY[locale].next });
   const word = () => history.nodes[history.current].word;
   const show = value => displayWord(value, locale);
   function preview(rule) {
@@ -183,7 +183,7 @@ export function createGarden(root, { locale: initialLocale, navigation, onWord, 
         if (discovery !== 'complete') break;
         exploring = true; render('g-word'); break;
       case 'review': exploring = false; render('g-discovery-title'); break;
-      case 'next': openDialog('next'); break;
+      case 'next': if(onNext)onNext();else openDialog('next'); break;
       case 'reset': openDialog('reset'); break;
       case 'close': root.querySelector('dialog').close(); break;
       case 'clear':

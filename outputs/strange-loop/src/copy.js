@@ -1,4 +1,5 @@
 import { EXHIBITION_TRANSLATIONS } from './locales/index.js';
+import { walkAnimationCredit } from './asset-credits.js';
 // Exhibition text is original. Chinese terminology follows the Commercial Press edition.
 // MU in the English edition is WU in that Chinese edition.
 export const COPY = {
@@ -47,16 +48,14 @@ export const COPY = {
     },
     index: {
       title: '漫游地图', subtitle: 'SEVEN ROOMS, ONE STRANGE LOOP', here: '你在这里',
-      note: '序厅与第一章已开放，其余章节待续。<br>致敬侯世达《哥德尔、艾舍尔、巴赫：集异璧之大成》。<br>本展对白为原创，非原书引文。<br>阿基里斯模型：<a class="book-link" href="https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c" target="_blank" rel="noopener noreferrer">STYLE Fortnite-creative-mannequin</a> · POLLO28 · <a class="book-link" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>（已修改）。',
+      note: '序厅、第一章与第二章已开放，其余章节待续。<br>致敬侯世达《哥德尔、艾舍尔、巴赫：集异璧之大成》。<br>本展对白为原创，非原书引文。<br>阿基里斯模型：<a class="book-link" href="https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c" target="_blank" rel="noopener noreferrer">STYLE Fortnite-creative-mannequin</a> · POLLO28 · <a class="book-link" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>（已修改）。' + walkAnimationCredit('阿基里斯动画', '已修改'),
     },
     chapters: [
-      ['三重投影', '表征'], ['WU 花园', '形式系统'], ['图形与衬底画廊', '图形与衬底'],
+      ['三重投影', '表征'], ['WU 花园', '形式系统'], ['图形与衬底', '观察与依据'],
       ['和声小迷宫', '递归'], ['螃蟹卡农庭院', '逆行'], ['蚂蚁赋格', '描述的层次'],
       ['自指之室', '编码与自指'], ['缠结的层次塔', '怪圈'],
     ],
     footer: '一场关于形式、意义与自指的漫游',
-    lobbyLocation: '<b>00</b><span class="footer-line"></span>序厅',
-    gardenLocation: '<b>01</b><span class="footer-line"></span>WU-PUZZLE <span class="mobile-hide">／ WU 谜题</span>',
     fallback: { title: '一件雕塑，三个字母。', note: '当前设备无法显示三维场景，你仍可前往第一章体验。' },
     viewAria: { G: 'G · 哥德尔：正面观察', E: 'E · 艾舍尔：侧面观察', B: 'B · 巴赫：顶部观察' },
     lightAria: (letter, on) => `${on ? '关闭' : '开启'} ${letter} 投影光源`,
@@ -64,7 +63,7 @@ export const COPY = {
       ready: '三维大厅已就绪。拖动雕塑，或选择 G、E、B 观察方向。',
       fallback: '三维场景暂不可用，仍可前往第一章体验。',
       view: letter => letter === 'free' ? '已恢复漫游视角' : `已切换至 ${letter} 观察方向`,
-      entering: '正在前往第一章：WU 谜题。', garden: '已进入 WU 花园。', gardenComplete: '第一章已完成。你发现了 WU 不可达的不变量证明。', back: '已返回序厅。',
+      entering: '正在前往第一章：WU 花园。', garden: '已进入 WU 花园。', gardenComplete: '第一章已完成。你发现了 WU 不可达的不变量证明。', back: '已返回序厅。',
       light: (letter, on) => `${letter} 光源已${on ? '开启' : '关闭'}，对应接收面的照明与阴影随光源更新。`,
       language: '已切换为中文。',
       companionsUnavailable: '角色暂未载入，仍可继续观察雕塑。', companionSelected: name => `${name}停下脚步，与你交谈。`,
@@ -121,16 +120,14 @@ export const COPY = {
     },
     index: {
       title: 'The route', subtitle: 'SEVEN ROOMS, ONE STRANGE LOOP', here: 'YOU ARE HERE',
-      note: 'The vestibule and chapter one are open. More rooms will follow.<br>An interactive homage to Douglas R. Hofstadter’s Gödel, Escher, Bach.<br>All exhibition dialogue is original, not quoted from the book.<br>Achilles: <a class="book-link" href="https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c" target="_blank" rel="noopener noreferrer">STYLE Fortnite-creative-mannequin</a> by POLLO28 · <a class="book-link" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> (adapted).',
+      note: 'The vestibule and chapters one and two are open. More rooms will follow.<br>An interactive homage to Douglas R. Hofstadter’s Gödel, Escher, Bach.<br>All exhibition dialogue is original, not quoted from the book.<br>Achilles: <a class="book-link" href="https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c" target="_blank" rel="noopener noreferrer">STYLE Fortnite-creative-mannequin</a> by POLLO28 · <a class="book-link" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> (adapted).' + walkAnimationCredit('Achilles locomotion', 'adapted'),
     },
     chapters: [
-      ['Three Projections', 'Representation'], ['MU Garden', 'Formal systems'], ['Figure and Ground', 'Figure / ground'],
+      ['Three Projections', 'Representation'], ['MU Garden', 'Formal systems'], ['Figure and Ground', 'Seeing and knowing'],
       ['Little Harmonic Labyrinth', 'Recursion'], ['Crab Canon Court', 'Retrograde'], ['Ant Fugue', 'Levels of description'],
       ['The Self-Reference Chamber', 'Encoding / self-reference'], ['The Tower of Tangled Hierarchies', 'Strange loops'],
     ],
     footer: 'A journey through form, meaning and self-reference',
-    lobbyLocation: '<b>00</b><span class="footer-line"></span>THE VESTIBULE',
-    gardenLocation: '<b>01</b><span class="footer-line"></span>THE MU-PUZZLE',
     fallback: { title: 'One sculpture. Three letters.', note: 'This device cannot display the 3D scene. You can still play chapter one.' },
     viewAria: { G: 'G · Gödel: front view', E: 'E · Escher: side view', B: 'B · Bach: top view' },
     lightAria: (letter, on) => `Turn ${on ? 'off' : 'on'} the ${letter} projection light`,
