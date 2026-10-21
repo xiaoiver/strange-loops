@@ -5,18 +5,20 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { buildRelease, verifyRelease, basePath } from '../scripts/site-release.mjs';
 
-test('release is self-contained under the website subpath, with bilingual metadata and real runtime assets', async t => {
+test('release is self-contained under the website subpath, with seven language pages and real runtime assets', async t => {
   const directory = await mkdtemp(path.join(tmpdir(), 'geb-release-'));
   t.after(() => rm(directory, { recursive: true, force: true }));
   const manifest = await buildRelease(path.join(directory, 'geb'));
   const release = path.join(directory, 'geb');
   assert.equal((await verifyRelease(release)).source.revision, manifest.source.revision);
-  for (const [language, file] of [['zh-CN', 'index.html'], ['en', 'en.html']]) {
+  for (const [language, file] of [['zh-CN', 'index.html'], ...['en', 'ja', 'ko', 'fr', 'de', 'es'].map(key => [key, `${key}.html`])]) {
     const html = await readFile(path.join(release, file), 'utf8');
     assert.ok(html.includes(`<html lang="${language}"`));
     assert.ok(html.includes(`<base href="${basePath}">`));
     assert.ok(html.includes('property="og:title"'));
     assert.ok(html.includes('rel="canonical"'));
+    for (const lang of ['zh-CN', 'en', 'ja', 'ko', 'fr', 'de', 'es']) assert.ok(html.includes(`hreflang="${lang}"`));
+    if (language !== 'zh-CN') assert.ok(html.includes(`rel="canonical" href="https://www.gallerymate.xyz/experiences/geb?lang=${language}"`));
     assert.equal(new URL('assets/sculpture-worker.js', new URL(basePath, 'https://example.test')).pathname, '/experiences/geb/assets/sculpture-worker.js');
   }
   const css = await readFile(path.join(release, 'style.css'), 'utf8');

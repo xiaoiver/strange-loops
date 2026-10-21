@@ -1,7 +1,12 @@
+import { EXHIBITION_TRANSLATIONS } from './locales/index.js';
 // Exhibition text is original. Chinese terminology follows the Commercial Press edition.
 // MU in the English edition is WU in that Chinese edition.
 export const COPY = {
+  ...EXHIBITION_TRANSLATIONS,
   zh: {
+    languageName: '中文', languageLabel: '语言',
+    directions: { G: '正面观察', E: '侧面观察', B: '顶部观察' },
+    gardenWorld: 'WU 花园：字母与同行者',
     lang: 'zh-CN', title: '怪圈 · 重访《集异璧》',
     description: '与阿基里斯和乌龟，重访《集异璧》。从 WU 谜题出发，走向递归、自指与缠结的层次。',
     a11y: {
@@ -73,6 +78,9 @@ export const COPY = {
     },
   },
   en: {
+    languageName: 'English', languageLabel: 'Language',
+    directions: { G: 'front view', E: 'side view', B: 'top view' },
+    gardenWorld: 'MU Garden: letters and companions',
     lang: 'en', title: 'Strange Loops · Revisiting Gödel, Escher, Bach',
     description: 'Walk with Achilles and the Tortoise through an original interactive homage to Gödel, Escher, Bach, from the MU-puzzle to tangled hierarchies.',
     a11y: {

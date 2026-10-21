@@ -20,10 +20,10 @@ export function createLetterPile(parent,font,reduced){
     for(let i=0;i<mesh.count;i++)mesh.setMatrixAt(i,dummy.matrix);
     parent.add(mesh);return mesh;
   });
-  let worker=null,transforms=null,finished=false,dirty=false,presence=0,active=false,started=false,watchdog;
+  let worker=null,transforms=null,finished=false,dirty=false,presence=0,active=false,started=false,watchdog,revision=0,lastNudge=-Infinity;
   function resetArrival(){
     clearTimeout(watchdog);worker?.terminate();worker=null;active=false;started=false;finished=false;
-    current.fill(NaN);transforms=pileArrival(rest);dirty=true;
+    current.fill(NaN);transforms=pileArrival(rest);dirty=true;revision=0;lastNudge=-Infinity;
   }
   function useRest(){
     clearTimeout(watchdog);worker?.terminate();worker=null;active=false;started=true;
@@ -35,12 +35,13 @@ export function createLetterPile(parent,font,reduced){
     if(shouldRun&&!started){
       started=true;
       try{
-        worker=new Worker(new URL('assets/letter-pile-worker.js?v=2',document.baseURI));
+        worker=new Worker(new URL('assets/letter-pile-worker.js?v=3',document.baseURI));
         const instance=worker;
         worker.onmessage=({data})=>{
-          if(worker!==instance)return;
+          if(worker!==instance||(data.revision??0)!==revision)return;
           clearTimeout(watchdog);transforms=data.transforms;finished=data.finished;dirty=true;
-          if(finished){worker.terminate();worker=null;active=false;}
+          // The sleeping world uses no simulation timer and can be nudged again.
+          if(finished){active=false;worker.postMessage({type:'active',value:false});}
         };
         worker.onerror=()=>{if(worker===instance)useRest();};
         worker.postMessage({type:'init',definitions,initialTransforms:transforms});
@@ -53,6 +54,20 @@ export function createLetterPile(parent,font,reduced){
   reduced.addEventListener('change',sync);
   return {
     setPresence(value){if(value>0&&presence===0)resetArrival();presence=value;sync();},
+    pick(raycaster){
+      if(presence<.99||reduced.matches||document.hidden||!worker)return null;
+      parent.updateWorldMatrix(true,true);
+      const hit=raycaster.intersectObjects(meshes,false)[0];
+      return hit?hit.instanceId*meshes.length+meshes.indexOf(hit.object):null;
+    },
+    nudge(index){
+      const now=performance.now();
+      if(presence<.99||reduced.matches||document.hidden||!worker||now-lastNudge<1200||!Number.isInteger(index)||index<0||index>=PILE_COUNT)return false;
+      lastNudge=now;finished=false;revision++;
+      worker.postMessage({type:'nudge',index,revision});sync();
+      clearTimeout(watchdog);watchdog=setTimeout(useRest,10000);
+      return true;
+    },
     update(dt){
       if(!transforms||!dirty||presence<=0)return false;
       let moving=false;
@@ -69,7 +84,7 @@ export function createLetterPile(parent,font,reduced){
         dummy.scale.setScalar(1);dummy.updateMatrix();
         meshes[i%meshes.length].setMatrixAt(Math.floor(i/meshes.length),dummy.matrix);
       }
-      meshes.forEach(mesh=>{mesh.instanceMatrix.needsUpdate=true;});
+      meshes.forEach(mesh=>{mesh.instanceMatrix.needsUpdate=true;mesh.boundingSphere=null;});
       dirty=!finished&&moving;return true;
     },
   };

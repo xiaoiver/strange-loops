@@ -120,3 +120,43 @@ test('re-entry restarts the arrival while tab visibility only pauses it',()=>{
     workers[1].onmessage({data:{transforms:new Float32Array(rest),finished:true}});
   }finally{globalThis.document=previousDocument;globalThis.Worker=previousWorker;}
 });
+
+test('a local tap wakes a few settled letters, makes a small hop and settles again',()=>{
+  const simulation=createLetterPilePhysics(definitions,{count:16});
+  while(!simulation.finished&&simulation.time<40)simulation.step();
+  assert.equal(simulation.finished,true);
+  const top=simulation.bodies.reduce((best,b,i,all)=>b.position.y>all[best].position.y?i:best,0);
+  const before=simulation.bodies.map(b=>b.position.clone()),affected=simulation.nudge(top);
+  assert.ok(affected.includes(top));assert.ok(affected.length<=6);
+  assert.equal(simulation.finished,false);
+  simulation.bodies.forEach((b,i)=>{if(!affected.includes(i))assert.equal(b.velocity.lengthSquared(),0);});
+  let highest=before[top].y;const deadline=simulation.time+30;
+  while(!simulation.finished&&simulation.time<deadline){simulation.step();highest=Math.max(highest,simulation.bodies[top].position.y);}
+  assert.ok(highest>before[top].y+.025,'a visible but small hop');
+  assert.ok(highest<before[top].y+.45,'not an explosive launch');
+  assert.equal(simulation.finished,true);
+  assert.ok(simulation.bodies.every(b=>b.position.y>PILE_FLOOR));
+  assert.deepEqual(simulation.nudge(-1),[]);
+});
+
+test('taps reuse the sleeping worker, throttle repeats and ignore stale snapshots',()=>{
+  const previousDocument=globalThis.document,previousWorker=globalThis.Worker;
+  let worker;const reduced={matches:false,addEventListener(){}};
+  globalThis.document={baseURI:'https://example.test/',hidden:false,addEventListener(){}};
+  globalThis.Worker=class{constructor(){this.messages=[];worker=this;}postMessage(data){this.messages.push(data);}terminate(){this.terminated=true;}};
+  try{
+    const pile=createLetterPile(new Group(),font,reduced);pile.setPresence(1);
+    worker.onmessage({data:{transforms:new Float32Array(rest),finished:true,revision:0}});
+    assert.notEqual(worker.terminated,true);
+    assert.equal(pile.nudge(10),true);
+    assert.equal(worker.messages.at(-2).type,'nudge');assert.equal(worker.messages.at(-1).value,true);
+    const messageCount=worker.messages.length;
+    assert.equal(pile.nudge(11),false,'rapid taps do not add energy');
+    worker.onmessage({data:{transforms:new Float32Array(rest),finished:true,revision:0}});
+    assert.equal(worker.messages.length,messageCount,'old finished response cannot pause the new motion');
+    worker.onmessage({data:{transforms:new Float32Array(rest),finished:true,revision:1}});
+    assert.equal(worker.messages.at(-1).value,false);
+    reduced.matches=true;assert.equal(pile.nudge(10),false);
+    pile.setPresence(0);assert.equal(pile.nudge(10),false);
+  }finally{globalThis.document=previousDocument;globalThis.Worker=previousWorker;}
+});

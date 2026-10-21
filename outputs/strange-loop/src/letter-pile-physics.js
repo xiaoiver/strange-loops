@@ -53,5 +53,22 @@ export function createLetterPilePhysics(definitions,{count=PILE_COUNT,seed=7391,
     bodies.forEach((b,i)=>{transforms.set([b.position.x,b.position.y,b.position.z,b.quaternion.x,b.quaternion.y,b.quaternion.z,b.quaternion.w],i*7);});
     return transforms;
   }
-  return {step,snapshot,bodies,indices,world,get finished(){return finished;},get time(){return time;}};
+  function nudge(index){
+    const anchor=Number.isInteger(index)?bodies[index]:null;if(!anchor)return [];
+    // A fingertip-sized lift, not an explosion: only the nearby surface moves.
+    const neighbors=bodies.map((body,i)=>({body,i,distance:body.position.distanceTo(anchor.position)}))
+      .filter(({body,distance})=>distance<.65&&body.position.y>=anchor.position.y-.25)
+      .sort((a,b)=>a.distance-b.distance).slice(0,6);
+    for(const {body,i,distance} of neighbors){
+      const strength=1-distance/.9,angle=i*2.39996;
+      body.wakeUp();
+      body.applyImpulse(new Vec3(Math.cos(angle)*.035*strength,.8*strength,Math.sin(angle)*.035*strength));
+      body.velocity.y=Math.min(body.velocity.y,2);
+      body.angularVelocity.x=Math.max(-1.4,Math.min(1.4,body.angularVelocity.x+.45*strength));
+      body.angularVelocity.z=Math.max(-1.4,Math.min(1.4,body.angularVelocity.z-.35*strength));
+    }
+    finished=false;quietTime=0;
+    return neighbors.map(({i})=>i);
+  }
+  return {step,snapshot,nudge,bodies,indices,world,get finished(){return finished;},get time(){return time;}};
 }

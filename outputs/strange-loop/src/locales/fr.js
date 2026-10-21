@@ -1,0 +1,58 @@
+export const copy = {
+  lang: 'fr', languageName: 'Français', languageLabel: 'Langue',
+  title: 'Boucles étranges · Revisiter Gödel, Escher, Bach',
+  description: 'Explorez les formes, les règles et les boucles étranges avec Achille et la Tortue, dans un hommage interactif à Gödel, Escher, Bach.',
+  menu: 'Chapitres', hero: 'Des symboles<br>à <span class="red">un moi.</span>',
+  intro: 'Revisitez {book} avec Achille et la Tortue.', bookLabel: 'À propos de GEB sur Wikipédia (nouvel onglet)', enter: 'Commencer par MU',
+  lightLabel: 'LUMIÈRES', dragHint: 'Faites glisser pour explorer', sculpture: { label: 'LETTRES', apply: 'Créer', generating: 'Création…' },
+  plates: ['Achille','Bach','Crabe','Génie','Escher','Fermat','Gödel','Hofstadter','Isomorphisme','Jabberwock','Kleene','Carroll','Möbius','Neumann','Ouroboros','Penrose','Quine','Russell','Smullyan','Tortue','Machine universelle','Wiener','Wittgenstein','Variable x','Yin et yang','Zénon'],
+  directions: { G: 'vue de face', E: 'vue de côté', B: 'vue de dessus' }, gardenWorld: 'Jardin MU : lettres et compagnons',
+  a11y: {
+    world: 'Sculpture interactive G, E, B et ses trois projections', home: 'Boucles étranges, retour au vestibule', lights: 'Éclairage des projections', views: 'Choisir un point de vue', reset: 'Revenir à la vue libre',
+    chapterIndex: 'Carte des chapitres', closeIndex: 'Fermer la carte', target: 'Chaîne cible MU', talkAchilles: 'Parler à Achille', talkTortoise: 'Parler à la Tortue',
+    sculptureForm: 'Personnaliser les trois lettres', sculptureInput: 'Trois lettres latines majuscules', sculptureApply: 'Créer la sculpture', sculptureDownloadStl: 'Télécharger le modèle · STL',
+  },
+  dialogues: {
+    free: '« G, E, B. Trois lectures du même objet ? »', G: '« Je reconnais le {0}. Est-ce déjà le comprendre ? »', E: '« Vous avez nommé la forme. Que fait-elle dans un système ? »',
+    B: '« Alors donnez-moi quelques règles. Je veux essayer. »', drag: '« Commençons par transformer les symboles. Nous retrouverons le sens. »', achilles: '« Un autre point de vue. La même lettre ? »', tortoise: '« Rien ne presse. Regardez les ombres. »',
+  },
+  index: { title: 'Le parcours', subtitle: 'SEPT SALLES, UNE BOUCLE ÉTRANGE', here: 'Vous êtes ici', adapted: 'adapté', note: 'Le vestibule et le premier chapitre sont ouverts. Les autres suivront.<br>Un hommage interactif à Gödel, Escher, Bach de Douglas R. Hofstadter.<br>Les dialogues sont originaux, sans citations du livre.' },
+  chapters: [['Trois projections','Représentation'],['Jardin MU','Systèmes formels'],['Figure et fond','Figure / fond'],['Petit labyrinthe harmonique','Récursion'],['Cour du canon en crabe','Rétrograde'],['Fugue des fourmis','Niveaux de description'],['Chambre de l’autoréférence','Codage / autoréférence'],['Tour des hiérarchies enchevêtrées','Boucles étranges']],
+  lobby: 'VESTIBULE', gardenLocation: 'LE PROBLÈME MU',
+  fallback: { title: 'Une sculpture. Trois lettres.', note: 'La scène 3D est indisponible sur cet appareil. Le premier chapitre reste accessible.' },
+  lightActions: ['Allumer la lumière {0}', 'Éteindre la lumière {0}'],
+  status: {
+    ready: 'La salle 3D est prête. Faites glisser la sculpture ou choisissez G, E ou B.', fallback: 'La scène 3D est indisponible. Vous pouvez jouer au premier chapitre.', viewFree: 'Retour à la vue libre.', view: 'Vue {0}.',
+    entering: 'Entrée dans le premier chapitre : le problème MU.', garden: 'Bienvenue au jardin MU.', gardenComplete: 'Premier chapitre terminé. L’invariant prouve que MU est inaccessible.', back: 'Retour au vestibule.',
+    light: ['Lumière {0} éteinte. Éclairage et ombres mis à jour.', 'Lumière {0} allumée. Éclairage et ombres mis à jour.'], language: 'Langue : français.',
+    companionsUnavailable: 'Les compagnons n’ont pas pu être chargés. La sculpture reste accessible.', companionSelected: '{0} s’arrête pour vous parler.',
+    sculptureGenerating: 'Création de la sculpture {0}…', sculptureReady: 'Sculpture {0} créée. Changez de point de vue pour lire les trois projections.', sculptureInvalid: 'Saisissez trois lettres latines majuscules, de A à Z.',
+    sculptureFailed: 'L’intersection de ces lettres est vide, ce qui arrive avec les traits fins. La sculpture actuelle est conservée.', sculptureWorkerFailed: 'La création a échoué. Rechargez la page et réessayez.', sculptureExportReady: 'Modèle imprimable {0} téléchargé.', sculptureExportFailed: 'Impossible d’exporter la sculpture. Réessayez.',
+  },
+};
+export const garden = {
+  rulesLabel: 'Quatre règles de réécriture', navigationLabel: 'Navigation entre chapitres',
+  eyebrow: 'CHAPITRE I / SYSTÈMES FORMELS', title: 'Jardin MU', practiceQuestion: 'Transformez d’abord MI en MUIU. Suivez les indications.',
+  nudge: 'Essayez « {0} ».', help: 'Un indice', closeHelp: 'Masquer l’indice',
+  helpText: {
+    complete: 'Petit objectif atteint. Cherchons pourquoi MU est inaccessible.', observe: 'Comptez les I, puis regroupez-les par trois. Examinez le reste pour chaque règle.',
+    frontGroup: 'Essayez le premier groupe de trois I : le I suivant restera en place.', choose: 'Les lettres foncées seront remplacées ; la flèche indique le résultat. Essayez : vous pourrez revenir en arrière.',
+    shorter: 'Revenez en arrière ou recommencez. Une chaîne courte rend les changements plus lisibles.', copyPractice: 'Essayez « Doubler la suite » : gardez le M initial et copiez tout ce qui suit. Il faut assez de I pour en échanger trois.',
+    addPractice: 'Ajoutez un U à la fin. La chaîne et la cible ont-elles maintenant la même terminaison ?', replacePractice: 'Essayez « III devient U ». Si plusieurs groupes conviennent, celui de gauche est choisi.',
+    detour: 'Revenez en arrière ou recommencez. Doublez deux fois, puis ajoutez un U.', remove: 'Deux U voisins peuvent disparaître. Le nombre de I change-t-il ?', replace: 'Trois I voisins deviennent U. Le premier groupe à gauche est utilisé.', copy: 'Gardez M et doublez la suite. Que devient le nombre de I ?',
+  },
+  current: 'Chaîne actuelle', target: 'Essayez d’obtenir', choose: 'Choisissez une règle. Vous pouvez revenir en arrière.', practiceDone: 'Petit objectif atteint.', challenge: 'Découvrir le secret de MU',
+  discoveryQuestion: 'Comptez les I. Que préservent toujours les règles ?', countTitle: 'Commençons par les I', groupAction: 'Regrouper par trois', rulesAction: 'Examiner les quatre règles',
+  liveCount: 'Nombre de I : {0}', countNote: 'Faites une réécriture pour observer le nombre, ou passez directement aux groupes.', groupsTitle: 'Que reste-t-il hors des groupes ?', groupsNote: '{0} groupes de trois, et un reste de {1}.', groupsPrompt: 'Le reste peut-il devenir 0 ? Il faut examiner toutes les règles.',
+  rulesTitle: 'Un reste toujours non nul', ruleEffects: ['Nombre inchangé','Nombre doublé','Moins 3','Nombre inchangé'], remainderLabel: 'Reste de la division par 3',
+  invariantNote: 'MI contient un seul I. Les quatre règles maintiennent un reste de 1 ou 2, jamais 0. C’est un invariant.', checkTitle: 'Quelle raison prouve que MU est inaccessible ?', answerAttempts: 'De nombreux essais ont échoué', answerInvariant: 'Le reste est non nul ; MU contient 0 I', answerRetry: 'Un nombre fini d’essais ne suffit pas à exclure tous les chemins. Regardez ce que préservent les quatre règles.',
+  completed: 'CHAPITRE I · TERMINÉ', completedTitle: 'Comprendre une limite.', completedText: 'MU contient 0 I : son reste est donc 0. En partant d’un reste de 1, aucune des quatre règles ne peut donner un reste de 0. MU est inaccessible.', completedNote: 'Vous avez trouvé l’invariant. Inutile de poursuivre les essais.', explore: 'Explorer librement', review: 'Revoir la conclusion',
+  rules: ['Ajouter U','Doubler la suite','III devient U','Supprimer UU'], reasons: ['La chaîne doit finir par I.','','Il faut trois I consécutifs.','Il faut deux U consécutifs.'], applied: 'Règle appliquée', back: 'Reculer d’un pas',
+  limit: 'L’exposition affiche au plus 192 caractères. Revenez en arrière ou recommencez ; les règles formelles n’imposent pas cette limite.', historyLimit: 'La sauvegarde est pleine. Revenez en arrière ou recommencez.',
+  next: 'Aperçu du chapitre suivant', nextTitle: 'Figure et fond', nextText: 'Qu’y a-t-il autour d’un symbole ? Le prochain chapitre nous mènera de la figure remarquée au fond oublié.', forthcoming: 'Le chapitre II n’est pas encore ouvert. Votre progression est conservée.', resume: 'Poursuivre l’exploration', lobby: '← Vestibule', reset: 'Recommencer', resetTitle: 'Recommencer ce chapitre ?', resetText: 'La progression de ce chapitre sera effacée. Vous repartirez de MI.', keep: 'Continuer', clear: 'Repartir de MI', achilles: 'Achille', tortoise: 'Tortue',
+  lines: {
+    opening: 'Commençons par un petit objectif. Un pas à la fois.', challenge: 'Comptez les I, puis regroupez-les par trois. Que reste-t-il toujours ?', understood: 'Les règles ne nous ont pas menés à MU. Elles nous ont montré pourquoi c’est impossible.', understoodTortoise: 'Les quatre règles préservent cette limite.', observeAchilles: 'Je vais compter les I. La longueur ne dit peut-être pas tout.',
+    r1: 'Un U de plus. Mais les lettres qui le précèdent sont toujours là.', r2: 'Allonger, c’est facile. Obtenir ce qu’on veut, c’est autre chose.', r3: 'Trois deviennent un. La place des autres compte aussi.', r4: 'Deux de moins. On dirait que je me rapproche.', choice: 'Une même règle peut mener à des endroits différents.', back: 'Vous êtes revenu à une étape antérieure. Vous n’avez pas inversé la règle.', long: 'La chaîne s’allonge. Devrais-je revenir sur mes pas ?', hypothesis: 'Ne pas trouver et ne pas pouvoir trouver : est-ce la même chose ?', practice: 'Chaque étape est justifiée. Cette fois, nous sommes arrivés.', achilles: 'Encore une règle ! Une chaîne plus courte est-elle plus proche du but ?', tortoise: 'Regardez ce que permet cette étape avant de choisir la suivante.', noU: 'Commençons par doubler. Plus de I nous donneront de quoi travailler.', hasChoice: 'Plusieurs endroits conviennent. Commençons par celui de gauche.',
+  },
+};
+export const loading = { app: 'Chargement de l’exposition', sculpture: 'Chargement de la sculpture', companions: 'Chargement des compagnons', custom: 'Création des lettres', ready: 'Tout est prêt', slow: 'Chargement en cours. Un instant.', failed: 'Échec du chargement. Réessayez.', retry: 'Recharger' };

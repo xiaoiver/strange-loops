@@ -115,7 +115,7 @@ export function createGarden(root, { locale: initialLocale, navigation, onWord, 
             <aside id="g-help" class="garden-help" ${helpOpen ? '' : 'hidden'} aria-label="${t.help}">
               <p aria-live="polite">${t.helpText[help.key]}</p>
             </aside>
-            <div class="garden-rules" ${reasoning ? 'hidden' : ''} role="group" aria-label="${locale === 'zh' ? '四条改写规则' : 'Four rewrite rules'}">
+            <div class="garden-rules" ${reasoning ? 'hidden' : ''} role="group" aria-label="${t.rulesLabel}">
               ${[1, 2, 3, 4].map(r => {
                 const available = occurrences(current, r).length > 0;
                 return `<button id="g-rule-${r}" data-rule="${r}" class="${suggested === r ? 'suggested' : ''}" aria-disabled="${!available}" aria-describedby="g-rule-note-${r}"><span class="rule-number">0${r}</span><span>${t.rules[r - 1]}</span><span id="g-rule-note-${r}" class="rule-reason">${available ? t.examples[r - 1] : t.reasons[r - 1]}</span></button>`;
@@ -135,7 +135,7 @@ export function createGarden(root, { locale: initialLocale, navigation, onWord, 
         </aside>
       </div>
       <dialog class="garden-dialog" id="g-dialog" aria-labelledby="g-dialog-title"></dialog>`;
-    navigation.setAttribute('aria-label', locale === 'zh' ? '章节导航' : 'Chapter navigation');
+    navigation.setAttribute('aria-label', t.navigationLabel);
     navigation.innerHTML = `<button id="back-lobby" data-action="lobby">${t.lobby}</button><button id="g-next" data-action="next">${t.next} →</button>`;
     const focus = focusId || activeId;
     if (focusId === 'g-discovery-title') root.scrollTop = 0;

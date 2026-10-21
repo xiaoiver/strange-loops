@@ -2,7 +2,7 @@
   "family": "Strange Loops Serif SC",
   "source": "https://github.com/google/fonts/blob/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notoserifsc/NotoSerifSC%5Bwght%5D.ttf",
   "sourceSha256": "050080d9255a86808f2945bffac582b31ef32bc36411ce29563b4961670c66f9",
-  "sha256": "69ef5dba479d50029ff6b6ddd91e868ffe6729680f24ed8c16bb00b746411739",
+  "sha256": "70b30e0ed1e8b96c1da88af3360531f195bdcd4ee7b6a06f40b4eaca730728d7",
   "weight": [
     400,
     700
@@ -386,7 +386,6 @@
     26679,
     26681,
     26684,
-    26700,
     26816,
     27169,
     27425,
@@ -514,6 +513,7 @@
     35273,
     35282,
     35299,
+    35328,
     35748,
     35753,
     35768,
@@ -522,6 +522,7 @@
     35777,
     35797,
     35813,
+    35821,
     35828,
     35831,
     35834,
