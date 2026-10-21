@@ -30,3 +30,7 @@
 ![手机共边墙](screenshots/figure-ground-mobile.jpg)
 
 减弱动态及无 3D 后备沿用原有直接进入、SVG／HTML 路径。当前变更没有在真实系统偏好或实体手机上复测。素材来源见仓库 `THIRD_PARTY_NOTICES.md`。
+
+第一章入口回归修复：补回第二章七语言 `enter` 文案，避免第一章页脚与完成页回退到旧的「下一章预告」。实际页面已检查中文「走进第二章 →」及英文「Enter chapter two →」，并在翻译检查中明确要求此跨章依赖字段。
+
+![第一章进入第二章](screenshots/chapter-one-next.jpg)

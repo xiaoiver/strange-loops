@@ -37,6 +37,7 @@ test('old number-wall saves resume at the observed artwork and discard retired s
 });
 test('all live chapter text is provided in all seven languages',()=>{
   for(const locale of LANGUAGES){
+    assert.ok(FIGURE_COPY[locale].enter?.length, 'Chapter one requires a localized entry label for the open second chapter');
     assert.deepEqual(Object.keys(FIGURE_COPY[locale]),Object.keys(FIGURE_COPY.en));
     for(const value of Object.values(FIGURE_COPY[locale])){
       if(Array.isArray(value)){assert.equal(value.length,3);assert.ok(value.every(v=>typeof v==='string'&&v.length));}

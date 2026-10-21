@@ -17,7 +17,8 @@ export const FIGURE_COPY = {
       "人没有画出来，拥抱却还在。",
       "两张脸，正看着对方。",
       "看看它们之间。花瓶的轮廓一直在那里。"
-    ]
+    ],
+    "enter": "走进第二章"
   },
   "en": {
     "title": "Figure and Ground",
@@ -36,7 +37,8 @@ export const FIGURE_COPY = {
       "The person is absent from the picture, but the embrace remains.",
       "Two faces, looking at each other.",
       "Look between them. The vase was there all along."
-    ]
+    ],
+    "enter": "Enter chapter two"
   },
   "ja": {
     "title": "図と地",
@@ -55,7 +57,8 @@ export const FIGURE_COPY = {
       "人は描かれていない。それでも抱擁は残っている。",
       "二つの顔が向かい合っている。",
       "間を見て。花瓶の輪郭はずっとそこにあった。"
-    ]
+    ],
+    "enter": "第2章へ"
   },
   "ko": {
     "title": "도형과 배경",
@@ -74,7 +77,8 @@ export const FIGURE_COPY = {
       "사람은 그려져 있지 않지만 포옹은 남아 있어.",
       "두 얼굴이 서로 마주 보고 있어.",
       "그 사이를 봐. 꽃병의 윤곽은 처음부터 있었어."
-    ]
+    ],
+    "enter": "제2장으로"
   },
   "fr": {
     "title": "Figure et fond",
@@ -93,7 +97,8 @@ export const FIGURE_COPY = {
       "La personne est absente de l’image, mais l’étreinte demeure.",
       "Deux visages se regardent.",
       "Regarde entre eux. Le vase était là depuis le début."
-    ]
+    ],
+    "enter": "Entrer au chapitre deux"
   },
   "de": {
     "title": "Figur und Hintergrund",
@@ -112,7 +117,8 @@ export const FIGURE_COPY = {
       "Die Person fehlt im Bild, aber die Umarmung bleibt.",
       "Zwei Gesichter sehen einander an.",
       "Sieh dazwischen. Die Vase war schon immer da."
-    ]
+    ],
+    "enter": "Kapitel zwei betreten"
   },
   "es": {
     "title": "Figura y fondo",
@@ -131,6 +137,7 @@ export const FIGURE_COPY = {
       "La persona no aparece en la imagen, pero el abrazo permanece.",
       "Dos rostros se miran.",
       "Mira entre ellos. El jarrón siempre estuvo ahí."
-    ]
+    ],
+    "enter": "Entrar al capítulo dos"
   }
 };
