@@ -90,7 +90,7 @@ function applyLocale(){
  const toggle=$('#language-switch');toggle.textContent=locale==='zh'?'EN':'中文';toggle.lang=locale==='zh'?'en':'zh-CN';toggle.setAttribute('aria-label',locale==='zh'?'Switch to English':'切换为中文');
  syncDynamicLabels();
  garden.setLocale(locale);
- if(inGarden)world.setAttribute('aria-label',locale==='zh'?'WU 花园：规则桌与同行者':'MU Garden: the rule table and companions');
+ if(inGarden)world.setAttribute('aria-label',locale==='zh'?'WU 花园：字母与同行者':'MU Garden: letters and companions');
 }
 $('#language-switch').addEventListener('click',()=>{
  locale=locale==='zh'?'en':'zh';try{localStorage.setItem('geb.locale',locale);}catch{}
@@ -366,7 +366,7 @@ function showGarden(){
  for(const light of Object.values(projectionLights))light.visible=true;
  setGardenLighting(true);
  resize();refreshShadows();syncDynamicLabels();garden.show();announce(garden.isComplete()?'gardenComplete':'garden');
- world.setAttribute('aria-label',locale==='zh'?'WU 花园：规则桌与同行者':'MU Garden: the rule table and companions');
+ world.setAttribute('aria-label',locale==='zh'?'WU 花园：字母与同行者':'MU Garden: letters and companions');
 }
 function backLobby(){
  if(!inGarden||transition)return;

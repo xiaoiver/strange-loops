@@ -3,6 +3,7 @@ import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import fontData from 'three/examples/fonts/optimer_regular.typeface.json';
 import { createExhibitFade } from './exhibit-fade.js';
+import { createLetterPile } from './letter-pile.js';
 import { displayWord, rewriteSources } from './miu-system.js';
 import { passageGeometry, applyPassageOcclusion } from './passage-occlusion.js';
 
@@ -10,9 +11,6 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
   const group = new THREE.Group(); group.visible = false; scene.add(group);
   const fade = createExhibitFade(group, { anchorY: -3.8, lift: .12, shrink: .018 });
   const font = new FontLoader().parse(fontData), geometries = new Map();
-  const plinth = new THREE.MeshStandardMaterial({color:0x505451,roughness:.88});
-  // Cast from the lit surface so the thin plinth's contact shadow stays attached.
-  plinth.shadowSide=THREE.FrontSide;
   const ink = new THREE.MeshStandardMaterial({color:0x252827,roughness:.62});
   const highlight = new THREE.MeshStandardMaterial({color:0xe9eae7,roughness:.68,emissive:0x343634,emissiveIntensity:.35});
   const pale = new THREE.MeshStandardMaterial({color:0xe0e0de,roughness:.9});
@@ -20,9 +18,8 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
     const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
     mesh.position.set(x,y,z);mesh.castShadow=mesh.receiveShadow=true;group.add(mesh);return mesh;
   }
-  const tableScale=.8;
-  const table=box(4.8,.48,2.8,plinth,1,-3.8+.24*tableScale,1);
-  table.scale.setScalar(tableScale);table.rotation.y=Math.PI/2;
+  const pileGroup=new THREE.Group();pileGroup.scale.setScalar(.85);pileGroup.position.y=-3.8*(1-.85);group.add(pileGroup);
+  const pile=createLetterPile(pileGroup,font,reduced);
 
   // Open the existing wall instead of placing a dark rectangle on its surface.
   const lobbyWallGeometry = exitWall?.geometry, lobbyWallMaterial=exitWall?.material;
@@ -84,14 +81,14 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
   skylight.shadow.autoUpdate=false;skylight.shadow.camera.name='floor-shadow';
   scene.add(skylight,skylight.target);
   function setPresence(value){
-    fade(value);skylight.visible=value>0;skylight.intensity=skylightIntensity*value;skylight.shadow.needsUpdate=true;
+    pile.setPresence(value);fade(value);skylight.visible=value>0;skylight.intensity=skylightIntensity*value;skylight.shadow.needsUpdate=true;
     if(exitWall){
       exitWall.geometry=value>0?doorwayWallGeometry:lobbyWallGeometry;
       exitWall.material=value>0?doorwayWallMaterial:lobbyWallMaterial;
       exitWall.castShadow=value>0?true:lobbyWallCastShadow;
     }
   }
-  const letters = new THREE.Group();letters.position.set(1+.55*tableScale,-3.8+.5*tableScale,1);letters.scale.setScalar(tableScale);letters.rotation.y=Math.PI/2-.1;group.add(letters);
+  const letters = new THREE.Group();letters.position.set(4.65,-3.785,.2);letters.scale.setScalar(.8);letters.rotation.y=Math.PI/2-.1;group.add(letters);
   let current='',language='',motion=null,ghost=null,goal='';
   function geometry(letter){
     if(!geometries.has(letter)){
@@ -161,7 +158,8 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
     },
     highlight(position,length){letters.children.forEach((m,i)=>{m.material=position!==null&&i>=position&&i<position+length?highlight:ink;});},
     update(dt){
-      if(!motion)return false;
+      const pileChanged=pile.update(dt);
+      if(!motion)return pileChanged;
       motion.age+=dt;const t=reduced.matches?1:Math.min(1,motion.age/.55),ease=1-Math.pow(1-t,3);
       letters.children.forEach(m=>{m.position.lerpVectors(m.userData.start,m.userData.end,ease);m.scale.setScalar(THREE.MathUtils.lerp(m.userData.startScale,m.userData.scale,ease));});
       if(ghost)ghost.traverse(m=>{if(m.isMesh)m.material.opacity=Math.max(0,1-t*2.5);});

@@ -36,7 +36,7 @@ export async function verifyRelease(directory) {
     if (digest(bytes) !== file.sha256 || bytes.length !== file.bytes) throw new Error(`Release checksum mismatch: ${file.path}`);
   }
   if (actual.length !== expected.size || actual.some(file => !expected.has(file))) throw new Error('Unexpected release files');
-  for (const required of ['index.html', 'en.html', 'style.css', 'garden.css', 'assets/app.js', 'assets/sculpture-worker.js', 'assets/sculpture.bin', 'assets/characters/achilles.glb', 'assets/characters/tortoise.glb', 'assets/draco/draco_decoder.wasm', 'assets/fonts/serif-sc.woff2', 'THIRD_PARTY_NOTICES.md']) {
+  for (const required of ['index.html', 'en.html', 'style.css', 'garden.css', 'assets/app.js', 'assets/sculpture-worker.js', 'assets/letter-pile-worker.js', 'assets/sculpture.bin', 'assets/characters/achilles.glb', 'assets/characters/tortoise.glb', 'assets/draco/draco_decoder.wasm', 'assets/fonts/serif-sc.woff2', 'THIRD_PARTY_NOTICES.md']) {
     if (!expected.has(required)) throw new Error(`Missing runtime asset: ${required}`);
   }
   return manifest;
