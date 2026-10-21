@@ -2,6 +2,8 @@
 
 简体中文 | [English](README.en.md)
 
+代码许可：[MIT](LICENSE) · [素材许可范围](LICENSING.md) · [参与贡献](CONTRIBUTING.md)
+
 与阿基里斯和乌龟一起，在三维空间中重访《哥德尔、艾舍尔、巴赫：集异璧之大成》。从同一件雕塑的三种投影，走到符号改写与图底互换，用观察和操作理解书中的线索。展厅对白与说明为原创致敬，中文术语参考商务印书馆译本。
 
 **[进入在线展厅](https://www.gallerymate.xyz/experiences/geb?lang=zh)** · [English](https://www.gallerymate.xyz/experiences/geb?lang=en) · [试试自定义雕塑 CAT](https://www.gallerymate.xyz/experiences/geb?lang=zh&s=CAT)
@@ -85,3 +87,9 @@ npm run release
 - **展品**：《龙虾》海报由 Vasilis Marmatakis 设计，逐幅来源见展签与[素材声明](THIRD_PARTY_NOTICES.md)；Rubin 墙体使用原创轮廓，标注研究出处。项目未包含原书全文、封面扫描或埃舍尔原画。
 
 `outputs/strange-loop/` 保存网页源码、测试与运行资源；`outputs/characters/` 保存 Blender 工程、重定向脚本、源模型和动画预览，详见[角色文档](outputs/characters/README.md)。[PRODUCT.md](PRODUCT.md) 与 [DESIGN.md](DESIGN.md) 记录产品方向和设计约定。全部依赖、字体及素材许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+
+## 贡献与许可
+
+欢迎贡献问题修复、数学与叙事改进、翻译、无障碍和新章节。开始前请阅读[贡献指南](CONTRIBUTING.md)（[English](CONTRIBUTING.en.md)）。原创代码与技术文档采用 [MIT](LICENSE)，允许商用和闭源复用，保留版权及许可声明。
+
+模型、字体、海报及含这些素材的截图遵循各自条款；项目 MIT 不统一授权这些素材。乌龟已记录为 Tripo 付费方案、私有生成，模型未另行授予开放复用许可。完整边界见 [LICENSING.md](LICENSING.md)，作者与上游许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

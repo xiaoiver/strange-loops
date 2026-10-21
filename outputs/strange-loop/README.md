@@ -97,3 +97,7 @@ The loader is authored in `src/loading.js` and bundled inline by `scripts/build-
 章节穿门过渡中，阿基里斯使用 `Jog_Fwd_Loop`，乌龟加快自己的步行与步频；普通展品漫游恢复 `Walk_Formal_Loop` 与原速。新双人可编辑工程为 `../characters/geb-companions-jog.blend`。
 
 第二章入场镜头独立于角色路线：入口停留约 0.25 秒，随后 0.8 秒聚焦当前展品并恢复阅读和导航，角色继续到位；普通展品间镜头为 1.25 秒。留白阶段不再显示乌龟解释性对白，「走向海报」与左侧文字栏对齐。页脚 00／01／02 使用 PQINA Flip 翻牌动画，减弱动态时静态显示；地图第二章标题为「图形与衬底」，主题为「观察与依据」。
+
+## 开源与贡献
+
+本项目原创代码和技术文档采用 [MIT](../../LICENSE)。第三方依赖、模型、字体、海报和混合素材不统一改为 MIT，详见[许可范围](../../LICENSING.md)与[素材声明](../../THIRD_PARTY_NOTICES.md)。开发、翻译和模型提交见[中文贡献指南](../../CONTRIBUTING.md)与 [English](../../CONTRIBUTING.en.md)。发布包会保留项目许可证及第三方许可文件。

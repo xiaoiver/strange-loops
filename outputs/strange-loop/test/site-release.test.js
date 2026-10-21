@@ -29,6 +29,10 @@ test('release is self-contained under the website subpath, with seven language p
   assert.ok(manifest.files.some(file => file.path === 'assets/art/rubin-contour.svg'));
   for (const file of ['assets/art/the-lobster.jpg','assets/art/the-lobster-weisz.jpg']) assert.ok(manifest.files.some(entry => entry.path === file));
   assert.ok(manifest.files.every(file => !file.path.includes('node_modules') && !file.path.startsWith('src/')));
+  for (const file of ['LICENSE', 'LICENSING.md', 'THIRD_PARTY_NOTICES.md']) {
+    assert.equal(await readFile(path.join(release, file), 'utf8'), await readFile(new URL(`../../../${file}`, import.meta.url), 'utf8'));
+  }
+  assert.equal(await readFile(path.join(release, 'assets/draco/LICENSE'), 'utf8'), await readFile(new URL('../assets/draco/LICENSE', import.meta.url), 'utf8'));
 });
 
 test('release verification rejects changed assets, undeclared files and unsafe manifest paths', async t => {
@@ -46,4 +50,20 @@ test('release verification rejects changed assets, undeclared files and unsafe m
   manifest.files.push({ path: '../outside', bytes: 0, sha256: '0'.repeat(64) });
   await writeFile(path.join(release, 'release.json'), JSON.stringify(manifest));
   await assert.rejects(verifyRelease(release), /Unsafe/);
+});
+
+
+test('release verification rejects omitted license documents even with a consistent manifest', async t => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'geb-license-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const release = path.join(directory, 'geb'), manifest = await buildRelease(release);
+  for (const file of ['LICENSE', 'LICENSING.md', 'assets/draco/LICENSE']) {
+    const bytes = await readFile(path.join(release, file));
+    await rm(path.join(release, file));
+    await writeFile(path.join(release, 'release.json'), JSON.stringify({...manifest, files: manifest.files.filter(entry => entry.path !== file)}));
+    await assert.rejects(verifyRelease(release), error => error.message === `Missing runtime asset: ${file}`);
+    await writeFile(path.join(release, file), bytes);
+    await writeFile(path.join(release, 'release.json'), JSON.stringify(manifest));
+  }
+  await verifyRelease(release);
 });

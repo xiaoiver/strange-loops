@@ -37,7 +37,7 @@ export async function verifyRelease(directory) {
     if (digest(bytes) !== file.sha256 || bytes.length !== file.bytes) throw new Error(`Release checksum mismatch: ${file.path}`);
   }
   if (actual.length !== expected.size || actual.some(file => !expected.has(file))) throw new Error('Unexpected release files');
-  for (const required of ['index.html', 'en.html', 'style.css', 'garden.css', 'figure-ground.css', 'assets/app.js', 'assets/app.css', 'assets/sculpture-worker.js', 'assets/letter-pile-worker.js', 'assets/sculpture.bin', 'assets/characters/achilles.glb', 'assets/characters/tortoise.glb', 'assets/draco/draco_decoder.wasm', 'assets/fonts/serif-sc.woff2', 'THIRD_PARTY_NOTICES.md']) {
+  for (const required of ['index.html', 'en.html', 'style.css', 'garden.css', 'figure-ground.css', 'assets/app.js', 'assets/app.css', 'assets/sculpture-worker.js', 'assets/letter-pile-worker.js', 'assets/sculpture.bin', 'assets/characters/achilles.glb', 'assets/characters/tortoise.glb', 'assets/draco/draco_decoder.wasm', 'assets/fonts/serif-sc.woff2', 'LICENSE', 'LICENSING.md', 'assets/draco/LICENSE', 'THIRD_PARTY_NOTICES.md']) {
     if (!expected.has(required)) throw new Error(`Missing runtime asset: ${required}`);
   }
   for (const language of LANGUAGES) if (!expected.has(language === 'zh' ? 'index.html' : `${language}.html`)) throw new Error(`Missing language page: ${language}`);
@@ -87,7 +87,7 @@ export async function buildRelease(directory = path.join(root, 'dist/experiences
   try {
     await cp(path.join(root, 'assets'), path.join(stage, 'assets'), { recursive: true });
     for (const file of ['style.css', 'garden.css', 'figure-ground.css']) await cp(path.join(root, file), path.join(stage, file));
-    await cp(path.join(root, '../../THIRD_PARTY_NOTICES.md'), path.join(stage, 'THIRD_PARTY_NOTICES.md'));
+    for (const file of ['LICENSE', 'LICENSING.md', 'THIRD_PARTY_NOTICES.md']) await cp(path.join(root, '../..', file), path.join(stage, file));
     for (const [language, file] of [['zh', 'vestibule.jpg'], ['en', 'vestibule-en.jpg']]) await cp(path.join(root, 'docs/screenshots', file), path.join(stage, `assets/share-${language}.jpg`));
     const hashes = {};
     for (const file of ['style.css', 'garden.css', 'figure-ground.css', 'assets/app.js', 'assets/app.css']) hashes[file] = digest(await readFile(path.join(stage, file)));
@@ -98,7 +98,7 @@ export async function buildRelease(directory = path.join(root, 'dist/experiences
       source: {
         repository: 'https://github.com/xiaoiver/strange-loops',
         revision: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
-        dirty: Boolean(execFileSync('git', ['status', '--porcelain', '--', 'outputs/strange-loop', 'THIRD_PARTY_NOTICES.md'], { cwd: path.resolve(root, '../..'), encoding: 'utf8' }).trim()),
+        dirty: Boolean(execFileSync('git', ['status', '--porcelain', '--', 'outputs/strange-loop', 'LICENSE', 'LICENSING.md', 'THIRD_PARTY_NOTICES.md'], { cwd: path.resolve(root, '../..'), encoding: 'utf8' }).trim()),
       },
       files: [],
     };

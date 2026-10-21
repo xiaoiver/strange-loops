@@ -2,6 +2,8 @@
 
 [简体中文](README.md) | English
 
+Code: [MIT](LICENSE) · [Asset licensing scope](LICENSING.md) · [Contributing](CONTRIBUTING.en.md)
+
 Revisit *Gödel, Escher, Bach: an Eternal Golden Braid* with Achilles and the Tortoise in an interactive 3D exhibition. Explore three projections of one sculpture, rewrite symbols, and shift between figure and ground. Exhibition dialogue and descriptions are original tributes; Chinese terminology follows the Commercial Press edition.
 
 **[Visit the exhibition](https://www.gallerymate.xyz/experiences/geb?lang=en)** · [简体中文](https://www.gallerymate.xyz/experiences/geb?lang=zh) · [Try a custom CAT sculpture](https://www.gallerymate.xyz/experiences/geb?lang=en&s=CAT)
@@ -85,3 +87,9 @@ See the [deployment guide (Chinese)](outputs/strange-loop/docs/deploy-gallerymat
 - **Exhibits**: *The Lobster* posters were designed by Vasilis Marmatakis; individual sources appear in the labels and [asset notices](THIRD_PARTY_NOTICES.md). The Rubin walls use original contours and credit the underlying research. The repository does not include the book’s full text, cover scans, or Escher’s original artwork.
 
 `outputs/strange-loop/` holds website source, tests, and runtime assets. `outputs/characters/` holds Blender projects, retarget scripts, source models, and animation previews; see the [character documentation (Chinese)](outputs/characters/README.md). [PRODUCT.md](PRODUCT.md) and [DESIGN.md](DESIGN.md) record product and design decisions. Dependency, font, and artwork licenses are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## Contributing and licensing
+
+Contributions to fixes, mathematics, storytelling, translations, accessibility and future chapters are welcome. Read the [contribution guide](CONTRIBUTING.en.md) ([简体中文](CONTRIBUTING.md)) to get started. Original code and technical documentation use [MIT](LICENSE), allowing commercial and closed-source reuse with the copyright and license notice retained.
+
+Models, fonts, posters and screenshots containing them keep their own terms; the project MIT grant does not cover those assets as a whole. The tortoise is recorded as generated on a paid Tripo plan with the model set to private, with no separate open-content reuse license granted. See [LICENSING.md](LICENSING.md) for scope and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for attribution and upstream notices.

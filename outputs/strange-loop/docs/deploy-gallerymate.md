@@ -13,7 +13,7 @@ npm test
 npm run release
 ```
 
-输出为 `dist/experiences/geb/`：完整 HTML、CSS、JavaScript、雕塑二进制、两个人物、Draco 解码器、WOFF2 字体、分享截图和第三方声明。不会复制源文件、Blender 工程、依赖目录或本地配置。
+输出为 `dist/experiences/geb/`：完整 HTML、CSS、JavaScript、雕塑二进制、两个人物、Draco 解码器、WOFF2 字体、分享截图、MIT 许可证、许可范围说明和第三方声明。不会复制源文件、Blender 工程、依赖目录或本地配置。
 
 `release.json` 记录来源仓库、完整提交 SHA、工作区是否干净，以及每个文件的大小与 SHA-256。生成阶段校验字体字形覆盖和文件完整性；GM 导入时只接受干净、固定提交的包。GitHub 的 Verify website release 工作流会运行相同检查并上传发布包 artifact。
 
