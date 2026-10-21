@@ -147,3 +147,45 @@ Chapter-one letter-pile rigid-body simulation. MIT License.
 - Primary publication, digitized by the Royal Danish Library: https://www.kb.dk/e-mat/dod/111408024790-bw.pdf . Bibliographic details and 1915 date are identified on the library’s cover sheet.
 - Supporting explanation of shared contours and the face/vase interpretation: Hanover College, *Ambiguous Figure-Ground Perception*: https://isle.hanover.edu/Ch05Object/Ch05AmbigFigGround_evt.html
 - The seven-language introduction is original short commentary. Sources are linked, not reproduced or packaged.
+
+## PQINA Flip (chapter counter)
+
+- Package: `@pqina/flip` 1.8.4.
+- Source: https://github.com/pqina/flip
+- Used for the footer split-flap chapter numbers; local styles adapt the panels to the exhibition.
+
+```text
+MIT License
+
+Copyright (c) 2020 PQINA | Rik Schennink <rik@pqina.nl>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## Quaternius Walk_Formal_Loop (Achilles animation)
+
+- Author: **Quaternius**. Source: https://quaternius.com/packs/universalanimationlibrary.html
+- License: **CC0 1.0 Universal**, https://creativecommons.org/publicdomain/zero/1.0/ . The supplied archive's license is preserved at `outputs/characters/source/quaternius-LICENSE.txt`.
+- The user supplied `Universal Animation Library[Standard].zip`. `Walk_Formal_Loop` and its reference mannequin were extracted from `Unreal-Godot/UAL1_Standard_RM.glb`; the extracted clip is preserved in `outputs/characters/source/quaternius-walk-formal-loop.glb`. The earlier `Walk_Loop` reference is preserved separately as `quaternius-walk-loop.glb`; the retargeted formal walk and chapter-passage jog are shipped in the website runtime.
+- Adaptation: Blender rest-pose calibration and retargeting to the existing POLLO28 skeleton, proportional pelvis/limb movement, shoe-contact fitting, removal of root translation, and distance-driven playback. The runtime `Achilles_Walk` is derived from this clip. The POLLO28 mesh and its CC BY 4.0 attribution remain separate and unchanged.
+- Editable project: `outputs/characters/geb-companions-ual.blend`; reproducible retarget script: `outputs/characters/retarget_ual_walk.py`. Original Idle / Look and the tortoise are preserved.
+
+The chapter-map credits show the animation package, selected clips, Quaternius author and CC0 1.0 license links beside the model credit in all seven interface languages; the Chinese static HTML fallback includes the same animation credit.
+
+The chapter passage additionally uses Quaternius `Jog_Fwd_Loop` from the same CC0 Standard archive, preserved as `outputs/characters/source/quaternius-jog-fwd-loop.glb`. The original source's large stride and flight height are adapted to a light jog (30% longitudinal excursion, 65% sole clearance and pelvis lift), then fitted to the existing rig and shoes; root translation is removed. The runtime `Achilles_Jog` is distance-driven. Both selected clip names are listed in the seven-language map credit. The editable four-action studio is `outputs/characters/geb-companions-jog.blend`.

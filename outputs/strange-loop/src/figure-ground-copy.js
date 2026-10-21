@@ -14,8 +14,7 @@ export const FIGURE_COPY = {
     "toPosters": "走向海报",
     "dialogue": [
       "人没有画出来，拥抱却还在。",
-      "两张脸，正看着对方。",
-      "看看它们之间。花瓶的轮廓一直在那里。"
+      "两张脸，正看着对方。"
     ],
     "enter": "走进第二章"
   },
@@ -33,8 +32,7 @@ export const FIGURE_COPY = {
     "toPosters": "Walk to the posters",
     "dialogue": [
       "The person is absent from the picture, but the embrace remains.",
-      "Two faces, looking at each other.",
-      "Look between them. The vase was there all along."
+      "Two faces, looking at each other."
     ],
     "enter": "Enter chapter two"
   },
@@ -52,8 +50,7 @@ export const FIGURE_COPY = {
     "toPosters": "ポスターへ",
     "dialogue": [
       "人は描かれていない。それでも抱擁は残っている。",
-      "二つの顔が向かい合っている。",
-      "間を見て。花瓶の輪郭はずっとそこにあった。"
+      "二つの顔が向かい合っている。"
     ],
     "enter": "第2章へ"
   },
@@ -71,8 +68,7 @@ export const FIGURE_COPY = {
     "toPosters": "포스터로",
     "dialogue": [
       "사람은 그려져 있지 않지만 포옹은 남아 있어.",
-      "두 얼굴이 서로 마주 보고 있어.",
-      "그 사이를 봐. 꽃병의 윤곽은 처음부터 있었어."
+      "두 얼굴이 서로 마주 보고 있어."
     ],
     "enter": "제2장으로"
   },
@@ -90,8 +86,7 @@ export const FIGURE_COPY = {
     "toPosters": "Aller aux affiches",
     "dialogue": [
       "La personne est absente de l’image, mais l’étreinte demeure.",
-      "Deux visages se regardent.",
-      "Regarde entre eux. Le vase était là depuis le début."
+      "Deux visages se regardent."
     ],
     "enter": "Entrer au chapitre deux"
   },
@@ -109,8 +104,7 @@ export const FIGURE_COPY = {
     "toPosters": "Zu den Plakaten gehen",
     "dialogue": [
       "Die Person fehlt im Bild, aber die Umarmung bleibt.",
-      "Zwei Gesichter sehen einander an.",
-      "Sieh dazwischen. Die Vase war schon immer da."
+      "Zwei Gesichter sehen einander an."
     ],
     "enter": "Kapitel zwei betreten"
   },
@@ -128,8 +122,7 @@ export const FIGURE_COPY = {
     "toPosters": "Ir a los carteles",
     "dialogue": [
       "La persona no aparece en la imagen, pero el abrazo permanece.",
-      "Dos rostros se miran.",
-      "Mira entre ellos. El jarrón siempre estuvo ahí."
+      "Dos rostros se miran."
     ],
     "enter": "Entrar al capítulo dos"
   }

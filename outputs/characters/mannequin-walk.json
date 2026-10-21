@@ -1,10 +1,14 @@
 {
-  "model_cycle_distance": 1.05,
-  "web_cycle_distance": 0.63,
-  "seconds": 1.2,
-  "stance_fraction": 0.62,
-  "frames": 37,
-  "glb_bytes": 243868,
-  "minimum_clearance": 0.00011786160757765174,
-  "maximum_clearance": 0.0005178472492843866
+  "source": "Quaternius Universal Animation Library Standard",
+  "clip": "Walk_Formal_Loop",
+  "license": "CC0-1.0",
+  "source_cycle_distance": 1.2999994718110406,
+  "leg_scale": 1.4850225885735593,
+  "model_cycle_distance": 1.9305285807730914,
+  "web_cycle_distance": 1.1583171484638548,
+  "seconds": 1.3333333333333333,
+  "frames": 41,
+  "glb_bytes": 258868,
+  "minimum_clearance": 0.0009998604655265808,
+  "maximum_reach_correction": 0
 }

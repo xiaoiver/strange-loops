@@ -60,7 +60,7 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
   const raycaster=new THREE.Raycaster();
   let visible=false, targetMode='contour';
   const startPosition=new THREE.Vector3(),startLook=new THREE.Vector3();
-  let blend=1, poseKey='', manualOffset=0, entryTime=0;
+  let blend=1, poseKey='', manualOffset=0, entryTime=0, entryPending=false, entryDone=null;
   function pose() {
     const mobile=innerWidth<=760;
     if(entryTime>0)return {position:new THREE.Vector3(mobile?-.5:3.5,1.3,mobile?19:18),look:new THREE.Vector3(-5.7,-1.8,9)};
@@ -71,8 +71,8 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
     return {position:new THREE.Vector3(mobile?.2:3,mobile?1.8:1.9,mobile?20:17.8),look:new THREE.Vector3(mobile?-.4:-.6,-.7,0)};
   }
   return {
-    beginEntry(){entryTime=3.2;poseKey='';},
-    setVisible(value){visible=value;group.visible=value;sun.visible=value;sun.shadow.needsUpdate=true;blend=0;poseKey='';manualOffset=0;entryTime=0;},
+    beginEntry(onComplete){entryTime=reduced.matches?0:.25;entryPending=true;entryDone=onComplete;poseKey='';},
+    setVisible(value){visible=value;group.visible=value;sun.visible=value;sun.shadow.needsUpdate=true;blend=0;poseKey='';manualOffset=0;entryTime=0;entryPending=false;entryDone=null;},
     setState(value,locale,{poster=false}={}) {
       targetMode=poster||figureStage(value)==='posters'?'poster':'contour';
       sun.shadow.needsUpdate=true;invalidate();
@@ -83,9 +83,14 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
       entryTime=Math.max(0,entryTime-dt);
       const p=pose(),key=`${entryTime>0?'entry':targetMode}:${innerWidth<=760}`;
       if(poseKey!==key){poseKey=key;startPosition.copy(camera.position);startLook.copy(look);blend=0;manualOffset=0;}
-      blend=reduced.matches?1:Math.min(1,blend+dt/1.25);const t=blend*blend*(3-2*blend);
+      blend=reduced.matches?1:Math.min(1,blend+dt/(entryPending?.8:1.25));const t=blend*blend*(3-2*blend);
       p.position.x+=manualOffset;camera.position.lerpVectors(startPosition,p.position,t);look.lerpVectors(startLook,p.look,t);
-      camera.up.set(0,1,0);camera.lookAt(look);return blend<1;
+      camera.up.set(0,1,0);camera.lookAt(look);
+      // Reading and navigation follow the camera, while companions finish their route.
+      if(entryPending&&entryTime===0&&blend===1){
+        const done=entryDone;entryPending=false;entryDone=null;done?.();
+      }
+      return blend<1||entryTime>0;
     },
     drag(delta){manualOffset=THREE.MathUtils.clamp(manualOffset+delta,-.65,.65);},
     pickPoster(pointer,camera){if(!visible)return false;raycaster.setFromCamera(pointer,camera);return raycaster.intersectObjects(posterTargets).length>0;},

@@ -1,4 +1,5 @@
 import { EXHIBITION_TRANSLATIONS } from './locales/index.js';
+import { walkAnimationCredit } from './asset-credits.js';
 // Exhibition text is original. Chinese terminology follows the Commercial Press edition.
 // MU in the English edition is WU in that Chinese edition.
 export const COPY = {
@@ -47,10 +48,10 @@ export const COPY = {
     },
     index: {
       title: '漫游地图', subtitle: 'SEVEN ROOMS, ONE STRANGE LOOP', here: '你在这里',
-      note: '序厅、第一章与第二章已开放，其余章节待续。<br>致敬侯世达《哥德尔、艾舍尔、巴赫：集异璧之大成》。<br>本展对白为原创，非原书引文。<br>阿基里斯模型：<a class="book-link" href="https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c" target="_blank" rel="noopener noreferrer">STYLE Fortnite-creative-mannequin</a> · POLLO28 · <a class="book-link" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>（已修改）。',
+      note: '序厅、第一章与第二章已开放，其余章节待续。<br>致敬侯世达《哥德尔、艾舍尔、巴赫：集异璧之大成》。<br>本展对白为原创，非原书引文。<br>阿基里斯模型：<a class="book-link" href="https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c" target="_blank" rel="noopener noreferrer">STYLE Fortnite-creative-mannequin</a> · POLLO28 · <a class="book-link" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>（已修改）。' + walkAnimationCredit('阿基里斯动画', '已修改'),
     },
     chapters: [
-      ['三重投影', '表征'], ['WU 花园', '形式系统'], ['图形与衬底画廊', '图形与衬底'],
+      ['三重投影', '表征'], ['WU 花园', '形式系统'], ['图形与衬底', '观察与依据'],
       ['和声小迷宫', '递归'], ['螃蟹卡农庭院', '逆行'], ['蚂蚁赋格', '描述的层次'],
       ['自指之室', '编码与自指'], ['缠结的层次塔', '怪圈'],
     ],
@@ -119,10 +120,10 @@ export const COPY = {
     },
     index: {
       title: 'The route', subtitle: 'SEVEN ROOMS, ONE STRANGE LOOP', here: 'YOU ARE HERE',
-      note: 'The vestibule and chapters one and two are open. More rooms will follow.<br>An interactive homage to Douglas R. Hofstadter’s Gödel, Escher, Bach.<br>All exhibition dialogue is original, not quoted from the book.<br>Achilles: <a class="book-link" href="https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c" target="_blank" rel="noopener noreferrer">STYLE Fortnite-creative-mannequin</a> by POLLO28 · <a class="book-link" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> (adapted).',
+      note: 'The vestibule and chapters one and two are open. More rooms will follow.<br>An interactive homage to Douglas R. Hofstadter’s Gödel, Escher, Bach.<br>All exhibition dialogue is original, not quoted from the book.<br>Achilles: <a class="book-link" href="https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c" target="_blank" rel="noopener noreferrer">STYLE Fortnite-creative-mannequin</a> by POLLO28 · <a class="book-link" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> (adapted).' + walkAnimationCredit('Achilles locomotion', 'adapted'),
     },
     chapters: [
-      ['Three Projections', 'Representation'], ['MU Garden', 'Formal systems'], ['Figure and Ground', 'Figure / ground'],
+      ['Three Projections', 'Representation'], ['MU Garden', 'Formal systems'], ['Figure and Ground', 'Seeing and knowing'],
       ['Little Harmonic Labyrinth', 'Recursion'], ['Crab Canon Court', 'Retrograde'], ['Ant Fugue', 'Levels of description'],
       ['The Self-Reference Chamber', 'Encoding / self-reference'], ['The Tower of Tangled Hierarchies', 'Strange loops'],
     ],

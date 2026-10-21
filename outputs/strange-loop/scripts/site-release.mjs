@@ -37,7 +37,7 @@ export async function verifyRelease(directory) {
     if (digest(bytes) !== file.sha256 || bytes.length !== file.bytes) throw new Error(`Release checksum mismatch: ${file.path}`);
   }
   if (actual.length !== expected.size || actual.some(file => !expected.has(file))) throw new Error('Unexpected release files');
-  for (const required of ['index.html', 'en.html', 'style.css', 'garden.css', 'figure-ground.css', 'assets/app.js', 'assets/sculpture-worker.js', 'assets/letter-pile-worker.js', 'assets/sculpture.bin', 'assets/characters/achilles.glb', 'assets/characters/tortoise.glb', 'assets/draco/draco_decoder.wasm', 'assets/fonts/serif-sc.woff2', 'THIRD_PARTY_NOTICES.md']) {
+  for (const required of ['index.html', 'en.html', 'style.css', 'garden.css', 'figure-ground.css', 'assets/app.js', 'assets/app.css', 'assets/sculpture-worker.js', 'assets/letter-pile-worker.js', 'assets/sculpture.bin', 'assets/characters/achilles.glb', 'assets/characters/tortoise.glb', 'assets/draco/draco_decoder.wasm', 'assets/fonts/serif-sc.woff2', 'THIRD_PARTY_NOTICES.md']) {
     if (!expected.has(required)) throw new Error(`Missing runtime asset: ${required}`);
   }
   for (const language of LANGUAGES) if (!expected.has(language === 'zh' ? 'index.html' : `${language}.html`)) throw new Error(`Missing language page: ${language}`);
@@ -90,7 +90,7 @@ export async function buildRelease(directory = path.join(root, 'dist/experiences
     await cp(path.join(root, '../../THIRD_PARTY_NOTICES.md'), path.join(stage, 'THIRD_PARTY_NOTICES.md'));
     for (const [language, file] of [['zh', 'vestibule.jpg'], ['en', 'vestibule-en.jpg']]) await cp(path.join(root, 'docs/screenshots', file), path.join(stage, `assets/share-${language}.jpg`));
     const hashes = {};
-    for (const file of ['style.css', 'garden.css', 'figure-ground.css', 'assets/app.js']) hashes[file] = digest(await readFile(path.join(stage, file)));
+    for (const file of ['style.css', 'garden.css', 'figure-ground.css', 'assets/app.js', 'assets/app.css']) hashes[file] = digest(await readFile(path.join(stage, file)));
     const html = await readFile(path.join(root, 'index.html'), 'utf8');
     for (const language of LANGUAGES) await writeFile(path.join(stage, language === 'zh' ? 'index.html' : `${language}.html`), page(html, language, hashes));
     const manifest = {

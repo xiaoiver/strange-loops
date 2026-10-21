@@ -51,7 +51,7 @@ body.in-passage #world canvas{opacity:var(--passage-visibility,1)}
 }
 
 @media(min-width:761px){
- .figure-ground[data-poster=true] .figure-action{left:8.2%;bottom:17%;transform:none}
+ .figure-ground:is([data-poster=true],[data-step=ground]) .figure-action{left:8.2%;bottom:17%;transform:none}
 }
 
 .figure-ground[data-contour=true] .figure-notes{max-height:30%}
@@ -62,3 +62,6 @@ body.in-passage #world canvas{opacity:var(--passage-visibility,1)}
  .figure-rubin-label p{margin-bottom:6px}
  .figure-rubin-label .book-link{font-size:10px}
 }
+
+@media(min-width:761px) and (max-width:1000px){.figure-ground:is([data-poster=true],[data-step=ground]) .figure-action{left:6%}}
+@media(max-width:760px){.figure-ground[data-step=ground] .figure-action{left:7%;transform:none}}

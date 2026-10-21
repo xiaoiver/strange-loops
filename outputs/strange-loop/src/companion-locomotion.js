@@ -7,13 +7,18 @@ export function walkProgress(value) {
   return peak*(t-ramp*.5);
 }
 
-export function syncWalkToDistance(actor,distance,dt) {
-  if(!actor.walkCycleDistance||dt<=0)return;
-  const walk=actor.actions.Walk,idle=actor.actions.Idle;
-  const seconds=walk.getClip().duration,speed=Math.max(0,distance)/dt;
-  // Root travel and stance-foot travel cancel, even during acceleration.
-  walk.setEffectiveTimeScale(speed*seconds/actor.walkCycleDistance);
-  const weight=Math.min(1,speed/(actor.walkCycleDistance/seconds*.55));
-  walk.stopFading().setEffectiveWeight(weight);
+export function syncLocomotionToDistance(actor,distance,dt) {
+  if(dt<=0)return;
+  const name=actor.current==='Jog'?'Jog':'Walk';
+  const stride=name==='Jog'?actor.jogCycleDistance:actor.walkCycleDistance;
+  const motion=actor.actions[name],idle=actor.actions.Idle;
+  if(!motion)return;
+  // The tortoise keeps its own walking clip; only its passage cadence speeds up.
+  if(!stride){motion.setEffectiveTimeScale(actor.gaitRate??1);return;}
+  const seconds=motion.getClip().duration,speed=Math.max(0,distance)/dt;
+  motion.setEffectiveTimeScale(speed*seconds/stride);
+  const blend=Math.min(1,speed/(stride/seconds*.3));
+  const weight=blend*blend*(3-2*blend);
+  motion.stopFading().setEffectiveWeight(weight);
   if(idle){idle.enabled=true;idle.play();idle.stopFading().setEffectiveWeight(1-weight);}
 }

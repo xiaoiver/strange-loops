@@ -21,9 +21,9 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
     root.dataset.contour = String(!isPoster);
     root.innerHTML = `<header class="figure-heading"><p>${t.eyebrow}</p><h2 id="figure-title" tabindex="-1">${t.title}</h2></header>
       <div class="figure-fallback" aria-hidden="true" ${isPoster ? 'hidden' : ''}><img src="assets/art/rubin-contour.svg" alt=""></div>
-      <div class="figure-reading" ${isPoster ? 'hidden' : ''}>
+      ${!isPoster && actor !== 'tortoise' ? `<div class="figure-reading">
         <div class="dialogue figure-dialogue" aria-live="polite" aria-atomic="true"><span class="speaker">${COPY[locale].actors[actor]}</span><p>${t.dialogue[index]}</p></div>
-      </div>
+      </div>` : ''}
       <div class="figure-action"><button class="figure-primary" id="fg-primary" data-fg="${primary[0]}">${primary[1]} <span aria-hidden="true">${primary[0] === 'poster' ? '←' : '→'}</span></button></div>
       <aside class="figure-notes">
         ${!isPoster ? `<section class="figure-note-copy figure-art-label figure-rubin-label" aria-label="${rubin.title}">
@@ -60,7 +60,7 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
     const before = figureStage(state);
     state = advanceFigure(state, action);
     if (before === figureStage(state)) return;
-    save(); render('fg-primary'); sync(); onMeet('tortoise'); onAnnounce(c().dialogue[2]);
+    save(); render('fg-primary'); sync(); onAnnounce(RUBIN_LABELS[locale].title);
   }
   root.addEventListener('click', handle); navigation.addEventListener('click', handle);
   return {
@@ -69,7 +69,7 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
     setLocale(value) { locale = value; render(); if (active) sync(); },
     getState: () => state,
     dismiss() { if (!poster) return false; poster = false; render('fg-primary'); sync(); return true; },
-    talk(id) { onMeet(id); onAnnounce(c().dialogue[viewingPosters() ? 0 : stages.indexOf(figureStage(state))]); },
+    talk(id) { onMeet(id); if (id === 'achilles') onAnnounce(c().dialogue[viewingPosters() ? 0 : 1]); },
     showPoster() { if (viewingPosters()) return; poster = true; render('fg-primary'); sync(); },
   };
 }

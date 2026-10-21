@@ -65,3 +65,9 @@ Blender 角色工程包含骨骼、材质及 Idle / Walk / Look 动画。重建�
 可从地图或第一章的下一章按钮进入。两位角色穿过 WU／MU 出口，经侧墙入口来到《龙虾》双海报前，再走向 Rubin 共边墙，观察两张侧脸之间的花瓶形留白。页面上的美术馆式展签介绍设计者、年份和来源。看过共边墙后可回看海报，或打开下一章预告；当前不展示数字墙、数学问答或完成标记。七种语言共享观察进度，旧存档自动回到对应展品；无 3D 时使用 SVG 与 HTML 游览。素材来源见仓库 THIRD_PARTY_NOTICES.md。
 
 ![第二章：共边墙体与天光画廊](outputs/strange-loop/docs/screenshots/figure-ground-rubin.jpg)
+
+阿基里斯的步行动作使用 [Quaternius Universal Animation Library](https://quaternius.com/packs/universalanimationlibrary.html) 的 `Walk_Formal_Loop`（CC0），通过 Blender 重定向到现有人偶；抱臂待机与转头保留。
+
+第一章到第二章穿门时，阿基里斯使用同一 CC0 动画库的 `Jog_Fwd_Loop` 轻慢跑，乌龟加快同行；展品之间仍用 Formal 步态。
+
+进入第二章后，镜头先聚焦当前展品并恢复阅读，同行者继续到位。章节数字使用翻牌动画，地图主题文字保持右对齐。

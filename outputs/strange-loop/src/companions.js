@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { exitRoute, entryRoute, routeSample } from './chapter-passage.js';
 import { playCompanionAnimation as play } from './companion-animation.js';
-import { walkProgress, syncWalkToDistance } from './companion-locomotion.js';
+import { walkProgress, syncLocomotionToDistance } from './companion-locomotion.js';
 
 // Blender-authored rigs and baked clips. World routes remain editable here.
 const specifications = [
@@ -15,7 +15,7 @@ export async function loadCompanions(scene, reduced, onProject) {
   const loader=new GLTFLoader(),draco=new DRACOLoader(),actors=[];
   draco.setDecoderPath('assets/draco/');
   loader.setDRACOLoader(draco);
-  const loaded=await Promise.all(specifications.map(spec=>loader.loadAsync(`assets/characters/${spec.id}.glb?v=${spec.id==='tortoise'?'tripo2':'planted-walk2'}`)));
+  const loaded=await Promise.all(specifications.map(spec=>loader.loadAsync(`assets/characters/${spec.id}.glb?v=${spec.id==='tortoise'?'tripo2':'quaternius-jog-feet2'}`)));
   draco.dispose();
   for(const [index,spec] of specifications.entries()){
     const gltf=loaded[index];
@@ -41,9 +41,12 @@ export async function loadCompanions(scene, reduced, onProject) {
       const name=clip.name.split('_').at(-1);
       actions[name]=mixer.clipAction(clip);
     }
-    let walkCycleDistance;
-    gltf.scene.traverse(node=>{if(Number.isFinite(node.userData.walk_cycle_distance))walkCycleDistance=node.userData.walk_cycle_distance*spec.scale;});
-    actors.push({...spec,root,mixer,actions,walkCycleDistance,age:0,clipAge:0,current:null,walking:!reduced.matches,
+    let walkCycleDistance,jogCycleDistance;
+    gltf.scene.traverse(node=>{
+      if(Number.isFinite(node.userData.walk_cycle_distance))walkCycleDistance=node.userData.walk_cycle_distance*spec.scale;
+      if(Number.isFinite(node.userData.jog_cycle_distance))jogCycleDistance=node.userData.jog_cycle_distance*spec.scale;
+    });
+    actors.push({...spec,root,mixer,actions,walkCycleDistance,jogCycleDistance,locomotion:'Walk',gaitRate:1,age:0,clipAge:0,current:null,walking:!reduced.matches,
       target:new THREE.Vector3(0,.1,0),from:new THREE.Vector3(spec.from[0],-3.8,spec.from[1]),to:new THREE.Vector3(spec.to[0],-3.8,spec.to[1])});
   }
   for(const actor of actors){
@@ -57,13 +60,16 @@ export async function loadCompanions(scene, reduced, onProject) {
     routeDone=onComplete;
     for(const [index,actor] of actors.entries()){
       actor.route=kind==='exit'?exitRoute([actor.root.position.x,actor.root.position.z],index):entryRoute(index,innerWidth<=760,area);
-      actor.duration=routeSample(actor.route,0).length/(index===0?.68:.56);
+      actor.locomotion=actor.actions.Jog?'Jog':'Walk';
+      const passageSpeed=index===0?2.5:2.0;
+      actor.gaitRate=index===0?1:passageSpeed/.56;
+      actor.duration=routeSample(actor.route,0).length/passageSpeed;
       actor.delay=index*.4;actor.age=0;actor.walking=true;
       actor.to.set(actor.route.at(-1)[0],-3.8,actor.route.at(-1)[1]);
       if(kind==='entry')actor.root.position.set(actor.route[0][0],-3.8,actor.route[0][1]);
       if(kind==='entry'&&area==='poster')actor.target.set(-6.69,-.4,3.6);
       else actor.target.set(kind==='entry'?0:-5,-.6,kind==='entry'?0:-1.3);
-      play(actor,actor.delay?'Idle':'Walk');
+      play(actor,actor.delay?'Idle':actor.locomotion);
     }
   }
   return {
@@ -72,7 +78,7 @@ export async function loadCompanions(scene, reduced, onProject) {
     setSpace(space,{keepPosition=false}={}){
       routeDone=null;
       for(const [index,actor] of actors.entries()){
-        actor.route=null;actor.delay=0;actor.from.copy(actor.root.position);
+        actor.route=null;actor.delay=0;actor.locomotion='Walk';actor.gaitRate=1;actor.from.copy(actor.root.position);
         const destination=space==='figure-poster'?(index===0?[-4.9,5.2]:[-5.1,4.6]):space==='figure-contour'?(innerWidth<=760?(index===0?[-2.5,.9]:[-1.5,1.2]):(index===0?[-3,3.9]:[-1.9,4.3])):space==='garden' ? (index===0?[2.8,-1.95]:[3.6,-1.75]) : specifications[index].to;
         if(keepPosition)actor.to.copy(actor.root.position);
         else actor.to.set(destination[0],-3.8,destination[1]);
@@ -109,8 +115,8 @@ export async function loadCompanions(scene, reduced, onProject) {
             actor.root.position.lerpVectors(actor.from,actor.to,walkProgress(t));aim.subVectors(actor.to,actor.from);
           }
           const distance=actor.root.position.distanceTo(previousPosition);
-          if(distance>1e-8&&actor.current!=='Walk')play(actor,'Walk');
-          if(actor.current==='Walk')syncWalkToDistance(actor,distance,dt);
+          if(distance>1e-8&&actor.current!==actor.locomotion)play(actor,actor.locomotion);
+          if(actor.current==='Walk'||actor.current==='Jog')syncLocomotionToDistance(actor,distance,dt);
           changed=true;
           if(t>=1){actor.walking=false;play(actor,'Idle');}
         }

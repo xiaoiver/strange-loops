@@ -21,6 +21,7 @@ import { createGardenScene } from './garden-scene.js';
 import { bindPileInteraction } from './pile-interaction.js';
 import { createExhibitFade } from './exhibit-fade.js';
 import { renderResolution, observePixelRatio } from './render-resolution.js';
+import { createChapterCounter } from './chapter-counter.js';
 import {
  createSculptureWorker,
  binToGeometry,
@@ -37,6 +38,7 @@ import {
 const $=s=>document.querySelector(s);
 const world=$('#world'),status=$('#status'),loading=window.exhibitLoading;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+const chapterCounter=createChapterCounter($('.location'),reduced);
 let paused=reduced.matches, inGarden=false, keepGardenPositions=false, currentChapter=0, transition=false, currentView='free';
 const lobbySurfaces=[];let figureScene,figureArea='';
 let scene,renderer,camera,sculpture,clock,raf,composer,ao,fxaa,elapsed=0;
@@ -91,19 +93,19 @@ function renderChapterList(){
   const li=document.createElement('li'),number=document.createElement('span'),title=document.createElement('strong'),note=document.createElement('em');
   const here=index===currentChapter,available=index<=2;
   li.classList.toggle('current',here);li.classList.toggle('unavailable',!available);
-  const row=document.createElement(available?'button':'div'),marker=document.createElement('span');
-  row.className='chapter-row';number.className='chapter-number';marker.className='chapter-marker';
+  const row=document.createElement(available?'button':'div'),marker=document.createElement('span'),position=document.createElement('span');
+  row.className='chapter-row';number.className='chapter-number';marker.className='chapter-marker';position.className='chapter-position';
   if(available){row.type='button';row.dataset.chapter=String(index);}
   if(here){row.setAttribute('aria-current','location');marker.title=COPY[locale].index.here;}
   marker.setAttribute('aria-hidden','true');
   number.textContent=String(index).padStart(2,'0');title.textContent=name;note.textContent=topic;
-  row.append(number,title,note,marker);li.append(row);list.append(li);
+  position.append(marker,number);row.append(position,title,note);li.append(row);list.append(li);
  });
 }
 function syncDynamicLabels(){
  const c=COPY[locale];
  syncLetterChrome();
- $('.location').innerHTML=`<b>${String(currentChapter).padStart(2,'0')}</b>`;
+ chapterCounter.set(currentChapter);
  $('#chapter-navigation').hidden=currentChapter===0;
  updateDialogue();renderChapterList();
  if(lastStatus){const message=c.status[lastStatus.key];status.textContent=typeof message==='function'?message(...lastStatus.args):message;}
@@ -482,9 +484,10 @@ function showFigure(arriving=false){
  document.body.classList.remove('in-garden','entering','returning');document.body.classList.add('in-figure');
  figure.show();syncDynamicLabels();resize();refreshShadows();
  if(arriving){
-  $('#figure-ground').inert=true;figureScene?.beginEntry();passageAge=0;
+  $('#figure-ground').inert=true;passageAge=0;
   const arrivalArea=figureStage(figure.getState())==='posters'?'poster':'contour';
-  companions.enterGallery(()=>{endPassage();figureArea=arrivalArea;figure.setLocale(locale);},arrivalArea);
+  companions.enterGallery(null,arrivalArea);
+  figureScene.beginEntry(()=>{figureArea=arrivalArea;endPassage();figure.setLocale(locale);});
  }
  world.setAttribute('aria-label',FIGURE_COPY[locale].title);
 }

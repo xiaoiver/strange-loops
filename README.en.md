@@ -65,3 +65,9 @@ See [publishing under the Gallery Mate website](outputs/strange-loop/docs/deploy
 Enter from the chapter map or chapter one’s next button. The companions walk through the WU/MU exit into the gallery, stopping first at two *The Lobster* posters, then at the Rubin shared-contour walls. Look between the facing profiles to find the vase. On-page museum labels name the creators, dates and sources. Revisit the posters or open the next chapter preview afterwards. The number wall, mathematical questions and completion badge are currently removed. All seven languages share observation progress; older saves return to the corresponding artwork. SVG and HTML support the same tour without 3D. See THIRD_PARTY_NOTICES.md for artwork provenance.
 
 ![Chapter two: the shared-contour gallery](outputs/strange-loop/docs/screenshots/figure-ground-en.jpg)
+
+Achilles’ walk is retargeted in Blender from Quaternius’ [Universal Animation Library](https://quaternius.com/packs/universalanimationlibrary.html), `Walk_Formal_Loop` (CC0), while preserving the current mannequin, folded-arm idle and look animations.
+
+During the chapter-one-to-two doorway passage, Achilles uses the same CC0 library’s `Jog_Fwd_Loop`, adapted to a light jog, while the Tortoise walks faster alongside. Exhibit-to-exhibit movement retains the formal walk.
+
+On gallery arrival, the camera focuses the active exhibit and unlocks reading before the companions reach their places. Chapter numbers use a split-flap animation; map topics remain right-aligned.
