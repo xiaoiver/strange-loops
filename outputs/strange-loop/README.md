@@ -1,12 +1,12 @@
 # 怪圈 · 序厅与两章漫游
 
-《集异璧》原创致敬叙事展。包含真实三维 G/E/B 交集雕塑、三束正交平行光和实时阴影、三个观察方向、拖动观察、章节地图，以及可玩的 WU / MU 花园与图形与衬底画廊。第三章及后续章节尚未开放，漫游地图置灰，右侧保留章节主题。第二章设计见 `docs/chapter-02-plan.md`，当前实现与验收见 `docs/chapter-02-verification.md`。
+《集异璧》原创致敬叙事展。包含真实三维 G/E/B 交集雕塑、三束正交平行光和实时阴影、三个观察方向、拖动观察、章节地图，以及可玩的 WU / MU 花园与图形与衬底画廊。第三章已在当前代码中接入；第四章及后续章节尚未开放，漫游地图置灰，右侧保留章节主题。第二章设计见 `docs/chapter-02-plan.md`，当前实现与验收见 `docs/chapter-02-verification.md`。
 
 ## 语言与文案
 
 右上角语言下拉框支持中文、英文、日文、韩文、法文、德文和西班牙文，覆盖标题、原创对白、章节地图、规则、观察线索和无障碍标签。默认中文，分享链接的 `?lang=` 优先于 `geb.locale` 保存的偏好；切换语言保留雕塑参数、游览与推导进度。
 
-中英文基础文本位于 `src/copy.js`，其余语言位于 `src/locales/`；第二章文本位于 `src/figure-ground-copy.js`，展签位于 `src/gallery-art.js`。中文参考商务印书馆术语 WU谜题、和声小迷宫、图形与衬底、艾舍尔；英文保留 MU-puzzle、Little Harmonic Labyrinth 等对应名称。文案均为原创，非原书引文。主线围绕形式、意义、自指与心智；阿基里斯采用用户提供、POLLO28 制作的 CC BY 4.0 人偶模型，经 Blender 减面和动作适配；乌龟采用用户提供的 Tripo 生成网格，经 Blender 清理、减面和骨骼绑定。模型及动作署名与许可链接放在七语言章节地图和仓库 THIRD_PARTY_NOTICES.md。
+中英文基础文本位于 `src/copy.js`，其余语言位于 `src/locales/`；第二章文本位于 `src/figure-ground-copy.js`，展签位于 `src/gallery-art.js`；第三章文本位于 `src/labyrinth-copy.js`。中文参考商务印书馆术语 WU谜题、和声小迷宫、图形与衬底、艾舍尔；英文保留 MU-puzzle、Little Harmonic Labyrinth 等对应名称。文案均为原创，非原书引文。主线围绕形式、意义、自指与心智；阿基里斯采用用户提供、POLLO28 制作的 CC BY 4.0 人偶模型，经 Blender 减面和动作适配；乌龟采用用户提供的 Tripo 生成网格，经 Blender 清理、减面和骨骼绑定。模型及动作署名与许可链接放在七语言章节地图和仓库 THIRD_PARTY_NOTICES.md。
 
 简介中的中文书名链接至商务印书馆官方介绍，英文 GEB 链接至英文维基百科书籍介绍。链接在新标签页打开，保留当前展厅。
 
@@ -96,8 +96,16 @@ The loader is authored in `src/loading.js` and bundled inline by `scripts/build-
 
 章节穿门过渡中，阿基里斯使用 `Jog_Fwd_Loop`，乌龟加快自己的步行与步频；普通展品漫游恢复 `Walk_Formal_Loop` 与原速。新双人可编辑工程为 `../characters/geb-companions-jog.blend`。
 
-第二章入场镜头独立于角色路线：入口停留约 0.25 秒，随后 0.8 秒聚焦当前展品并恢复阅读和导航，角色继续到位；普通展品间镜头为 1.25 秒。留白阶段不再显示乌龟解释性对白，「走向海报」与左侧文字栏对齐。页脚 00／01／02 使用 PQINA Flip 翻牌动画，减弱动态时静态显示；地图第二章标题为「图形与衬底」，主题为「观察与依据」。
+第二章入场镜头独立于角色路线：入口停留约 0.25 秒，随后 0.8 秒聚焦当前展品并恢复阅读和导航，角色继续到位；普通展品间镜头为 1.25 秒。留白阶段不再显示乌龟解释性对白，「走向海报」与左侧文字栏对齐。页脚 00／01／02／03 使用 PQINA Flip 翻牌动画，减弱动态时静态显示；地图第二章标题为「图形与衬底」，主题为「观察与依据」。
 
 ## 开源与贡献
 
 本项目原创代码和技术文档采用 [MIT](../../LICENSE)。第三方依赖、模型、字体、海报和混合素材不统一改为 MIT，详见[许可范围](../../LICENSING.md)与[素材声明](../../THIRD_PARTY_NOTICES.md)。开发、翻译和模型提交见[中文贡献指南](../../CONTRIBUTING.md)与 [English](../../CONTRIBUTING.en.md)。发布包会保留项目许可证及第三方许可文件。
+
+## 第三章：和声小迷宫
+
+共边墙后延伸为连续通路，角色与镜头穿过真实空隙，来到画廊模型前。两组真实嵌套的几何保留双海报、共边墙和内层展桌，镜头进入两次、逐层退出，最内层以圆环和小球作为停止条件。返回恢复同一观察位；地图可直接进入，footer 支持返回第二章或查看第四章预告。
+
+`labyrinth-music.js` 以 Web Audio 合成原创短曲，按 C → G → D → G → C 转调，保存父层下一音位置并逐层接续；默认关闭，点击“开启音乐”后发声，支持静音、后台暂停与无音频后备。
+
+`labyrinth-system.js` 保存有限层次、最内层观察与返回状态；独立存档为 `geb.labyrinth.v1`。`labyrinth.js` 管理 HTML、焦点和操作，`labyrinth-scene.js` 管理模型、镜头和资源，`labyrinth-copy.js` 覆盖七语言。减弱动态直接到达；无 WebGL 使用 SVG 嵌套图解与相同流程。制作计划见 `docs/chapter-03-plan.md`，实际检查见 `docs/chapter-03-verification.md`。

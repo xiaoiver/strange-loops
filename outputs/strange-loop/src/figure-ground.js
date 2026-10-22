@@ -1,10 +1,11 @@
 import { ART_LABELS, LOBSTER_POSTERS, LOBSTER_CREDIT, RUBIN_LABELS, RUBIN_CREDIT } from './gallery-art.js';
 import { FIGURE_COPY } from './figure-ground-copy.js';
 import { COPY } from './copy.js';
+import { LABYRINTH_COPY } from './labyrinth-copy.js';
 import { FIGURE_STORAGE, initialFigureState, restoreFigureState, advanceFigure, figureStage } from './figure-ground-system.js';
 
 const stages = ['posters', 'faces', 'ground'];
-export function createFigureGround(root, { locale: initialLocale, navigation, onState, onMeet, onBack, onAnnounce }) {
+export function createFigureGround(root, { locale: initialLocale, navigation, onState, onMeet, onBack, onNext, onAnnounce }) {
   let locale = initialLocale, state = initialFigureState(), active = false, poster = false;
   try { state = restoreFigureState(JSON.parse(localStorage.getItem(FIGURE_STORAGE))); } catch { /* Storage is optional. */ }
   const c = () => FIGURE_COPY[locale];
@@ -41,7 +42,7 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
       </aside>
       <dialog class="garden-dialog" id="fg-preview"><h3>${t.preview}</h3><button data-fg="close">${t.close}</button></dialog>`;
     if (active) {
-      navigation.innerHTML = `<button id="fg-back" data-fg="back">${t.back}</button><button id="fg-next" data-fg="next">${t.next}</button>`;
+      navigation.innerHTML = `<button id="fg-back" data-fg="back">${t.back}</button><button id="fg-next" data-fg="next">${LABYRINTH_COPY[locale].enterChapter} →</button>`;
       const target = focus || retainedFocus;
       if (target) (root.querySelector(`#${target}`) || navigation.querySelector(`#${target}`))?.focus({ preventScroll: true });
     }
@@ -51,7 +52,7 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
     const action = event.target.closest('[data-fg]')?.dataset.fg;
     if (!action) return;
     if (action === 'back') { onBack(); return; }
-    if (action === 'next') { root.querySelector('dialog').showModal(); return; }
+    if (action === 'next') { onNext(); return; }
     if (action === 'close') { root.querySelector('dialog').close(); navigation.querySelector('#fg-next')?.focus(); return; }
     if (action === 'poster') { poster = true; render('fg-primary'); sync(); onAnnounce(c().toPosters); return; }
     if (action === 'to-contour') {
@@ -68,6 +69,7 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
     hide() { active = false; root.querySelector('dialog')?.close(); root.hidden = true; },
     setLocale(value) { locale = value; render(); if (active) sync(); },
     getState: () => state,
+    showContour() { poster=false;state=advanceFigure(state,'to-contour');save();render();sync(); },
     dismiss() { if (!poster) return false; poster = false; render('fg-primary'); sync(); return true; },
     talk(id) { onMeet(id); if (id === 'achilles') onAnnounce(c().dialogue[viewingPosters() ? 0 : 1]); },
     showPoster() { if (viewingPosters()) return; poster = true; render('fg-primary'); sync(); },

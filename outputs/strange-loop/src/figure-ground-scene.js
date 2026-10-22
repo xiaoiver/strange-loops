@@ -15,17 +15,17 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), material);
     mesh.position.set(x,y,z); mesh.castShadow = mesh.receiveShadow = true; group.add(mesh); return mesh;
   }
-  box(45,.16,40,pale,2,-3.89,7);
-  box(30,12,.35,paper,2,2.2,-5);
+  box(45,.16,62,pale,2,-3.89,0);
+  box(30,12,.35,paper,2,2.2,-19);
   // An actual side-wall opening receives the companions from the previous room.
-  const entry=GALLERY_ENTRY,back=-5.2,front=21.8,left=entry.z-entry.halfWidth,right=entry.z+entry.halfWidth,top=-.64;
+  const entry=GALLERY_ENTRY,back=-19.2,front=21.8,left=entry.z-entry.halfWidth,right=entry.z+entry.halfWidth,top=-.64;
   box(.35,12,left-back,pale,entry.x,2.2,(back+left)/2);
   box(.35,12,front-right,pale,entry.x,2.2,(right+front)/2);
   box(.35,8.2-top,right-left,pale,entry.x,(8.2+top)/2,entry.z);
   box(entry.depth,3.16,.12,pale,entry.x-entry.depth/2,-2.22,left-.06);
   box(entry.depth,3.16,.12,pale,entry.x-entry.depth/2,-2.22,right+.06);
   box(.08,3.16,right-left,ink,entry.x-entry.depth,-2.22,entry.z);
-  box(.35,12,27,pale,17,2.2,8.3);
+  box(.35,12,41,pale,17,2.2,1.3);
   group.add(new THREE.HemisphereLight(0xf0f0ea,0x9a9e96,.35));
   // Two architectural piers share the vase boundary. The middle remains empty space.
   const contour = new THREE.Group(); contour.position.set(0,-3.8,0); group.add(contour);
@@ -36,7 +36,8 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
     const wall = new THREE.Mesh(geo,ink); wall.castShadow = wall.receiveShadow = true; contour.add(wall);
   }
   // A real roof aperture casts the diagonal light band onto walls, floor and actors.
-  box(40,.18,19,pale,4,6.1,-5.1);
+  box(40,.18,8,pale,4,6.1,-16.5);
+  box(40,.18,11,pale,4,6.1,-1.1);
   box(40,.18,22,pale,4,6.1,18.6);
   const sun = new THREE.DirectionalLight(0xf4f4ef,2.7); sun.position.set(5,17,10); sun.target.position.set(-1,-3.8,-2);
   sun.castShadow = true; sun.shadow.mapSize.set(2048,2048);
@@ -71,6 +72,7 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
     return {position:new THREE.Vector3(mobile?.2:3,mobile?1.8:1.9,mobile?20:17.8),look:new THREE.Vector3(mobile?-.4:-.6,-.7,0)};
   }
   return {
+    contourPose(){return {position:new THREE.Vector3(innerWidth<=760?.2:3,innerWidth<=760?1.8:1.9,innerWidth<=760?20:17.8),look:new THREE.Vector3(innerWidth<=760?-.4:-.6,-.7,0)};},
     beginEntry(onComplete){entryTime=reduced.matches?0:.25;entryPending=true;entryDone=onComplete;poseKey='';},
     setVisible(value){visible=value;group.visible=value;sun.visible=value;sun.shadow.needsUpdate=true;blend=0;poseKey='';manualOffset=0;entryTime=0;entryPending=false;entryDone=null;},
     setState(value,locale,{poster=false}={}) {
