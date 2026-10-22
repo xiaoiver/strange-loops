@@ -8,8 +8,24 @@ export const MODEL_ORIGIN = [0, -2.7, -10];
 export const MODEL_SCALE = .24;
 const ease = t => t*t*(3-2*t);
 const mobile = () => innerWidth <= 760;
-// The eye crosses the actual opening at x=0, below the shoulders of the profiles.
-export const CONTOUR_CROSSING = [[0,-1.55,4.2], [0,-2.1,-1.2]];
+// The eye crosses the actual opening at x=0 without dipping toward the floor.
+export const CONTOUR_CROSSING = [[0,1.15,4.2], [0,1.05,1.2], [0,1.0,-.6], [0,.95,-1.8]];
+
+// Arc-length sampling keeps speed independent of the distance between control points.
+// Four centered points leave a straight, safe stretch through the narrow profile opening.
+export function passageRail(start,end,returning=false) {
+  const portal=CONTOUR_CROSSING.map(p=>{
+    const point=new THREE.Vector3(...p);
+    const progress=THREE.MathUtils.clamp((point.z-start.z)/(end.z-start.z||1),0,1);
+    point.y=THREE.MathUtils.lerp(start.y,end.y,progress);
+    return point;
+  });
+  const points=returning?[start,...portal.reverse(),end]:[start,...portal,end];
+  const distinct=points.filter((p,i)=>!i||p.distanceToSquared(points[i-1])>1e-8);
+  const curve=new THREE.CatmullRomCurve3(distinct,false,'centripetal');
+  curve.arcLengthDivisions=600;
+  return curve;
+}
 
 export function createLabyrinthScene(scene, reduced, invalidate) {
   const group = new THREE.Group(); group.name = 'harmonic-labyrinth'; group.visible = false; scene.add(group);
@@ -80,9 +96,9 @@ export function createLabyrinthScene(scene, reduced, invalidate) {
     light.shadow.camera.name='floor-shadow';light.shadow.autoUpdate=false;light.castShadow=true;light.visible=false;
     scene.add(light,light.target);lights.push(light);
   }
-  let visible=false,depth=0,anim=null,manual=0;
+  let visible=false,depth=0,anim=null,manual=0,passageProgress=0;
   function pose(level=depth) {
-    if(level===0)return {position:new THREE.Vector3(6.4,mobile()?1.8:.7,-.8),look:new THREE.Vector3(0,-2.18,-10)};
+    if(level===0)return {position:new THREE.Vector3(7.6,mobile()?1.8:.7,-3.4),look:new THREE.Vector3(0,-2.18,-10)};
     const room=rooms[level];room.updateWorldMatrix(true,false);
     return {position:room.localToWorld(new THREE.Vector3(mobile()?2.4:5.5,mobile()?9.4:7.2,mobile()?17.5:12)),look:room.localToWorld(new THREE.Vector3(0,1,0))};
   }
@@ -94,28 +110,30 @@ export function createLabyrinthScene(scene, reduced, invalidate) {
     setVisible(value){visible=value;group.visible=value;for(const light of lights)light.visible=value;anim=null;manual=0;refreshShadows();},
     beginEntry(camera,look,onDone){
       depth=0;const end=pose(0);
-      start(camera,look,[...CONTOUR_CROSSING.map(p=>new THREE.Vector3(...p)),end.position],
-        [new THREE.Vector3(0,-1.2,0),new THREE.Vector3(0,-2.2,-9),end.look],3.6,onDone);
+      start(camera,look,[end.position],[end.look],4.2,onDone);
+      anim.rail=passageRail(camera.position.clone(),end.position);passageProgress=0;
     },
     beginExit(camera,look,end,onDone){
-      const outer=pose(0);
-      start(camera,look,[outer.position,...[...CONTOUR_CROSSING].reverse().map(p=>new THREE.Vector3(...p)),end.position],
-        [outer.look,new THREE.Vector3(0,-1.3,2),new THREE.Vector3(0,-.7,0),end.look],3.6,onDone);
+      start(camera,look,[end.position],[end.look],4.2,onDone);
+      anim.rail=passageRail(camera.position.clone(),end.position,true);passageProgress=0;
     },
     setDepth(value,camera,look,onDone,{immediate=false}={}){
       depth=value;manual=0;const end=pose();
       if(immediate){anim=null;camera.position.copy(end.position);look.copy(end.look);camera.lookAt(look);onDone?.();return;}
       start(camera,look,[end.position],[end.look],1.8,onDone);
     },
+    passageProgress:()=>passageProgress,
     cancel(){anim=null;},
     refreshShadows,
     update(dt,camera,look){
       if(!visible)return false;
       if(anim){
         const a=anim;a.age+=dt;const t=reduced.matches?1:Math.min(1,a.age/a.duration);
+        passageProgress=ease(t);
         const segment=Math.min(a.positions.length-2,Math.floor(t*(a.positions.length-1)));
         const u=ease(t===1?1:t*(a.positions.length-1)-segment);
-        camera.position.lerpVectors(a.positions[segment],a.positions[segment+1],u);
+        if(a.rail)a.rail.getPointAt(passageProgress,camera.position);
+        else camera.position.lerpVectors(a.positions[segment],a.positions[segment+1],u);
         look.lerpVectors(a.looks[segment],a.looks[segment+1],u);
         camera.up.set(0,1,0);camera.lookAt(look);
         camera.near=Math.max(.001,Math.min(.1,camera.position.distanceTo(look)*.008));camera.updateProjectionMatrix();

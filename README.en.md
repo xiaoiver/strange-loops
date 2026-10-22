@@ -40,11 +40,13 @@ Achilles jogs through the chapter doorway and uses the Formal walk between exhib
 
 Walk through the actual gap between the Rubin walls to an architectural model of the gallery. Enter the gallery inside it, then enter the next model. A ring and a small sphere mark the innermost stopping point. Return one level at a time to resume at the same model, with continuous camera movement and recognizable poster and contour walls.
 
+An original Web Audio miniature modulates from C to G to D as you enter. Returning resumes the suspended phrases and finally resolves in C. Music is off by default and starts only after selecting Enable music; no external recording is used.
+
 Early returns, Escape navigation, independent progress, all seven languages, and a non-WebGL diagram are supported. See the [chapter-three plan (Chinese)](outputs/strange-loop/docs/chapter-03-plan.md).
 
 ## Rendering and interaction
 
-- Three.js PBR materials, real-time projected shadows, PCSS soft shadows, GTAO, and FXAA; a monochrome paper-grey palette, without depth of field or background audio.
+- Three.js PBR materials, real-time projected shadows, PCSS soft shadows, GTAO, and FXAA; a monochrome paper-grey palette, without depth of field or looping background audio. Chapter-three music follows interaction.
 - A cannon-es simulation in a Web Worker gives the chapter-one letter pile gravity and collisions; the active string appears separately.
 - Skeletal idle, look, and locomotion animations; split-flap chapter numbers and a map of available rooms.
 - Self-hosted Chinese fonts, keyboard controls, and system reduced-motion support. Without WebGL, chapter-one rules remain playable and chapter two offers SVG and HTML exhibits.

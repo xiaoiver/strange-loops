@@ -106,4 +106,6 @@ The loader is authored in `src/loading.js` and bundled inline by `scripts/build-
 
 共边墙后延伸为连续通路，角色与镜头穿过真实空隙，来到画廊模型前。两组真实嵌套的几何保留双海报、共边墙和内层展桌，镜头进入两次、逐层退出，最内层以圆环和小球作为停止条件。返回恢复同一观察位；地图可直接进入，footer 支持返回第二章或查看第四章预告。
 
+`labyrinth-music.js` 以 Web Audio 合成原创短曲，按 C → G → D → G → C 转调，保存父层下一音位置并逐层接续；默认关闭，点击“开启音乐”后发声，支持静音、后台暂停与无音频后备。
+
 `labyrinth-system.js` 保存有限层次、最内层观察与返回状态；独立存档为 `geb.labyrinth.v1`。`labyrinth.js` 管理 HTML、焦点和操作，`labyrinth-scene.js` 管理模型、镜头和资源，`labyrinth-copy.js` 覆盖七语言。减弱动态直接到达；无 WebGL 使用 SVG 嵌套图解与相同流程。制作计划见 `docs/chapter-03-plan.md`，实际检查见 `docs/chapter-03-verification.md`。

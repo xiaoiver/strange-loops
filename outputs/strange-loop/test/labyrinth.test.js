@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Scene, PerspectiveCamera, Vector3, TextureLoader, Texture, Box3, Raycaster } from 'three';
 import { initialLabyrinthState, advanceLabyrinth, restoreLabyrinthState, labyrinthReading, MAX_DEPTH } from '../src/labyrinth-system.js';
-import { createLabyrinthScene } from '../src/labyrinth-scene.js';
+import { createLabyrinthScene, passageRail } from '../src/labyrinth-scene.js';
 import { contourRoute, routeSample } from '../src/chapter-passage.js';
 import { LABYRINTH_COPY } from '../src/labyrinth-copy.js';
 import { LANGUAGES } from '../src/languages.js';
@@ -49,7 +49,7 @@ for(const mobile of [false,true])test(`camera enters two real nested models and 
   t.mock.method(TextureLoader.prototype,'load',()=>new Texture());
   const scene=new Scene(),view=createLabyrinthScene(scene,{matches:false},()=>{}),camera=new PerspectiveCamera();
   const look=new Vector3(0,-.7,0);camera.position.set(3,1.9,17.8);view.setVisible(true);
-  const advance=()=>{for(let i=0;i<240;i++)view.update(1/60,camera,look);};
+  const advance=()=>{for(let i=0;i<300;i++)view.update(1/60,camera,look);};
   let entered=0;view.beginEntry(camera,look,()=>entered++);advance();assert.equal(entered,1);
   const outer=camera.position.clone(),poses=[];
   const gallery=createFigureGroundScene(scene,{matches:false},()=>{});gallery.setVisible(true);scene.updateMatrixWorld(true);
@@ -72,4 +72,41 @@ test('reduced motion ends each move once without waiting for an animation',t=>{
   const view=createLabyrinthScene(new Scene(),{matches:true},()=>{}),camera=new PerspectiveCamera(),look=new Vector3();
   view.setVisible(true);let completed=0;view.beginEntry(camera,look,()=>completed++);view.update(0,camera,look);view.update(0,camera,look);
   view.setDepth(2,camera,look,()=>completed++);view.update(0,camera,look);view.update(0,camera,look);assert.equal(completed,2);view.dispose();
+});
+
+for(const mobile of [false,true])test(`chapter passage is one smooth rail through the actual gap (${mobile?'mobile':'desktop'})`,t=>{
+  const oldWidth=globalThis.innerWidth;globalThis.innerWidth=mobile?390:1280;t.after(()=>{globalThis.innerWidth=oldWidth;});
+  t.mock.method(TextureLoader.prototype,'load',()=>new Texture());
+  const scene=new Scene(),view=createLabyrinthScene(scene,{matches:false},()=>{}),gallery=createFigureGroundScene(scene,{matches:false},()=>{});
+  view.setVisible(true);gallery.setVisible(true);scene.updateMatrixWorld(true);
+  const end=gallery.contourPose(),camera=new PerspectiveCamera(),look=end.look.clone();camera.position.copy(end.position);camera.lookAt(look);
+  let done=false;view.beginEntry(camera,look,()=>{done=true;});
+  const samples=[];
+  function record(){
+    let count=0,previous=camera.position.clone(),rotation=camera.quaternion.clone();
+    while(!done&&++count<400){
+      view.update(1/60,camera,look);const step=camera.position.distanceTo(previous);
+      assert.ok(step<.24,'camera jumped or accelerated at an intermediate waypoint');
+      assert.ok(camera.quaternion.angleTo(rotation)<.08,'view direction turned abruptly');
+      if(count>40&&count<210)assert.ok(step>.035,'camera stopped at an intermediate waypoint');
+      assert.ok(camera.position.y>=Math.min(end.position.y,.7)-.05,'camera dipped below both observation heights');
+      if(camera.position.z>=-.1&&camera.position.z<=.6)assert.ok(Math.abs(camera.position.x)<1e-5,'camera crossed a solid profile');
+      assert.ok(camera.position.distanceTo(look)>2,'camera overtook its gaze target');
+      samples.push(camera.position.clone());previous.copy(camera.position);rotation.copy(camera.quaternion);
+    }
+    assert.ok(done,'passage did not finish');
+  }
+  record();const outer=camera.position.clone();assert.ok(outer.z<-3,'the turn must finish behind the profile walls');
+  // Constant arc steps stay constant despite unequal distances between the controls.
+  for(const returning of [false,true]){
+    const rail=passageRail(returning?outer:end.position,returning?end.position:outer,returning);
+    let last=rail.getPointAt(0),min=Infinity,max=0;
+    for(let i=1;i<=1000;i++){const p=rail.getPointAt(i/1000),distance=p.distanceTo(last);min=Math.min(min,distance);max=Math.max(max,distance);assert.ok(returning?p.z>=last.z-1e-6:p.z<=last.z+1e-6,'route doubled back');last=p;}
+    assert.ok(max/min<1.03,'arc speed depends on control-point spacing');
+  }
+  done=false;view.beginExit(camera,look,end,()=>{done=true;});record();
+  assert.ok(camera.position.distanceTo(end.position)<1e-6);assert.ok(look.distanceTo(end.look)<1e-6);
+  let stale=0;view.beginEntry(camera,look,()=>stale++);view.update(.1,camera,look);view.setVisible(false);view.setVisible(true);
+  for(let i=0;i<320;i++)view.update(1/60,camera,look);assert.equal(stale,0);
+  view.dispose();
 });

@@ -112,3 +112,10 @@ body.in-passage #labyrinth{visibility:hidden}
  .labyrinth-level{margin-bottom:9px}.labyrinth-level span{font-size:15px}.labyrinth-note{font-size:11px}
  .labyrinth-dialogue{bottom:26%;max-width:29%}.labyrinth-dialogue p{font-size:12px}.labyrinth-action{bottom:13%}
 }
+
+/* Quiet audio control; tonal position remains visible when sound is off. */
+.labyrinth-level .labyrinth-key{display:inline;font:11px/1.5 -apple-system,BlinkMacSystemFont,sans-serif;color:var(--muted);white-space:nowrap}
+.labyrinth-music{display:block;font-size:11px;line-height:1.5;min-height:36px;margin-top:4px;padding:8px 0;color:var(--muted);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:4px}
+.labyrinth-music:hover,.labyrinth-music:focus-visible{color:var(--ink)}
+.labyrinth-music:disabled{cursor:default;text-decoration:none}
+@media(max-width:760px){.labyrinth-level .labyrinth-key{font-size:10px}.labyrinth-music{font-size:10px;min-height:36px;margin-top:0}}

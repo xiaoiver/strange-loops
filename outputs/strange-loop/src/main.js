@@ -314,6 +314,11 @@ async function init(){
 
 function updateCameraProjection(){
  const mobile=innerWidth<=760;
+ if(stage==='to-labyrinth'||stage==='from-labyrinth'){
+  const t=labyrinthScene?.passageProgress()||0;
+  const offset=stage==='to-labyrinth'?THREE.MathUtils.lerp(.09,.12,t):THREE.MathUtils.lerp(.12,.09,t);
+  camera.aspect=innerWidth/innerHeight;camera.fov=mobile?48:36;camera.setViewOffset(innerWidth,innerHeight,-innerWidth*(mobile?0:offset),0,innerWidth,innerHeight);camera.updateProjectionMatrix();return;
+ }
  if(currentChapter===3){camera.aspect=innerWidth/innerHeight;camera.fov=mobile?48:36;camera.setViewOffset(innerWidth,innerHeight,-innerWidth*(mobile?0:.12),0,innerWidth,innerHeight);camera.updateProjectionMatrix();return;}
  camera.near=.1;
  if(currentChapter===2){camera.aspect=innerWidth/innerHeight;camera.fov=mobile?48:36;camera.setViewOffset(innerWidth,innerHeight,-innerWidth*(mobile?0:.09),0,innerWidth,innerHeight);camera.updateProjectionMatrix();return;}
@@ -347,7 +352,7 @@ function tick(){raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta
   }
   camPos.lerp(camGoal,a);camera.position.copy(camPos);look.lerp(new THREE.Vector3(0,.1,0),a);
   up.lerp(currentView==='B'?UPTOP:Y,a).normalize();camera.up.copy(up);camera.lookAt(look);
- }else if(stage==='labyrinth'||stage==='to-labyrinth'||stage==='from-labyrinth'){labyrinthScene?.update(dt,camera,look);
+ }else if(stage==='labyrinth'||stage==='to-labyrinth'||stage==='from-labyrinth'){labyrinthScene?.update(dt,camera,look);if(stage==='to-labyrinth'||stage==='from-labyrinth')updateCameraProjection();
  }else if(stage==='figure'){figureScene?.update(dt,camera,look);updatePassage(dt);
  }else if(stage==='exiting-garden'||stage==='passage-cut'){updatePassage(dt);
  }else if(stage==='entering'||stage==='returning'){
@@ -547,7 +552,7 @@ function showLabyrinth(arriving=false){
  document.body.classList.remove('in-garden','entering','returning','in-figure');document.body.classList.add('in-labyrinth');$('.intro').inert=true;
  if(!arriving)companions?.setSpace('labyrinth',{immediate:true});
  unlockLabyrinthPassage();labyrinth.show();
- if(camera)labyrinthScene?.setDepth(labyrinth.getState().depth,camera,look,null,{immediate:true});
+ if(camera)labyrinthScene?.setDepth(labyrinth.getState().depth,camera,look,null,{immediate:!arriving||labyrinth.getState().depth===0});
  syncDynamicLabels();resize();refreshShadows();world.setAttribute('aria-label',LABYRINTH_COPY[locale].title);
 }
 function leaveLabyrinth(){
@@ -557,6 +562,7 @@ function leaveLabyrinth(){
  for(const light of Object.values(projectionLights))light.visible=true;
 }
 function returnToFigure(){
+ labyrinth.stopMusic();
  if(document.body.dataset.scene!=='ready'||!camera||!labyrinthScene||!figureScene){leaveLabyrinth();showFigure();figure.showContour();return;}
  lockLabyrinthPassage();stage='from-labyrinth';companions?.crossContour(true);
  labyrinthScene.beginExit(camera,look,figureScene.contourPose(),()=>{
