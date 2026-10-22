@@ -8,7 +8,7 @@
 
 **[进入在线展厅](https://www.gallerymate.xyz/experiences/geb?lang=zh)** · [English](https://www.gallerymate.xyz/experiences/geb?lang=en) · [试试自定义雕塑 CAT](https://www.gallerymate.xyz/experiences/geb?lang=zh&s=CAT)
 
-目前开放序厅、第一章和第二章。支持中文、英文、日文、韩文、法文、德文和西班牙文；切换语言会保留游览与解谜进度。第三章至第七章仍在制作，章节地图中置灰显示。
+当前代码包含序厅、第一章、第二章和第三章。支持中文、英文、日文、韩文、法文、德文和西班牙文；切换语言会保留游览与解谜进度。第四章至第七章仍在制作，章节地图中置灰显示。第三章尚待同步到 GM，在线站点沿用已部署版本。
 
 ## 序厅：三重投影
 
@@ -35,6 +35,12 @@
 ![中文第二章：Rubin 共边墙、花瓶留白与左侧回看入口](outputs/strange-loop/docs/screenshots/readme-rubin-zh.jpg)
 
 角色穿门时慢跑，展品之间使用 Formal 步态；步频跟随实际位移，镜头先聚焦展品并恢复阅读，角色随后到位。第二章保留观察与展签，不设置数字墙、数学问答或完成徽标。
+
+## 第三章：和声小迷宫
+
+从 Rubin 共边墙的真实空隙穿过，来到一件画廊模型前。进入模型里的画廊，再进入下一层；最内层以一枚圆环与小球结束展开，随后逐层返回，在原来的模型前继续观察。各层保留双海报与侧脸墙的位置关系，进入与返回使用连续镜头。
+
+支持提前返回、Esc 逐层退出、独立存档、七语言切换及无 WebGL 图解。实现范围和原书关联见[第三章制作计划](outputs/strange-loop/docs/chapter-03-plan.md)。
 
 ## 画面与交互
 

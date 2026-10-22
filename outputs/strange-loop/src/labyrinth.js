@@ -1,0 +1,60 @@
+import { COPY } from './copy.js';
+import { LABYRINTH_COPY } from './labyrinth-copy.js';
+import { LABYRINTH_STORAGE, MAX_DEPTH, initialLabyrinthState, restoreLabyrinthState, advanceLabyrinth, labyrinthReading } from './labyrinth-system.js';
+
+function fallbackRooms(depth){
+  // A diagram of the same three levels, available without WebGL or image downloads.
+  return `<svg viewBox="0 0 640 400" role="presentation" aria-hidden="true"><g fill="none" stroke="currentColor">${[0,1,2].map(i=>{
+    const width=510-i*130,height=300-i*78,x=60+i*65,y=45+i*39;
+    return `<rect x="${x}" y="${y}" width="${width}" height="${height}" stroke-width="${i===depth?3:1}" opacity="${i===depth?1:.28}"/><path d="M${x+width*.35} ${y+height}v-30h${width*.3}v30" stroke-width="1"/>`;
+  }).join('')}<circle cx="315" cy="195" r="18" stroke-width="2"/></g></svg>`;
+}
+export function createLabyrinth(root,{locale:initialLocale,navigation,onMove,onBack,onMeet,onAnnounce}){
+  let locale=initialLocale,state=initialLabyrinthState(),active=false,busy=false,revision=0;
+  try{state=restoreLabyrinthState(JSON.parse(localStorage.getItem(LABYRINTH_STORAGE)));}catch{}
+  const c=()=>LABYRINTH_COPY[locale];
+  function render(focus){
+    const previewOpen=root.querySelector('dialog')?.open;
+    const t=c(),reading=labyrinthReading(state),actor=reading==='inside'||reading==='leaf'?'tortoise':'achilles';
+    const action=state.depth===MAX_DEPTH||state.leafSeen&&state.depth>0?'return':state.complete?'again':'enter';
+    const retained=root.contains(document.activeElement)?document.activeElement.id:null;
+    root.setAttribute('aria-busy',String(busy));root.dataset.depth=state.depth;
+    root.innerHTML=`<header class="labyrinth-heading"><p>${t.eyebrow}</p><h2 id="labyrinth-title" tabindex="-1">${t.title}</h2></header>
+      <div class="labyrinth-reading"><p class="labyrinth-level">${t.location}<span>${t.levels[state.depth]}</span></p>
+      <p class="labyrinth-note">${state.depth===MAX_DEPTH?t.leafNote:state.leafSeen?t.returnNote:t.note}</p></div>
+      <div class="labyrinth-fallback" aria-label="${t.fallback}">${fallbackRooms(state.depth)}</div>
+      <div class="labyrinth-dialogue dialogue"><span class="speaker">${COPY[locale].actors[actor]}</span><p>${t[reading]}</p></div>
+      <div class="labyrinth-action"><button id="labyrinth-primary" class="figure-primary" data-labyrinth="${action}" ${busy?'disabled':''}>${t[action]} <span aria-hidden="true">${action==='return'?'←':'→'}</span></button>
+      ${state.depth===1&&!state.leafSeen?`<button id="labyrinth-return" class="figure-link" data-labyrinth="return" ${busy?'disabled':''}>← ${t.return}</button>`:''}</div>
+      <dialog class="garden-dialog" id="labyrinth-preview"><h3>${t.preview}</h3><button data-labyrinth="close">${t.close}</button></dialog>`;
+    if(active){
+      navigation.innerHTML=`<button id="labyrinth-back" data-labyrinth="back">${t.back}</button><button id="labyrinth-next" data-labyrinth="next">${t.next}</button>`;
+      if(focus||retained)root.querySelector(`#${focus||retained}`)?.focus({preventScroll:true});
+      if(previewOpen)root.querySelector('dialog').showModal();
+    }
+  }
+  function save(){try{localStorage.setItem(LABYRINTH_STORAGE,JSON.stringify(state));}catch{}}
+  function handle(event){
+    if(!active)return;
+    const action=event.target.closest('[data-labyrinth]')?.dataset.labyrinth;
+    if(!action)return;
+    if(action==='back'){onBack();return;}
+    if(action==='next'){root.querySelector('dialog').showModal();return;}
+    if(action==='close'){root.querySelector('dialog').close();navigation.querySelector('#labyrinth-next')?.focus();return;}
+    if(busy)return;
+    const next=advanceLabyrinth(state,action);if(JSON.stringify(state)===JSON.stringify(next))return;
+    state=next;save();
+    if(action==='again'){render('labyrinth-primary');onAnnounce(c()[labyrinthReading(state)]);return;}
+    busy=true;const token=++revision;render();
+    onMove(state.depth,()=>{if(!active||revision!==token)return;busy=false;render('labyrinth-primary');onAnnounce(c()[labyrinthReading(state)]);});
+  }
+  root.addEventListener('click',handle);navigation.addEventListener('click',handle);
+  return {
+    show(){active=true;busy=false;root.hidden=false;render('labyrinth-title');onAnnounce(c()[labyrinthReading(state)]);},
+    hide(){active=false;revision++;busy=false;root.querySelector('dialog')?.close();root.hidden=true;},
+    setLocale(value){locale=value;if(active)render();},
+    getState:()=>state,
+    talk(id){onMeet(id);onAnnounce(c()[labyrinthReading(state)]);},
+    retreat(){if(busy)return true;if(state.depth===0)return false;handle({target:{closest:()=>({dataset:{labyrinth:'return'}})}});return true;},
+  };
+}

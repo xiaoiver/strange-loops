@@ -8,7 +8,7 @@ Revisit *Gödel, Escher, Bach: an Eternal Golden Braid* with Achilles and the To
 
 **[Visit the exhibition](https://www.gallerymate.xyz/experiences/geb?lang=en)** · [简体中文](https://www.gallerymate.xyz/experiences/geb?lang=zh) · [Try a custom CAT sculpture](https://www.gallerymate.xyz/experiences/geb?lang=en&s=CAT)
 
-The vestibule and chapters one and two are open. The exhibition supports Chinese, English, Japanese, Korean, French, German, and Spanish; language changes preserve tour and puzzle progress. Chapters three through seven remain in development and appear greyed out on the chapter map.
+The current code includes the vestibule and chapters one through three. The exhibition supports Chinese, English, Japanese, Korean, French, German, and Spanish; language changes preserve tour and puzzle progress. Chapters four through seven remain in development and appear greyed out on the chapter map. Chapter three is pending release to GM; the live site continues to serve its deployed revision.
 
 ## Vestibule: Three Projections
 
@@ -35,6 +35,12 @@ The companions cross the WU/MU doorway into a skylit gallery. Two *The Lobster* 
 ![English chapter two: the Rubin walls, vase-shaped ground, and left-aligned return button](outputs/strange-loop/docs/screenshots/readme-rubin-en.jpg)
 
 Achilles jogs through the chapter doorway and uses the Formal walk between exhibits. Gait playback follows actual travel distance. The camera focuses the exhibit and unlocks reading before the companions arrive. This chapter centers on observation and exhibit labels, with no number wall, mathematical quiz, or completion badge.
+
+## Chapter three: Little Harmonic Labyrinth
+
+Walk through the actual gap between the Rubin walls to an architectural model of the gallery. Enter the gallery inside it, then enter the next model. A ring and a small sphere mark the innermost stopping point. Return one level at a time to resume at the same model, with continuous camera movement and recognizable poster and contour walls.
+
+Early returns, Escape navigation, independent progress, all seven languages, and a non-WebGL diagram are supported. See the [chapter-three plan (Chinese)](outputs/strange-loop/docs/chapter-03-plan.md).
 
 ## Rendering and interaction
 

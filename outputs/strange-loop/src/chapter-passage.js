@@ -1,6 +1,13 @@
 // World-space thresholds shared by architecture and the companions' routes.
 export const GARDEN_EXIT = Object.freeze({ x:-3.8, z:-1.3, halfWidth:.76, depth:.72 });
 export const GALLERY_ENTRY = Object.freeze({ x:-6.9, z:10.4, halfWidth:.9, depth:.9 });
+export const labyrinthStop = index => index===0 ? [-2.1,-7.1] : [-1.1,-6.6];
+export function contourRoute(start,index,returning=false,mobile=false) {
+  const end=returning?(mobile?(index===0?[-2.5,.9]:[-1.5,1.2]):(index===0?[-3,3.9]:[-1.9,4.3])):labyrinthStop(index);
+  // Approach the front before crossing; no diagonal can clip either profile wall.
+  const crossing=returning?[[0,-1.8],[0,2.3]]:[[0,2.3],[0,-1.8]];
+  return [start,...crossing,end];
+}
 export function exitRoute(start, index) {
   const {x,z,depth}=GARDEN_EXIT;
   return [start, [x+1.35,z+(index===0?-.12:.12)], [x+.15,z], [x-depth-.4,z]];
