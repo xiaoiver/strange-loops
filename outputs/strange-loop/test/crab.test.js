@@ -58,6 +58,17 @@ for(const mobile of [false,true])test(`courtyard camera traverses the real side 
  const ray=new Raycaster(new Vector3(16,-1,-10),new Vector3(1,0,0),0,2);assert.equal(ray.intersectObject(scene.getObjectByName('figure-ground-gallery'),true).length,0);
  let stale=0;view.beginEntry(camera,look,()=>stale++);view.setVisible(false);view.setVisible(true);for(let i=0;i<300;i++)view.update(1/60,camera,look);assert.equal(stale,0);view.dispose();
 });
+test('courtyard note pick targets answer a centered ray',t=>{
+ const oldWidth=globalThis.innerWidth;globalThis.innerWidth=1280;t.after(()=>{globalThis.innerWidth=oldWidth;});
+ const scene=new Scene(),view=createCrabScene(scene,{matches:false},()=>{}),camera=new PerspectiveCamera(50,16/9,.1,100);
+ view.setVisible(true);view.setActive(true);view.setFrame({mode:'explore',progress:0,step:0,forward:null,reverse:null,dialogue:0},DEFAULT_NOTES,false);
+ camera.position.set(26.5,4.5,5.2);
+ const block=scene.getObjectByName('crab-canon-courtyard').children.find(mesh=>mesh.userData.noteIndex===3&&mesh.material.opacity);
+ const target=new Vector3();block.getWorldPosition(target);camera.lookAt(target);camera.updateMatrixWorld(true);scene.updateMatrixWorld(true);
+ const center=view.pick({x:0,y:0},camera);assert.equal(center,3);
+ const miss=view.pick({x:.95,y:.9},camera);assert.equal(miss,undefined);
+ view.dispose();
+});
 test('reduced motion finishes once; revisiting a saved mode lands on its final pose',t=>{
  const oldWidth=globalThis.innerWidth;globalThis.innerWidth=1280;t.after(()=>{globalThis.innerWidth=oldWidth;});
  const view=createCrabScene(new Scene(),{matches:true},()=>{}),camera=new PerspectiveCamera(),look=new Vector3();camera.position.set(7.6,.7,-3.4);view.setVisible(true);view.setActive(true);

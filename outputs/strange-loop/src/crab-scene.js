@@ -19,9 +19,12 @@ export function createCrabScene(scene,reduced,invalidate){
  // A narrow border reads as a walking line; no raised central platform.
  for(const z of [-11.2,-8.8])box(group,11,.018,.035,pale,26.5,-3.795,z);
  for(const x of [20.8,32.2])box(group,.035,.018,2.4,pale,x,-3.795,-10);
- const notes=[];
+ const notes=[],pickTargets=[];
+ const hitMat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false});
+ materials.push(hitMat);
  for(let i=0;i<6;i++){
   const mat=ink.clone();materials.push(mat);const block=box(group,.82,1,.72,mat,26.5+(i-2.5)*1.58,-3.3,-10);block.userData.noteIndex=i;notes.push(block);
+  const hit=box(group,1.05,1.35,.95,hitMat,block.position.x,block.position.y,block.position.z);hit.userData.noteIndex=i;pickTargets.push(hit);
  }
  const solid=mesh(group,new THREE.SphereGeometry(.105,16,10),ink,[22.55,-3.55,-8.8]);
  solid.castShadow=false;
@@ -75,7 +78,7 @@ export function createCrabScene(scene,reduced,invalidate){
    const key=`${frame.mode}:${frame.step}:${playing}`;
    for(let i=0;i<6;i++){
     const block=notes[i],height=.25+(pitches[i]-60)*.055;
-    if(values[i]!==pitches[i]){block.scale.y=height;block.position.y=-3.79+height/2;values[i]=pitches[i];refresh();}
+    if(values[i]!==pitches[i]){block.scale.y=height;block.position.y=-3.79+height/2;pickTargets[i].scale.y=height;pickTargets[i].position.y=block.position.y;values[i]=pitches[i];refresh();}
     if(key!==lastStep){const highlighted=playing&&(frame.forward===i||frame.reverse===i);block.material.color.setHex(highlighted?0x999e94:0x41463f);}
    }
    lastStep=key;
@@ -94,7 +97,8 @@ export function createCrabScene(scene,reduced,invalidate){
    if(!active)return;const end=pose();end.position.x+=manual;camera.position.copy(end.position);look.copy(end.look);camera.up.copy(UP);camera.lookAt(look);camera.near=.1;
   },
   drag(delta){manual=THREE.MathUtils.clamp(manual+delta,-.7,.7);},
-  pick(pointer,camera){raycaster.setFromCamera(pointer,camera);return raycaster.intersectObjects(notes)[0]?.object.userData.noteIndex;},
+  pick(pointer,camera){raycaster.setFromCamera(pointer,camera);const hit=raycaster.intersectObjects([...pickTargets,...notes]).find(entry=>entry.object.userData.noteIndex!==undefined);return hit?.object.userData.noteIndex;},
+  setNoteHover(index){for(let i=0;i<6;i++){const on=index===i;notes[i].material.emissive?.setHex?.(on?0x2a2d28:0);notes[i].material.emissiveIntensity=on?.35:0;}refresh();},
   refreshShadows:refresh,
   dispose(){scene.remove(group,sun,sun.target,ambient);sun.shadow.map?.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();},
  };
