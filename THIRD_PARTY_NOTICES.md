@@ -197,3 +197,10 @@ The chapter passage additionally uses Quaternius `Jog_Fwd_Loop` from the same CC
 ## Google Draco decoders
 
 Copyright 2016 The Draco Authors. The bundled `draco_decoder.js`, `draco_wasm_wrapper.js` and `draco_decoder.wasm` in `outputs/strange-loop/assets/draco/` come from the Three.js Draco distribution and retain the Apache License 2.0. The upstream license text is preserved in `assets/draco/LICENSE` within the website and release package. Source: https://github.com/google/draco ; license text source: https://github.com/google/draco/blob/1.5.7/LICENSE . The project MIT grant does not replace this license.
+
+## Crab Canon Courtyard (chapter four)
+
+- `outputs/strange-loop/src/crab-scene.js` constructs the crab sculpture, note blocks, markers and courtyard directly from original Three.js geometry. No external crab mesh or artwork is bundled; this original implementation follows the project MIT license.
+- `src/crab-audio.js`, `src/crab-system.js` and `src/crab-copy.js` contain an original six-note phrase, synthesis and seven-language dialogue. No GEB dialogue, Bach score, recording or sample is reproduced.
+- The Noto Serif SC subset was regenerated for the new interface text; its existing OFL 1.1 notice in `assets/fonts/OFL.txt` is preserved.
+- `docs/screenshots/crab-*.png` are browser captures of this implementation. Existing characters and fonts visible in them retain the terms described above and in LICENSING.md; the captures are not blanket MIT media assets.

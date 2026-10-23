@@ -134,3 +134,73 @@ body.in-passage #labyrinth{visibility:hidden}
 .labyrinth-music-prompt-enable{font-size:11px;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:4px}
 .labyrinth-music-prompt-dismiss{font-size:10px;color:var(--muted);letter-spacing:.02em}
 @media(max-width:760px){.labyrinth-level .labyrinth-key{font-size:10px}.labyrinth-music{font-size:10px;min-height:36px}.labyrinth-music-wrap{margin-top:0}.figure-coedge{left:7%;width:86%;top:36%;min-height:28vh;grid-template-rows:1fr auto 1fr}.figure-coedge-hit:nth-child(1){grid-column:1/-1}.figure-observed{left:7%;top:calc(12% + 3.2em)}}
+
+/* Chapter four: the courtyard is the instrument; the label stays sparse. */
+body.in-court :is(.intro,.light-tools,.view-tools,.drag-hint,#fallback){visibility:hidden;pointer-events:none}
+body.in-court .vignette{opacity:1;background:linear-gradient(90deg,rgba(231,231,230,.98),rgba(231,231,230,.87) 22%,rgba(231,231,230,.15) 38%,transparent 48%)}
+body.in-passage #crab-court{visibility:hidden;pointer-events:none}
+.crab-court{position:absolute;inset:0;z-index:4;pointer-events:none}
+.crab-court[hidden]{display:none}
+.crab-court :is(button,a,dialog,details,.crab-dialogue-sheet-panel){pointer-events:auto}
+.crab-heading{position:absolute;left:8.2%;top:16%;max-width:32%}
+.crab-heading>p{font-size:10px;letter-spacing:.13em;color:var(--muted);margin:0 0 15px}
+.crab-heading h2{font:500 clamp(26px,3.1vw,46px)/1.3 var(--exhibit-serif,"Strange Loops Serif SC","Songti SC",serif);margin:0;overflow-wrap:anywhere}
+.crab-reading{position:absolute;left:8.2%;top:37%;width:25%;max-width:320px}
+.crab-stage{font:18px/1.55 var(--exhibit-serif,"Strange Loops Serif SC",serif);margin:0 0 12px}
+.crab-reading>p:not(.crab-stage){font-size:12px;line-height:1.9;color:var(--muted);margin:0}
+.crab-dialogue{left:8.2%;bottom:25%;max-width:32%;display:flex;flex-direction:column;gap:6px;min-height:0}
+.crab-dialogue .speaker{writing-mode:horizontal-tb;width:auto;min-width:0;font-size:11px;letter-spacing:.06em;color:var(--muted)}
+.crab-dialogue p{font:14px/1.85 var(--exhibit-serif,"Strange Loops Serif SC",serif);margin:0}
+.crab-action{position:absolute;left:8.2%;bottom:14%;max-width:30%}
+.crab-action .figure-primary{max-width:100%;line-height:1.5;text-align:left}
+.crab-legend{position:absolute;left:49%;right:10%;bottom:20%;display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:10px;letter-spacing:.04em;pointer-events:none}
+.crab-explore{position:absolute;right:5%;top:16%;display:flex;flex-direction:column;align-items:flex-end;gap:10px;max-width:min(42%,360px);background:transparent;padding:0}
+.crab-note-buttons{display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap}
+.crab-note-buttons button{min-width:32px;min-height:52px;display:flex;align-items:center;flex-direction:column;justify-content:end;gap:7px;padding:5px;color:var(--muted);font:9px Georgia,serif}
+.crab-note-buttons i{display:block;width:12px;height:var(--note-height);background:var(--ink);transition:height .2s}
+.crab-note-buttons [data-forward=true] i{background:#92998b}
+.crab-note-buttons [data-reverse=true] i{outline:1px solid var(--ink);outline-offset:3px}
+.crab-explore-actions{display:flex;gap:12px 16px;flex-wrap:wrap;justify-content:flex-end}
+.crab-explore .figure-link{font-size:10px;min-height:32px;padding:4px 0}
+.crab-dialogue-sheet{position:absolute;left:38%;right:5%;bottom:13%;z-index:6;pointer-events:none;display:flex;align-items:flex-end;justify-content:center}
+.crab-dialogue-sheet-panel{pointer-events:auto;width:100%;max-height:min(38vh,300px);overflow-y:auto;scrollbar-width:thin;padding:12px 14px 14px;border:1px solid var(--line);background:rgba(231,231,230,.94);box-shadow:0 -8px 28px rgba(36,37,37,.06)}
+.crab-dialogue-sheet-close{float:right;font-size:10px;letter-spacing:.08em;color:var(--muted);min-height:32px;padding:0 0 8px 12px;text-decoration:underline;text-underline-offset:4px}
+.crab-dialogue-sheet ol{padding:0;margin:0;list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 18px;font-size:11px;line-height:1.75;color:var(--muted)}
+.crab-dialogue-sheet li{margin:0}
+.crab-dialogue-name{display:block;font-size:10px;letter-spacing:.05em;color:var(--ink);margin-bottom:2px}
+.crab-dialogue-line{display:block;font:13px/1.65 var(--exhibit-serif,"Strange Loops Serif SC",serif);color:var(--ink)}
+body.in-court.crab-note-target #world{cursor:pointer}
+@media(min-width:761px){
+ body[data-scene=ready] .crab-note-buttons{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+ body[data-scene=ready] .crab-note-buttons button{position:static;width:1px;height:1px;min-width:0;min-height:0;padding:0}
+ body[data-scene=ready] .crab-note-buttons button i,body[data-scene=ready] .crab-note-buttons button span{display:none}
+}
+.crab-fallback{display:none}
+body[data-scene=fallback] .crab-fallback{display:block;position:absolute;left:43%;top:40%;width:48%}
+.crab-fallback-track{position:relative;display:flex;align-items:end;justify-content:space-between;gap:12px;height:100px;padding:22px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.crab-fallback-track>span{width:12%;height:var(--note-height);background:var(--ink)}
+.crab-fallback-track>i{position:absolute;width:10px;height:10px;border-radius:50%;transform:translateX(-50%)}
+.crab-marker-forward{left:calc(var(--forward-position,0)*100%);bottom:-17px;background:var(--ink)}
+.crab-marker-reverse{left:calc(var(--reverse-position,1)*100%);top:-17px;border:1px solid var(--ink);background:var(--paper)}
+.crab-court[data-mode=forward] .crab-marker-reverse,.crab-court[data-mode=reverse] .crab-marker-forward{display:none}
+@media(min-width:761px) and (max-width:1000px){.crab-heading,.crab-reading,.crab-dialogue,.crab-action{left:6%}.crab-heading{max-width:35%}.crab-heading h2{font-size:30px}.crab-reading{width:29%}.crab-dialogue{max-width:31%}.crab-legend{left:46%;right:6%}}
+@media(max-width:760px){
+ body.in-court .vignette{background:linear-gradient(180deg,rgba(231,231,230,.98) 0%,rgba(231,231,230,.96) 30%,transparent 43%,transparent 62%,rgba(231,231,230,.96) 82%)}
+ .crab-heading{left:7%;top:12%;max-width:86%}.crab-heading>p{font-size:9px;margin-bottom:10px}.crab-heading h2{font-size:clamp(23px,7.4vw,29px)}
+ .crab-reading{left:7%;top:25%;width:86%;max-width:none}.crab-stage{font-size:13px;margin-bottom:6px}.crab-reading>p:not(.crab-stage){font-size:11px;line-height:1.6}
+ .crab-dialogue{left:7%;bottom:25%;max-width:86%;width:86%}.crab-dialogue p{font-size:13px}
+ .crab-action{left:7%;bottom:13%;max-width:86%}.crab-action .figure-primary{font-size:12px;min-height:46px;padding:10px 18px}
+ .crab-legend{left:7%;right:7%;bottom:32%;font-size:9px}
+ .crab-explore{right:7%;top:auto;bottom:18%;width:86%;max-width:none;align-items:stretch}
+ .crab-court[data-mode=explore] .crab-dialogue{display:none}
+ .crab-court[data-mode=explore] .crab-legend{bottom:42%}
+ .crab-note-buttons{justify-content:space-between;padding:6px 10px;border:1px solid var(--line);background:rgba(231,231,230,.92)}
+ .crab-note-buttons button{min-width:36px;min-height:44px}.crab-note-buttons i{max-height:19px}
+ .crab-explore .figure-link{display:inline-block;font-size:9px;min-height:30px;padding:4px 0}
+ .crab-dialogue-sheet{left:7%;right:7%;bottom:12%}
+ .crab-dialogue-sheet-panel{max-height:min(36vh,260px)}
+ .crab-dialogue-sheet ol{grid-template-columns:1fr;gap:8px}
+ body[data-scene=fallback] .crab-fallback{left:7%;top:40%;width:86%}
+ .crab-fallback-track{height:85px}
+}
+@media(prefers-reduced-motion:reduce){.crab-note-buttons i{transition:none}}

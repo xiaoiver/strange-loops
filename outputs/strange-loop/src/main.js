@@ -15,6 +15,10 @@ import { createFigureGroundScene } from './figure-ground-scene.js';
 import { createLabyrinthScene } from './labyrinth-scene.js';
 import { createLabyrinth } from './labyrinth.js';
 import { LABYRINTH_COPY } from './labyrinth-copy.js';
+import {createCrab} from './crab.js';
+import {createCrabScene} from './crab-scene.js';
+import {CRAB_COPY} from './crab-copy.js';
+import {MODES as CRAB_MODES} from './crab-system.js';
 import { within } from './startup-assets.js';
 import { initialLocale, localeUrl } from './locale-url.js';
 import { LANGUAGES } from './languages.js';
@@ -43,7 +47,7 @@ const world=$('#world'),status=$('#status'),loading=window.exhibitLoading;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 const chapterCounter=createChapterCounter($('.location'),reduced);
 let paused=reduced.matches, inGarden=false, keepGardenPositions=false, currentChapter=0, transition=false, currentView='free';
-const lobbySurfaces=[];let figureScene,figureArea='',labyrinthScene;
+const lobbySurfaces=[];let figureScene,figureArea='',labyrinthScene,courtScene;
 let scene,renderer,camera,sculpture,clock,raf,composer,ao,fxaa,elapsed=0;
 let companions,gardenScene,fadeSculpture;
 const projectionLights={};
@@ -84,12 +88,20 @@ const figure=createFigureGround($('#figure-ground'),{
  onAnnounce:message=>{lastStatus=null;status.textContent=message;},
 });
 const labyrinth=createLabyrinth($('#labyrinth'),{
- locale,navigation:$('#chapter-navigation'),onBack:()=>enterFigure(),onMeet:id=>companions?.observe(id),
+ locale,navigation:$('#chapter-navigation'),onBack:()=>enterFigure(),onNext:()=>enterCourt(),onMeet:id=>companions?.observe(id),
  onMove:(depth,done)=>{
   if(document.body.dataset.scene==='ready'&&labyrinthScene&&camera)labyrinthScene.setDepth(depth,camera,look,done);
   else done();
   refreshShadows();
  },
+ onAnnounce:message=>{lastStatus=null;status.textContent=message;},
+});
+
+const crab=createCrab($('#crab-court'),{
+ locale,navigation:$('#chapter-navigation'),reduced,
+ onBack:()=>returnFromCourt(),onMeet:id=>companions?.observe(id),
+ onStage:(mode,immediate=false)=>{if(camera)courtScene?.setMode(mode,camera,look,immediate||reduced.matches);},
+ onFrame:(frame,notes,playing)=>courtScene?.setFrame(frame,notes,playing),
  onAnnounce:message=>{lastStatus=null;status.textContent=message;},
 });
 
@@ -104,7 +116,7 @@ function renderChapterList(){
  const list=$('#chapter-list');list.replaceChildren();
  COPY[locale].chapters.forEach(([name,topic],index)=>{
   const li=document.createElement('li'),number=document.createElement('span'),title=document.createElement('strong'),note=document.createElement('em');
-  const here=index===currentChapter,available=index<=3;
+  const here=index===currentChapter,available=index<=4;
   li.classList.toggle('current',here);li.classList.toggle('unavailable',!available);
   const row=document.createElement(available?'button':'div'),marker=document.createElement('span'),position=document.createElement('span');
   row.className='chapter-row';number.className='chapter-number';marker.className='chapter-marker';position.className='chapter-position';
@@ -131,9 +143,10 @@ function applyLocale(){
  for(const el of document.querySelectorAll('[data-i18n-aria]'))el.setAttribute('aria-label',textAt(el.dataset.i18nAria));
  const select=$('#language-switch');select.value=locale;select.setAttribute('aria-label',c.languageLabel);
  syncDynamicLabels();
- garden.setLocale(locale);figure.setLocale(locale);labyrinth.setLocale(locale);
+ garden.setLocale(locale);figure.setLocale(locale);labyrinth.setLocale(locale);crab.setLocale(locale);
  if(currentChapter===2)world.setAttribute('aria-label',FIGURE_COPY[locale].title);
  if(currentChapter===3)world.setAttribute('aria-label',LABYRINTH_COPY[locale].title);
+ if(currentChapter===4)world.setAttribute('aria-label',CRAB_COPY[locale].title);
  if(inGarden)world.setAttribute('aria-label',COPY[locale].gardenWorld);
 }
 for(const value of LANGUAGES){
@@ -278,6 +291,7 @@ async function init(){
   gardenScene=createGardenScene(scene,reduced,{exitWall,floorMaterial:floorMat});
   figureScene=createFigureGroundScene(scene,reduced,refreshShadows);
   labyrinthScene=createLabyrinthScene(scene,reduced,()=>{if(renderer)renderer.shadowMap.needsUpdate=true;});
+  courtScene=createCrabScene(scene,reduced,()=>{if(renderer)renderer.shadowMap.needsUpdate=true;});
   garden.setLocale(locale);
   if(inGarden){sculpture.visible=false;gardenScene.setVisible(true);}
   currentLetters=DEFAULT_LETTERS;
@@ -315,6 +329,11 @@ async function init(){
 
 function updateCameraProjection(){
  const mobile=innerWidth<=760;
+ if(stage==='to-court'||stage==='from-court'){
+  const t=courtScene?.progress()||0;camera.aspect=innerWidth/innerHeight;camera.fov=mobile?(stage==='to-court'?THREE.MathUtils.lerp(48,54,t):THREE.MathUtils.lerp(54,48,t)):36;
+  camera.setViewOffset(innerWidth,innerHeight,-innerWidth*(mobile?0:.12),0,innerWidth,innerHeight);camera.updateProjectionMatrix();return;
+ }
+ if(currentChapter===4){camera.aspect=innerWidth/innerHeight;camera.fov=mobile?54:36;camera.setViewOffset(innerWidth,innerHeight,-innerWidth*(mobile?0:.12),0,innerWidth,innerHeight);camera.updateProjectionMatrix();return;}
  if(stage==='to-labyrinth'||stage==='from-labyrinth'){
   const t=labyrinthScene?.passageProgress()||0;
   const offset=stage==='to-labyrinth'?THREE.MathUtils.lerp(.09,.12,t):THREE.MathUtils.lerp(.12,.09,t);
@@ -353,7 +372,8 @@ function tick(){raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta
   }
   camPos.lerp(camGoal,a);camera.position.copy(camPos);look.lerp(new THREE.Vector3(0,.1,0),a);
   up.lerp(currentView==='B'?UPTOP:Y,a).normalize();camera.up.copy(up);camera.lookAt(look);
- }else if(stage==='labyrinth'||stage==='to-labyrinth'||stage==='from-labyrinth'){labyrinthScene?.update(dt,camera,look);if(stage==='to-labyrinth'||stage==='from-labyrinth')updateCameraProjection();
+ }else if(stage==='court'||stage==='to-court'||stage==='from-court'){courtScene?.update(dt,camera,look);if(stage!=='court')updateCameraProjection();
+ }else if(stage==='labyrinth'||stage==='to-labyrinth'||stage==='from-labyrinth'||stage==='court-return-model'){labyrinthScene?.update(dt,camera,look);if(stage==='to-labyrinth'||stage==='from-labyrinth')updateCameraProjection();
  }else if(stage==='figure'){figureScene?.update(dt,camera,look);updatePassage(dt);
  }else if(stage==='exiting-garden'||stage==='passage-cut'){updatePassage(dt);
  }else if(stage==='entering'||stage==='returning'){
@@ -377,8 +397,8 @@ function tick(){raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta
   updateCameraProjection();refreshShadows();
   if(cameraBlend>=1){if(entering)showGarden();else finishLobby();}
  }
- const actorsVisible=stage==='lobby'||stage==='entering'||stage==='returning'||stage==='garden'||stage==='figure'||stage==='exiting-garden'||stage==='passage-cut'||stage==='to-labyrinth'||stage==='from-labyrinth'||stage==='labyrinth'&&labyrinth.getState().depth===0;
- if(companions?.update(dt,camera,actorsVisible)){projectionLights.B.shadow.needsUpdate=true;gardenScene?.refreshShadows();figureScene?.refreshShadows();labyrinthScene?.refreshShadows();renderer.shadowMap.needsUpdate=true;}
+ const actorsVisible=stage==='lobby'||stage==='entering'||stage==='returning'||stage==='garden'||stage==='figure'||stage==='exiting-garden'||stage==='passage-cut'||stage==='to-labyrinth'||stage==='from-labyrinth'||stage==='labyrinth'&&labyrinth.getState().depth===0||stage==='court'||stage==='to-court'||stage==='from-court';
+ if(companions?.update(dt,camera,actorsVisible)){projectionLights.B.shadow.needsUpdate=true;gardenScene?.refreshShadows();figureScene?.refreshShadows();labyrinthScene?.refreshShadows();courtScene?.refreshShadows();renderer.shadowMap.needsUpdate=true;}
  if(gardenScene?.update(dt))refreshShadows();
  composer.render(dt);
 }
@@ -391,9 +411,21 @@ function setView(view){if(currentChapter!==0||transition)return;currentView=view
 }
 for(const button of document.querySelectorAll('[data-view]'))button.addEventListener('click',()=>setView(button.dataset.view));
 $('#reset-view').addEventListener('click',()=>setView('free'));
-world.addEventListener('pointerdown',e=>{if(transition)return;if(currentChapter===2||currentChapter===3){drag={x:e.clientX,y:e.clientY,figure:true,labyrinth:currentChapter===3,distance:0};world.setPointerCapture(e.pointerId);return;}if(inGarden||transition||!camera)return;const sphere=new THREE.Spherical().setFromVector3(camPos);drag={x:e.clientX,y:e.clientY,theta:sphere.theta,phi:sphere.phi,radius:sphere.radius};world.setPointerCapture(e.pointerId);world.classList.add('dragging');});
-world.addEventListener('pointermove',e=>{if(!drag)return;if(drag.figure){(drag.labyrinth?labyrinthScene:figureScene)?.drag((e.clientX-drag.x)*.002);drag.distance+=Math.abs(e.clientX-drag.x);drag.x=e.clientX;return;}manualAngle={radius:drag.radius,theta:drag.theta-(e.clientX-drag.x)*.006,phi:THREE.MathUtils.clamp(drag.phi+(e.clientY-drag.y)*.006,.12,Math.PI-.2)};currentView='free';for(const b of document.querySelectorAll('[data-view]'))b.setAttribute('aria-pressed','false');});
-function endDrag(e){if(drag?.figure){const pointer={x:e.clientX/innerWidth*2-1,y:1-e.clientY/innerHeight*2};if(!drag.labyrinth&&e?.type==='pointerup'&&drag.distance<6){if(figureScene?.pickPoster(pointer,camera))figure.showPoster();else figure.pickCoEdge(pointer,camera,figureScene);}drag=null;return;}if(drag){drag=null;world.classList.remove('dragging');updateDialogue('drag');}}
+world.addEventListener('pointerdown',e=>{if(transition)return;if(currentChapter===2||currentChapter===3||currentChapter===4){drag={x:e.clientX,y:e.clientY,figure:true,labyrinth:currentChapter===3,court:currentChapter===4,distance:0};world.setPointerCapture(e.pointerId);return;}if(inGarden||transition||!camera)return;const sphere=new THREE.Spherical().setFromVector3(camPos);drag={x:e.clientX,y:e.clientY,theta:sphere.theta,phi:sphere.phi,radius:sphere.radius};world.setPointerCapture(e.pointerId);world.classList.add('dragging');});
+world.addEventListener('pointermove',e=>{if(drag?.figure){(drag.court?courtScene:drag.labyrinth?labyrinthScene:figureScene)?.drag((e.clientX-drag.x)*.002);drag.distance+=Math.abs(e.clientX-drag.x);drag.x=e.clientX;return;}
+ if(!drag&&courtCanEditNotes()&&camera){const index=courtScene?.pick(courtPointer(e),camera);courtScene?.setNoteHover(index);document.body.classList.toggle('crab-note-target',index!==undefined);return;}
+ document.body.classList.remove('crab-note-target');courtScene?.setNoteHover(undefined);
+ if(!drag)return;manualAngle={radius:drag.radius,theta:drag.theta-(e.clientX-drag.x)*.006,phi:THREE.MathUtils.clamp(drag.phi+(e.clientY-drag.y)*.006,.12,Math.PI-.2)};currentView='free';for(const b of document.querySelectorAll('[data-view]'))b.setAttribute('aria-pressed','false');});
+function courtPointer(pointer){return{x:pointer.clientX/innerWidth*2-1,y:1-pointer.clientY/innerHeight*2};}
+function courtCanEditNotes(){return currentChapter===4&&crab.getState().stage===3&&document.body.dataset.scene==='ready';}
+function endDrag(e){if(drag?.figure){if(drag.court&&e?.type==='pointerup'&&drag.distance<6&&camera&&courtCanEditNotes()){const index=courtScene?.pick(courtPointer(e),camera);if(index!==undefined)crab.changeNote(index);}
+ if(!drag.court&&!drag.labyrinth&&e?.type==='pointerup'&&drag.distance<6&&camera){
+  const pointer=courtPointer(e);
+  if(figureScene?.pickPoster(pointer,camera))figure.showPoster();
+  else figure.pickCoEdge(pointer,camera,figureScene);
+ }
+ drag=null;return;
+ }if(drag){drag=null;world.classList.remove('dragging');updateDialogue('drag');}}
 world.addEventListener('pointerup',endDrag);world.addEventListener('pointercancel',endDrag);
 bindPileInteraction(document,{
  surface:world,
@@ -406,6 +438,7 @@ observePixelRatio(resize);
 for(const id of ['achilles','tortoise'])$(`#meet-${id}`).addEventListener('click',()=>{
  if(currentChapter===2){figure.talk(id);return;}
  if(currentChapter===3){labyrinth.talk(id);return;}
+ if(currentChapter===4){crab.talk(id);return;}
  if(inGarden){garden.talk(id);return;}
  companions?.meet(id,camera);updateDialogue(id);announce('companionSelected',COPY[locale].actors[id]);
 });
@@ -432,6 +465,7 @@ function finishSceneEffects(){
 function enterGarden(){
  if(transition||inGarden)return;
  keepGardenPositions=currentChapter===0;
+ if(currentChapter===4)leaveCourt();
  if(currentChapter===3)leaveLabyrinth();
  if(currentChapter===2)leaveFigure();transition=true;document.body.classList.add('entering');$('#enter').disabled=true;setIndex(false);
  if(document.body.dataset.scene==='ready'&&renderer&&camera&&!paused){beginSceneTransition(true);}else{gardenTimer=setTimeout(showGarden,paused?20:600);}
@@ -451,6 +485,7 @@ function showGarden(){
  world.setAttribute('aria-label',COPY[locale].gardenWorld);
 }
 function backLobby(){
+ if(currentChapter===4&&!transition){leaveCourt();finishLobby();return;}
  if(currentChapter===3&&!transition){leaveLabyrinth();finishLobby();return;}
  if(currentChapter===2&&!transition){leaveFigure();finishLobby();return;}
  if(!inGarden||transition)return;
@@ -487,17 +522,18 @@ $('#chapter-list').addEventListener('click',event=>{
  setIndex(false);
  const chapter=Number(button.dataset.chapter);
  if(chapter===currentChapter){$('#index-trigger').focus({preventScroll:true});return;}
- if(chapter===0)backLobby();else if(chapter===1)enterGarden();else if(chapter===2)enterFigure();else if(chapter===3)enterLabyrinth();
+ if(chapter===0)backLobby();else if(chapter===1)enterGarden();else if(chapter===2)enterFigure();else if(chapter===3)enterLabyrinth();else if(chapter===4)enterCourt();
 });
 
 function leaveFigure(){
- figure.hide();figureScene?.setVisible(false);labyrinthScene?.setVisible(false);figureArea='';currentChapter=0;stage='lobby';
+ figure.hide();figureScene?.setVisible(false);labyrinthScene?.setVisible(false);courtScene?.setVisible(false);figureArea='';currentChapter=0;stage='lobby';
  document.body.classList.remove('in-figure');
  for(const surface of lobbySurfaces)surface.visible=true;
  for(const light of Object.values(projectionLights))light.visible=true;
 }
 function enterFigure(){
  if(transition||currentChapter===2)return;
+ if(currentChapter===4)leaveCourt();
  if(currentChapter===3){returnToFigure();return;}
  if(currentChapter===1&&document.body.dataset.scene==='ready'&&companions&&!reduced.matches){beginPassage();return;}
  showFigure();
@@ -506,7 +542,7 @@ function showFigure(arriving=false){
  setIndex(false);gardenScene?.settle();gardenScene?.setVisible(false);
  $('#garden-intro').hidden=true;$('.intro').inert=true;
  inGarden=false;keepGardenPositions=false;currentChapter=2;stage='figure';drag=null;
- fadeSculpture?.(0);figureScene?.setVisible(true);labyrinthScene?.setVisible(true);
+ fadeSculpture?.(0);figureScene?.setVisible(true);labyrinthScene?.setVisible(true);courtScene?.setVisible(true);courtScene?.setActive(false);
  for(const surface of lobbySurfaces)surface.visible=false;
  for(const light of Object.values(projectionLights))light.visible=false;
  document.body.classList.remove('in-garden','entering','returning');document.body.classList.add('in-figure');
@@ -523,17 +559,18 @@ function showFigure(arriving=false){
 function lockLabyrinthPassage(){
  transition=true;drag=null;setIndex(false);document.body.classList.add('in-passage');
  $('#labyrinth-passage-caption').hidden=true;
- $('#figure-ground').inert=true;$('#labyrinth').inert=true;$('#chapter-navigation').inert=true;
+ $('#figure-ground').inert=true;$('#labyrinth').inert=true;$('#crab-court').inert=true;$('#chapter-navigation').inert=true;
  $('#companion-controls').inert=true;$('#language-switch').disabled=true;$('#index-trigger').disabled=true;
 }
 function unlockLabyrinthPassage(){
  transition=false;document.body.classList.remove('in-passage');
  $('#labyrinth-passage-caption').hidden=true;
- $('#figure-ground').inert=false;$('#labyrinth').inert=false;$('#chapter-navigation').inert=false;
+ $('#figure-ground').inert=false;$('#labyrinth').inert=false;$('#crab-court').inert=false;$('#chapter-navigation').inert=false;
  $('#companion-controls').inert=false;$('#language-switch').disabled=false;$('#index-trigger').disabled=false;
 }
 function enterLabyrinth(){
  if(transition||currentChapter===3)return;
+ if(currentChapter===4){returnFromCourt();return;}
  const throughContour=currentChapter===2&&document.body.dataset.scene==='ready'&&labyrinthScene&&camera;
  if(throughContour){
   lockLabyrinthPassage();stage='to-labyrinth';
@@ -546,7 +583,7 @@ function enterLabyrinth(){
 function showLabyrinth(arriving=false){
  setIndex(false);$('#garden-intro').hidden=true;gardenScene?.setVisible(false);gardenScene?.settle();figure.hide();
  inGarden=false;keepGardenPositions=false;currentChapter=3;stage='labyrinth';
- fadeSculpture?.(0);figureScene?.setVisible(true);
+ fadeSculpture?.(0);figureScene?.setVisible(true);courtScene?.setVisible(true);courtScene?.setActive(false);
  if(!arriving)labyrinthScene?.setVisible(true);
  for(const surface of lobbySurfaces)surface.visible=false;
  for(const light of Object.values(projectionLights))light.visible=false;
@@ -557,7 +594,7 @@ function showLabyrinth(arriving=false){
  syncDynamicLabels();resize();refreshShadows();world.setAttribute('aria-label',LABYRINTH_COPY[locale].title);
 }
 function leaveLabyrinth(){
- labyrinth.hide();labyrinthScene?.setVisible(false);figureScene?.setVisible(false);figureArea='';
+ labyrinth.hide();labyrinthScene?.setVisible(false);figureScene?.setVisible(false);courtScene?.setVisible(false);figureArea='';
  document.body.classList.remove('in-labyrinth');currentChapter=0;stage='lobby';
  for(const surface of lobbySurfaces)surface.visible=true;
  for(const light of Object.values(projectionLights))light.visible=true;
@@ -574,6 +611,39 @@ function returnToFigure(){
   figureScene.setVisible(true);figureScene.setState(figure.getState(),locale);
   syncDynamicLabels();resize();refreshShadows();world.setAttribute('aria-label',FIGURE_COPY[locale].title);
  });
+}
+
+function enterCourt(){
+ if(transition||currentChapter===4)return;
+ if(currentChapter===3&&document.body.dataset.scene==='ready'&&camera&&courtScene){
+  lockLabyrinthPassage();labyrinth.stopMusic();courtScene.setVisible(true);
+  const caption=$('#labyrinth-passage-caption');caption.innerHTML=`<span class="speaker">${COPY[locale].actors.tortoise}</span><p>${CRAB_COPY[locale].travel}</p>`;caption.hidden=false;
+  const walk=()=>{stage='to-court';companions?.crossCourt();courtScene.beginEntry(camera,look,()=>showCourt(true),CRAB_MODES[crab.getState().stage]);};
+  if(labyrinth.getState().depth>0){stage='court-return-model';labyrinthScene.setDepth(0,camera,look,walk);}else walk();
+  return;
+ }
+ showCourt();
+}
+function showCourt(arriving=false){
+ if(currentChapter===3)labyrinth.hide();else if(currentChapter===2)figure.hide();
+ $('#garden-intro').hidden=true;gardenScene?.settle();gardenScene?.setVisible(false);$('.intro').inert=true;setIndex(false);
+ inGarden=false;keepGardenPositions=false;currentChapter=4;stage='court';drag=null;
+ document.body.classList.remove('in-garden','entering','returning','in-figure','in-labyrinth');document.body.classList.add('in-court');
+ fadeSculpture?.(0);figureScene?.setVisible(true);figureScene?.setLighting(false);labyrinthScene?.setVisible(true);courtScene?.setVisible(true);courtScene?.setActive(true);
+ for(const surface of lobbySurfaces)surface.visible=false;for(const light of Object.values(projectionLights))light.visible=false;
+ if(!arriving)companions?.setSpace('court',{immediate:true});
+ unlockLabyrinthPassage();crab.show();syncDynamicLabels();resize();refreshShadows();world.setAttribute('aria-label',CRAB_COPY[locale].title);
+}
+function leaveCourt(){
+ crab.hide();courtScene?.setActive(false);courtScene?.setVisible(false);figureScene?.setVisible(false);labyrinthScene?.setVisible(false);
+ document.body.classList.remove('in-court');currentChapter=0;stage='lobby';
+ for(const surface of lobbySurfaces)surface.visible=true;for(const light of Object.values(projectionLights))light.visible=true;
+}
+function returnFromCourt(){
+ if(transition)return;
+ if(document.body.dataset.scene!=='ready'||!courtScene||!camera){leaveCourt();showLabyrinth();return;}
+ crab.hide();lockLabyrinthPassage();stage='from-court';companions?.crossCourt(true);
+ courtScene.beginExit(camera,look,labyrinthScene.outerPose(),()=>{courtScene.cancel();courtScene.setActive(false);document.body.classList.remove('in-court');showLabyrinth(true);});
 }
 
 // The chapter boundary is crossed on foot. The dark threshold joins two rooms.
@@ -610,6 +680,7 @@ $('#index-trigger').addEventListener('click',()=>setIndex($('#chapter-index').hi
 document.addEventListener('keydown',e=>{
  if(transition||e.key!=='Escape'||e.repeat||e.defaultPrevented||document.querySelector('dialog[open]'))return;
  if(!$('#chapter-index').hidden){e.preventDefault();setIndex(false);$('#index-trigger').focus();}
+ else if(currentChapter===4){e.preventDefault();if(!crab.dismiss())returnFromCourt();}
  else if(currentChapter===3){e.preventDefault();if(!labyrinth.retreat())enterFigure();}
  else if(currentChapter===2){e.preventDefault();if(!figure.dismiss())enterGarden();}
  else if(inGarden){e.preventDefault();if(!garden.dismiss())backLobby();}

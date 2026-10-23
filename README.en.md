@@ -8,7 +8,7 @@ Revisit *Gödel, Escher, Bach: an Eternal Golden Braid* with Achilles and the To
 
 **[Visit the exhibition](https://www.gallerymate.xyz/experiences/geb?lang=en)** · [简体中文](https://www.gallerymate.xyz/experiences/geb?lang=zh) · [Try a custom CAT sculpture](https://www.gallerymate.xyz/experiences/geb?lang=en&s=CAT)
 
-The current code includes the vestibule and chapters one through three. The exhibition supports Chinese, English, Japanese, Korean, French, German, and Spanish; language changes preserve tour and puzzle progress. Chapters four through seven remain in development and appear greyed out on the chapter map. Chapter three is pending release to GM; the live site continues to serve its deployed revision.
+The current code includes the vestibule and chapters one through four. The exhibition supports Chinese, English, Japanese, Korean, French, German, and Spanish; language changes preserve tour and puzzle progress. Chapters five through seven remain in development and appear greyed out on the chapter map. Chapter four is available locally and has not been released to GM.
 
 ## Vestibule: Three Projections
 
@@ -101,3 +101,9 @@ See the [deployment guide (Chinese)](outputs/strange-loop/docs/deploy-gallerymat
 Contributions to fixes, mathematics, storytelling, translations, accessibility and future chapters are welcome. Read the [contribution guide](CONTRIBUTING.en.md) ([简体中文](CONTRIBUTING.md)) to get started. Original code and technical documentation use [MIT](LICENSE), allowing commercial and closed-source reuse with the copyright and license notice retained.
 
 Models, fonts, posters and screenshots containing them keep their own terms; the project MIT grant does not cover those assets as a whole. The tortoise is recorded as generated on a paid Tripo plan with the model set to private, with no separate open-content reuse license granted. See [LICENSING.md](LICENSING.md) for scope and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for attribution and upstream notices.
+
+## Chapter Four: Crab Canon Courtyard
+
+Walk through the gallery’s side doorway into a paper-grey courtyard. Six original note blocks are read forward, in retrograde, and by two voices together. A short original dialogue mirrors whole utterances around the Crab, exchanging Achilles and the Tortoise. Change one source note and see where it appears in each voice.
+
+Music is off by default. Explicitly enabling it plays original Web Audio synthesis; no recordings are reversed or downloaded. The chapter includes keyboard controls, independent saved progress, seven languages, reduced motion, and an HTML fallback without WebGL. See the [production plan](outputs/strange-loop/docs/chapter-04-plan.md) and [verification record](outputs/strange-loop/docs/chapter-04-verification.md).

@@ -8,7 +8,7 @@
 
 **[进入在线展厅](https://www.gallerymate.xyz/experiences/geb?lang=zh)** · [English](https://www.gallerymate.xyz/experiences/geb?lang=en) · [试试自定义雕塑 CAT](https://www.gallerymate.xyz/experiences/geb?lang=zh&s=CAT)
 
-当前代码包含序厅、第一章、第二章和第三章。支持中文、英文、日文、韩文、法文、德文和西班牙文；切换语言会保留游览与解谜进度。第四章至第七章仍在制作，章节地图中置灰显示。第三章尚待同步到 GM，在线站点沿用已部署版本。
+当前代码包含序厅与前四章。支持中文、英文、日文、韩文、法文、德文和西班牙文；切换语言会保留游览与解谜进度。第五章至第七章仍在制作，章节地图中置灰显示。第四章目前为本地预览，尚未同步 GM。
 
 ## 序厅：三重投影
 
@@ -43,6 +43,12 @@
 原创短曲随进入从 C 大调转到 G、D 大调，逐层返回时接续未完成的乐句，最终回到 C 大调。默认关闭，点击“开启音乐”后发声，可静音，无外部录音依赖。
 
 支持提前返回、Esc 逐层退出、独立存档、七语言切换及无 WebGL 图解。实现范围和原书关联见[第三章制作计划](outputs/strange-loop/docs/chapter-03-plan.md)。
+
+## 第四章：螃蟹卡农庭院
+
+从画廊侧门走进纸灰庭院，同一组六枚音块先正向读取、再逆向读取，最后由实心与空心游标从两端同时行进。完整对白围绕中央螃蟹重现整句，前后交换阿基里斯与乌龟的角色。可以改动一个音，观察它在另一声部中的对应位置。
+
+原创 Web Audio 乐句默认关闭，主动开启后才演奏；无录音倒放或新增素材下载。支持提前继续、键盘改音、独立存档、七语言与无 WebGL 后备。实现范围与原书关联见[第四章制作计划](outputs/strange-loop/docs/chapter-04-plan.md)，检查见[验收记录](outputs/strange-loop/docs/chapter-04-verification.md)。
 
 ## 画面与交互
 

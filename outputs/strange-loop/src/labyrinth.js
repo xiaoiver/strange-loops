@@ -1,5 +1,6 @@
 import { createLabyrinthMusic } from './labyrinth-music.js';
 import { COPY } from './copy.js';
+import {CRAB_COPY} from './crab-copy.js';
 import { LABYRINTH_COPY } from './labyrinth-copy.js';
 import { LABYRINTH_STORAGE, MAX_DEPTH, initialLabyrinthState, restoreLabyrinthState, advanceLabyrinth, labyrinthReading } from './labyrinth-system.js';
 
@@ -18,7 +19,7 @@ function readMusicPromptState(){
 function writeMusicPromptState(value){
   try{sessionStorage.setItem(MUSIC_PROMPT_STORAGE,value);}catch{}
 }
-export function createLabyrinth(root,{locale:initialLocale,navigation,onMove,onBack,onMeet,onAnnounce}){
+export function createLabyrinth(root,{locale:initialLocale,navigation,onMove,onBack,onNext,onMeet,onAnnounce}){
   let locale=initialLocale,state=initialLabyrinthState(),active=false,busy=false,revision=0,musicPromptOpen=false;
   try{state=restoreLabyrinthState(JSON.parse(localStorage.getItem(LABYRINTH_STORAGE)));}catch{}
   const c=()=>LABYRINTH_COPY[locale];
@@ -47,7 +48,6 @@ export function createLabyrinth(root,{locale:initialLocale,navigation,onMove,onB
   document.addEventListener('visibilitychange',()=>music.setForeground(!document.hidden));
   window.addEventListener('pagehide',()=>music.stop());
   function render(focus){
-    const previewOpen=root.querySelector('dialog')?.open;
     const t=c(),reading=labyrinthReading(state),actor=reading==='inside'||reading==='leaf'?'tortoise':'achilles';
     const action=state.depth===MAX_DEPTH||state.leafSeen&&state.depth>0?'return':state.complete?'again':'enter';
     const retained=root.contains(document.activeElement)?document.activeElement.id:null;
@@ -70,12 +70,11 @@ export function createLabyrinth(root,{locale:initialLocale,navigation,onMove,onB
       <div class="labyrinth-dialogue dialogue"><span class="speaker">${COPY[locale].actors[actor]}</span><p>${t[reading]}</p></div>
       <div class="labyrinth-action"><button id="labyrinth-primary" class="figure-primary" data-labyrinth="${action}" ${busy?'disabled':''}>${t[action]} <span aria-hidden="true">${action==='return'?'←':'→'}</span></button>
       ${state.depth===1&&!state.leafSeen?`<button id="labyrinth-return" class="figure-link" data-labyrinth="return" ${busy?'disabled':''}>← ${t.return}</button>`:''}</div>
-      <dialog class="garden-dialog" id="labyrinth-preview"><h3>${t.preview}</h3><button data-labyrinth="close">${t.close}</button></dialog>`;
+      `;
     syncMusic();
     if(active){
-      navigation.innerHTML=`<button id="labyrinth-back" data-labyrinth="back">${t.back}</button><button id="labyrinth-next" data-labyrinth="next">${t.next}</button>`;
+      navigation.innerHTML=`<button id="labyrinth-back" data-labyrinth="back">${t.back}</button><button id="labyrinth-next" data-labyrinth="next">${CRAB_COPY[locale].enterChapter} →</button>`;
       if(focus||retained)root.querySelector(`#${focus||retained}`)?.focus({preventScroll:true});
-      if(previewOpen)root.querySelector('dialog').showModal();
     }
   }
   function save(){try{localStorage.setItem(LABYRINTH_STORAGE,JSON.stringify(state));}catch{}}
@@ -91,7 +90,7 @@ export function createLabyrinth(root,{locale:initialLocale,navigation,onMove,onB
       closeMusicPrompt();
       return;
     }
-    if(action==='next'){root.querySelector('dialog').showModal();return;}
+    if(action==='next'){music.stop();onNext();return;}
     if(action==='close'){root.querySelector('dialog').close();navigation.querySelector('#labyrinth-next')?.focus();return;}
     if(busy)return;
     const beforeDepth=state.depth;
