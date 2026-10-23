@@ -54,6 +54,15 @@ body.in-passage #world canvas{opacity:var(--passage-visibility,1)}
  .figure-ground:is([data-poster=true],[data-step=ground]) .figure-action{left:8.2%;bottom:17%;transform:none}
 }
 
+.figure-coedge{position:absolute;left:37%;top:24%;width:55%;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;pointer-events:auto;min-height:min(53vh,420px)}
+.figure-coedge-hit{align-self:stretch;justify-self:stretch;min-height:48px;border:0;background:transparent;color:transparent;cursor:pointer}
+.figure-coedge-hit:focus-visible{outline:2px solid var(--red);outline-offset:-4px}
+.figure-coedge-hit[aria-pressed=true]{background:color-mix(in srgb,var(--ink) 6%,transparent)}
+.figure-observed{position:absolute;left:8.2%;top:calc(16% + 3.4em);margin:0;font-size:10px;letter-spacing:.12em;color:var(--muted)}
+body[data-scene=fallback] .figure-coedge{left:8%;width:84%;top:29%;min-height:32vh}
+body[data-scene=fallback] .figure-coedge-hit{color:var(--muted);font-size:10px;letter-spacing:.04em;padding:8px;text-align:center;align-content:end;background:color-mix(in srgb,var(--paper) 82%,transparent)}
+.figure-ground[data-coedge=vase] .figure-fallback img{filter:contrast(.92) brightness(1.04)}
+.figure-ground[data-coedge=faces] .figure-fallback img{filter:contrast(1.08)}
 .figure-ground[data-contour=true] .figure-notes{max-height:30%}
 @media(max-width:760px){
  .figure-ground[data-contour=true] .figure-reading{bottom:25%;max-height:25%}
@@ -115,10 +124,16 @@ body.in-passage #labyrinth{visibility:hidden}
 
 /* Quiet audio control; tonal position remains visible when sound is off. */
 .labyrinth-level .labyrinth-key{display:inline;font:11px/1.5 -apple-system,BlinkMacSystemFont,sans-serif;color:var(--muted);white-space:nowrap}
-.labyrinth-music{display:block;font-size:11px;line-height:1.5;min-height:36px;margin-top:4px;padding:8px 0;color:var(--muted);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:4px}
+.labyrinth-music-wrap{margin-top:4px}
+.labyrinth-music{display:block;font-size:11px;line-height:1.5;min-height:36px;padding:8px 0;color:var(--muted);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:4px}
 .labyrinth-music:hover,.labyrinth-music:focus-visible{color:var(--ink)}
 .labyrinth-music:disabled{cursor:default;text-decoration:none}
-@media(max-width:760px){.labyrinth-level .labyrinth-key{font-size:10px}.labyrinth-music{font-size:10px;min-height:36px;margin-top:0}}
+.labyrinth-music-prompt{margin-top:6px;padding:10px 0 0;border-top:1px solid var(--line);font-size:11px;line-height:1.7;color:var(--muted)}
+.labyrinth-music-prompt p{margin:0 0 8px}
+.labyrinth-music-prompt-actions{display:flex;flex-wrap:wrap;gap:12px 18px}
+.labyrinth-music-prompt-enable{font-size:11px;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:4px}
+.labyrinth-music-prompt-dismiss{font-size:10px;color:var(--muted);letter-spacing:.02em}
+@media(max-width:760px){.labyrinth-level .labyrinth-key{font-size:10px}.labyrinth-music{font-size:10px;min-height:36px}.labyrinth-music-wrap{margin-top:0}.figure-coedge{left:7%;width:86%;top:36%;min-height:28vh;grid-template-rows:1fr auto 1fr}.figure-coedge-hit:nth-child(1){grid-column:1/-1}.figure-observed{left:7%;top:calc(12% + 3.2em)}}
 
 /* Chapter four: the courtyard is the instrument; the label stays sparse. */
 body.in-court :is(.intro,.light-tools,.view-tools,.drag-hint,#fallback){visibility:hidden;pointer-events:none}

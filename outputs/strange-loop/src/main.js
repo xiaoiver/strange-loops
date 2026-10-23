@@ -79,6 +79,7 @@ const figure=createFigureGround($('#figure-ground'),{
  onState:(state,lang,options={})=>{
   const area=options.poster?'poster':'contour';
   figureScene?.setState(state,lang,options);
+  figureScene?.setCoEdgeFocus?.(options.coEdgeFocus??null);
   if(currentChapter===2&&!transition&&figureArea!==area){figureArea=area;companions?.setSpace(`figure-${area}`);}
   refreshShadows();
  },
@@ -418,7 +419,13 @@ world.addEventListener('pointermove',e=>{if(drag?.figure){(drag.court?courtScene
 function courtPointer(pointer){return{x:pointer.clientX/innerWidth*2-1,y:1-pointer.clientY/innerHeight*2};}
 function courtCanEditNotes(){return currentChapter===4&&crab.getState().stage===3&&document.body.dataset.scene==='ready';}
 function endDrag(e){if(drag?.figure){if(drag.court&&e?.type==='pointerup'&&drag.distance<6&&camera&&courtCanEditNotes()){const index=courtScene?.pick(courtPointer(e),camera);if(index!==undefined)crab.changeNote(index);}
- if(!drag.court&&!drag.labyrinth&&e?.type==='pointerup'&&drag.distance<6&&figureScene?.pickPoster({x:e.clientX/innerWidth*2-1,y:1-e.clientY/innerHeight*2},camera))figure.showPoster();drag=null;return;}if(drag){drag=null;world.classList.remove('dragging');updateDialogue('drag');}}
+ if(!drag.court&&!drag.labyrinth&&e?.type==='pointerup'&&drag.distance<6&&camera){
+  const pointer=courtPointer(e);
+  if(figureScene?.pickPoster(pointer,camera))figure.showPoster();
+  else figure.pickCoEdge(pointer,camera,figureScene);
+ }
+ drag=null;return;
+ }if(drag){drag=null;world.classList.remove('dragging');updateDialogue('drag');}}
 world.addEventListener('pointerup',endDrag);world.addEventListener('pointercancel',endDrag);
 bindPileInteraction(document,{
  surface:world,
