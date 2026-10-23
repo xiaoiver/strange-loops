@@ -22,7 +22,7 @@ test('old number-wall saves resume at the observed artwork and discard retired s
   for(const version of [1,2,3]){
     const saved={version,posters:true,ground:true,meaning:true,products:[[2,4]],check:{number:11},answer:'not-listed'};
     const restored=restoreFigureState(saved);
-    assert.deepEqual(restored,{version:4,posters:true,ground:true});
+    assert.deepEqual(restored,{version:5,posters:true,ground:true,observed:false});
     assert.equal(figureStage(restored),'ground');
     assert.deepEqual(restoreFigureState(restored),restored);
   }
@@ -31,7 +31,8 @@ test('old number-wall saves resume at the observed artwork and discard retired s
   const wallOnly=restoreFigureState({version:1,ground:true});
   assert.equal(figureStage(wallOnly),'posters');
   assert.equal(figureStage(advanceFigure(wallOnly,'to-contour')),'ground');
-  for(const invalid of [null,{}, {version:99}, {version:4,posters:'true',ground:1}]){
+  assert.deepEqual(restoreFigureState({version:4,posters:true,ground:true,observed:true}),{version:5,posters:true,ground:true,observed:true});
+  for(const invalid of [null,{}, {version:99}, {version:5,posters:'true',ground:1}]){
     assert.deepEqual(restoreFigureState(invalid),initialFigureState());
   }
 });
