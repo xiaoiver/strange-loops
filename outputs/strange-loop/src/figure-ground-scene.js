@@ -3,6 +3,7 @@ import { GALLERY_ENTRY } from './chapter-passage.js';
 import { traceProfile } from './rubin-contour.js';
 import { figureStage } from './figure-ground-system.js';
 import { LOBSTER_POSTERS } from './gallery-art.js';
+import { COURT_GATE } from './crab-system.js';
 import { applySoftShadows } from './soft-shadows.js';
 
 export function createFigureGroundScene(scene, reduced, invalidate) {
@@ -25,7 +26,10 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
   box(entry.depth,3.16,.12,pale,entry.x-entry.depth/2,-2.22,left-.06);
   box(entry.depth,3.16,.12,pale,entry.x-entry.depth/2,-2.22,right+.06);
   box(.08,3.16,right-left,ink,entry.x-entry.depth,-2.22,entry.z);
-  box(.35,12,41,pale,17,2.2,1.3);
+  const gate=COURT_GATE,gateBack=gate.z-gate.halfWidth,gateFront=gate.z+gate.halfWidth;
+  box(.35,12,gateBack-back,pale,gate.x,2.2,(back+gateBack)/2);
+  box(.35,12,front-gateFront,pale,gate.x,2.2,(front+gateFront)/2);
+  box(.35,8.2-gate.top,gateFront-gateBack,pale,gate.x,(8.2+gate.top)/2,gate.z);
   group.add(new THREE.HemisphereLight(0xf0f0ea,0x9a9e96,.35));
   // Two architectural piers share the vase boundary. The middle remains empty space.
   const contour = new THREE.Group(); contour.position.set(0,-3.8,0); group.add(contour);
@@ -79,6 +83,7 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
       targetMode=poster||figureStage(value)==='posters'?'poster':'contour';
       sun.shadow.needsUpdate=true;invalidate();
     },
+    setLighting(value){sun.visible=visible&&value;sun.shadow.needsUpdate=true;invalidate();},
     refreshShadows(){if(visible)sun.shadow.needsUpdate=true;},
     update(dt,camera,look){
       if(!visible)return false;

@@ -122,6 +122,7 @@ export function createLabyrinthScene(scene, reduced, invalidate) {
       if(immediate){anim=null;camera.position.copy(end.position);look.copy(end.look);camera.lookAt(look);onDone?.();return;}
       start(camera,look,[end.position],[end.look],1.8,onDone);
     },
+    outerPose:()=>pose(0),
     passageProgress:()=>passageProgress,
     cancel(){anim=null;},
     refreshShadows,

@@ -104,8 +104,14 @@ The loader is authored in `src/loading.js` and bundled inline by `scripts/build-
 
 ## 第三章：和声小迷宫
 
-共边墙后延伸为连续通路，角色与镜头穿过真实空隙，来到画廊模型前。两组真实嵌套的几何保留双海报、共边墙和内层展桌，镜头进入两次、逐层退出，最内层以圆环和小球作为停止条件。返回恢复同一观察位；地图可直接进入，footer 支持返回第二章或查看第四章预告。
+共边墙后延伸为连续通路，角色与镜头穿过真实空隙，来到画廊模型前。两组真实嵌套的几何保留双海报、共边墙和内层展桌，镜头进入两次、逐层退出，最内层以圆环和小球作为停止条件。返回恢复同一观察位；地图可直接进入，footer 支持返回第二章或走向第四章。
 
 `labyrinth-music.js` 以 Web Audio 合成原创短曲，按 C → G → D → G → C 转调，保存父层下一音位置并逐层接续；默认关闭，点击“开启音乐”后发声，支持静音、后台暂停与无音频后备。
 
 `labyrinth-system.js` 保存有限层次、最内层观察与返回状态；独立存档为 `geb.labyrinth.v1`。`labyrinth.js` 管理 HTML、焦点和操作，`labyrinth-scene.js` 管理模型、镜头和资源，`labyrinth-copy.js` 覆盖七语言。减弱动态直接到达；无 WebGL 使用 SVG 嵌套图解与相同流程。制作计划见 `docs/chapter-03-plan.md`，实际检查见 `docs/chapter-03-verification.md`。
+
+## 第四章：螃蟹卡农庭院
+
+画廊侧门接入真实庭院，六枚音块、双声部游标和中央原创螃蟹雕塑呈现正向、逆行与同时读取。同一份六音数据用于三维高度、前后声部和可选改音；整句对白围绕螃蟹交换角色重现。音乐默认关闭，静音可完成全部体验。无 WebGL 用 HTML 音块与同一流程操作，减弱动态直接到达观察位。独立存档 `geb.crab.v1` 保存读法阶段与源音，刷新后仍需主动开启音乐。
+
+模块拆分为 `crab-system.js`、`crab.js`、`crab-scene.js`、`crab-audio.js` 和七语言 `crab-copy.js`。制作计划见 `docs/chapter-04-plan.md`，实际验收见 `docs/chapter-04-verification.md`。
