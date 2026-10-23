@@ -75,6 +75,7 @@ const figure=createFigureGround($('#figure-ground'),{
  onState:(state,lang,options={})=>{
   const area=options.poster?'poster':'contour';
   figureScene?.setState(state,lang,options);
+  figureScene?.setCoEdgeFocus?.(options.coEdgeFocus??null);
   if(currentChapter===2&&!transition&&figureArea!==area){figureArea=area;companions?.setSpace(`figure-${area}`);}
   refreshShadows();
  },
@@ -392,7 +393,7 @@ for(const button of document.querySelectorAll('[data-view]'))button.addEventList
 $('#reset-view').addEventListener('click',()=>setView('free'));
 world.addEventListener('pointerdown',e=>{if(transition)return;if(currentChapter===2||currentChapter===3){drag={x:e.clientX,y:e.clientY,figure:true,labyrinth:currentChapter===3,distance:0};world.setPointerCapture(e.pointerId);return;}if(inGarden||transition||!camera)return;const sphere=new THREE.Spherical().setFromVector3(camPos);drag={x:e.clientX,y:e.clientY,theta:sphere.theta,phi:sphere.phi,radius:sphere.radius};world.setPointerCapture(e.pointerId);world.classList.add('dragging');});
 world.addEventListener('pointermove',e=>{if(!drag)return;if(drag.figure){(drag.labyrinth?labyrinthScene:figureScene)?.drag((e.clientX-drag.x)*.002);drag.distance+=Math.abs(e.clientX-drag.x);drag.x=e.clientX;return;}manualAngle={radius:drag.radius,theta:drag.theta-(e.clientX-drag.x)*.006,phi:THREE.MathUtils.clamp(drag.phi+(e.clientY-drag.y)*.006,.12,Math.PI-.2)};currentView='free';for(const b of document.querySelectorAll('[data-view]'))b.setAttribute('aria-pressed','false');});
-function endDrag(e){if(drag?.figure){if(!drag.labyrinth&&e?.type==='pointerup'&&drag.distance<6&&figureScene?.pickPoster({x:e.clientX/innerWidth*2-1,y:1-e.clientY/innerHeight*2},camera))figure.showPoster();drag=null;return;}if(drag){drag=null;world.classList.remove('dragging');updateDialogue('drag');}}
+function endDrag(e){if(drag?.figure){const pointer={x:e.clientX/innerWidth*2-1,y:1-e.clientY/innerHeight*2};if(!drag.labyrinth&&e?.type==='pointerup'&&drag.distance<6){if(figureScene?.pickPoster(pointer,camera))figure.showPoster();else figure.pickCoEdge(pointer,camera,figureScene);}drag=null;return;}if(drag){drag=null;world.classList.remove('dragging');updateDialogue('drag');}}
 world.addEventListener('pointerup',endDrag);world.addEventListener('pointercancel',endDrag);
 bindPileInteraction(document,{
  surface:world,

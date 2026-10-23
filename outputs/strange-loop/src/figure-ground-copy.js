@@ -16,6 +16,12 @@ export const FIGURE_COPY = {
       "人没有画出来，拥抱却还在。",
       "两张脸，正看着对方。"
     ],
+    "bridge": "海报上沿着肩膀走的线，在这里只剩一道共边。",
+    "focusVase": "看中间的留白",
+    "focusFaces": "看两侧的侧脸",
+    "focusVaseLine": "中间的空白，也是图形。",
+    "observed": "已观察",
+    "coEdgeLabel": "切换图与地的读法",
     "enter": "走进第二章"
   },
   "en": {
@@ -34,6 +40,12 @@ export const FIGURE_COPY = {
       "The person is absent from the picture, but the embrace remains.",
       "Two faces, looking at each other."
     ],
+    "bridge": "The line that ran along the shoulders on the poster is one shared edge here.",
+    "focusVase": "Look at the gap",
+    "focusFaces": "Look at the profiles",
+    "focusVaseLine": "The empty middle is figure, too.",
+    "observed": "Observed",
+    "coEdgeLabel": "Switch figure–ground reading",
     "enter": "Enter chapter two"
   },
   "ja": {
@@ -52,6 +64,12 @@ export const FIGURE_COPY = {
       "人は描かれていない。それでも抱擁は残っている。",
       "二つの顔が向かい合っている。"
     ],
+    "bridge": "ポスターで肩に沿っていた線が、ここでは一つの共通の輪郭になっている。",
+    "focusVase": "中央の余白を見る",
+    "focusFaces": "両側の横顔を見る",
+    "focusVaseLine": "真ん中の空白も、図になる。",
+    "observed": "観察済み",
+    "coEdgeLabel": "図と地の読み方を切り替える",
     "enter": "第2章へ"
   },
   "ko": {
@@ -70,6 +88,12 @@ export const FIGURE_COPY = {
       "사람은 그려져 있지 않지만 포옹은 남아 있어.",
       "두 얼굴이 서로 마주 보고 있어."
     ],
+    "bridge": "포스터에서 어깨를 따라간 선이, 여기서는 하나의 공유 윤곽이 됩니다.",
+    "focusVase": "가운데 여백 보기",
+    "focusFaces": "양쪽 옆얼굴 보기",
+    "focusVaseLine": "가운데 빈 공간도 도형입니다.",
+    "observed": "관찰함",
+    "coEdgeLabel": "도형과 배경 읽기 전환",
     "enter": "제2장으로"
   },
   "fr": {
@@ -88,6 +112,12 @@ export const FIGURE_COPY = {
       "La personne est absente de l’image, mais l’étreinte demeure.",
       "Deux visages se regardent."
     ],
+    "bridge": "Le trait qui suivait les épaules sur l’affiche devient ici un seul contour partagé.",
+    "focusVase": "Regarder le vide central",
+    "focusFaces": "Regarder les profils",
+    "focusVaseLine": "Le vide du milieu est aussi une figure.",
+    "observed": "Observé",
+    "coEdgeLabel": "Changer de lecture figure–fond",
     "enter": "Entrer au chapitre deux"
   },
   "de": {
@@ -106,6 +136,12 @@ export const FIGURE_COPY = {
       "Die Person fehlt im Bild, aber die Umarmung bleibt.",
       "Zwei Gesichter sehen einander an."
     ],
+    "bridge": "Die Linie an den Schultern auf dem Plakat ist hier eine gemeinsame Kante.",
+    "focusVase": "Den Zwischenraum sehen",
+    "focusFaces": "Die Profile sehen",
+    "focusVaseLine": "Die leere Mitte ist auch Figur.",
+    "observed": "Beobachtet",
+    "coEdgeLabel": "Figur-Grund-Lesart wechseln",
     "enter": "Kapitel zwei betreten"
   },
   "es": {
@@ -124,6 +160,12 @@ export const FIGURE_COPY = {
       "La persona no aparece en la imagen, pero el abrazo permanece.",
       "Dos rostros se miran."
     ],
+    "bridge": "La línea que seguía los hombros en el cartel, aquí es un solo borde compartido.",
+    "focusVase": "Mirar el hueco central",
+    "focusFaces": "Mirar los perfiles",
+    "focusVaseLine": "El vacío del centro también es figura.",
+    "observed": "Observado",
+    "coEdgeLabel": "Cambiar lectura figura–fondo",
     "enter": "Entrar al capítulo dos"
   }
 };

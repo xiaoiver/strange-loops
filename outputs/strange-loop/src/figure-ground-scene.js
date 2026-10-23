@@ -29,11 +29,15 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
   group.add(new THREE.HemisphereLight(0xf0f0ea,0x9a9e96,.35));
   // Two architectural piers share the vase boundary. The middle remains empty space.
   const contour = new THREE.Group(); contour.position.set(0,-3.8,0); group.add(contour);
+  const contourWalls = [];
+  const inkFocus = ink.clone(); inkFocus.emissive = new THREE.Color(0x2a2d28); inkFocus.emissiveIntensity = .22;
+  const inkRest = ink.clone(); inkRest.color.multiplyScalar(.72);
   for (const sign of [-1,1]) {
     const shape = traceProfile(new THREE.Shape(), sign);
     shape.lineTo(sign * 5.2,0); shape.lineTo(sign * 5.2,6); shape.closePath();
     const geo = new THREE.ExtrudeGeometry(shape,{ depth: .48, bevelEnabled: false, curveSegments: 18 });
-    const wall = new THREE.Mesh(geo,ink); wall.castShadow = wall.receiveShadow = true; contour.add(wall);
+    const wall = new THREE.Mesh(geo,ink.clone()); wall.castShadow = wall.receiveShadow = true;
+    wall.userData.coEdge = 'faces'; contourWalls.push(wall); contour.add(wall);
   }
   // A real roof aperture casts the diagonal light band onto walls, floor and actors.
   box(40,.18,8,pale,4,6.1,-16.5);
@@ -59,7 +63,16 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
     },undefined,()=>{surface.visible=false;invalidate();});
   });
   const raycaster=new THREE.Raycaster();
-  let visible=false, targetMode='contour';
+  const gapPlane=new THREE.Plane(new THREE.Vector3(0,0,1),0);
+  const hitPoint=new THREE.Vector3();
+  let visible=false, targetMode='contour', coEdgeFocus=null;
+  function applyCoEdgeFocus(){
+    for(const wall of contourWalls){
+      wall.material = coEdgeFocus === 'faces' ? inkFocus : coEdgeFocus === 'vase' ? inkRest : ink;
+      wall.material.needsUpdate = true;
+    }
+    invalidate();
+  }
   const startPosition=new THREE.Vector3(),startLook=new THREE.Vector3();
   let blend=1, poseKey='', manualOffset=0, entryTime=0, entryPending=false, entryDone=null;
   function pose() {
@@ -74,9 +87,11 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
   return {
     contourPose(){return {position:new THREE.Vector3(innerWidth<=760?.2:3,innerWidth<=760?1.8:1.9,innerWidth<=760?20:17.8),look:new THREE.Vector3(innerWidth<=760?-.4:-.6,-.7,0)};},
     beginEntry(onComplete){entryTime=reduced.matches?0:.25;entryPending=true;entryDone=onComplete;poseKey='';},
-    setVisible(value){visible=value;group.visible=value;sun.visible=value;sun.shadow.needsUpdate=true;blend=0;poseKey='';manualOffset=0;entryTime=0;entryPending=false;entryDone=null;},
+    setVisible(value){visible=value;group.visible=value;sun.visible=value;sun.shadow.needsUpdate=true;blend=0;poseKey='';manualOffset=0;entryTime=0;entryPending=false;entryDone=null;coEdgeFocus=null;applyCoEdgeFocus();},
+    setCoEdgeFocus(value){coEdgeFocus=value;applyCoEdgeFocus();},
     setState(value,locale,{poster=false}={}) {
       targetMode=poster||figureStage(value)==='posters'?'poster':'contour';
+      if(targetMode!=='contour'){coEdgeFocus=null;applyCoEdgeFocus();}
       sun.shadow.needsUpdate=true;invalidate();
     },
     refreshShadows(){if(visible)sun.shadow.needsUpdate=true;},
@@ -96,5 +111,12 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
     },
     drag(delta){manualOffset=THREE.MathUtils.clamp(manualOffset+delta,-.65,.65);},
     pickPoster(pointer,camera){if(!visible)return false;raycaster.setFromCamera(pointer,camera);return raycaster.intersectObjects(posterTargets).length>0;},
+    pickCoEdge(pointer,camera){
+      if(!visible||targetMode!=='contour')return null;
+      raycaster.setFromCamera(pointer,camera);
+      if(raycaster.intersectObjects(contourWalls,false).length)return 'faces';
+      if(raycaster.ray.intersectPlane(gapPlane,hitPoint)&&Math.abs(hitPoint.x)<1.35&&hitPoint.y>-2.2&&hitPoint.y<3.5)return 'vase';
+      return null;
+    },
   };
 }

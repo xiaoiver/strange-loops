@@ -6,24 +6,46 @@ import { FIGURE_STORAGE, initialFigureState, restoreFigureState, advanceFigure, 
 
 const stages = ['posters', 'faces', 'ground'];
 export function createFigureGround(root, { locale: initialLocale, navigation, onState, onMeet, onBack, onNext, onAnnounce }) {
-  let locale = initialLocale, state = initialFigureState(), active = false, poster = false;
+  let locale = initialLocale, state = initialFigureState(), active = false, poster = false, coEdgeFocus = null;
   try { state = restoreFigureState(JSON.parse(localStorage.getItem(FIGURE_STORAGE))); } catch { /* Storage is optional. */ }
   const c = () => FIGURE_COPY[locale];
   const viewingPosters = () => poster || figureStage(state) === 'posters';
   function save() { try { localStorage.setItem(FIGURE_STORAGE, JSON.stringify(state)); } catch { /* Continue without persistence. */ } }
-  function sync() { onState(state, locale, { poster: viewingPosters() }); }
+  function sync() { onState(state, locale, { poster: viewingPosters(), coEdgeFocus }); }
+  function achillesLine(stage) {
+    const t = c();
+    if (stage !== 'faces') return t.dialogue[0];
+    if (coEdgeFocus === 'vase') return t.focusVaseLine;
+    if (coEdgeFocus === 'faces') return t.dialogue[1];
+    return t.bridge;
+  }
+  function setCoEdgeFocus(value) {
+    if (figureStage(state) !== 'faces' || viewingPosters()) return false;
+    coEdgeFocus = value;
+    if (!state.observed) { state = { ...restoreFigureState(state), observed: true }; save(); }
+    sync();
+    render();
+    onAnnounce(coEdgeFocus === 'vase' ? c().focusVaseLine : coEdgeFocus === 'faces' ? c().dialogue[1] : c().bridge);
+    return true;
+  }
   function render(focus) {
     const t = c(), label = ART_LABELS[locale], rubin = RUBIN_LABELS[locale], stage = figureStage(state), isPoster = viewingPosters();
     const retainedFocus = root.contains(document.activeElement) ? document.activeElement.id : null;
     const index = isPoster ? 0 : stages.indexOf(stage), actor = index === 2 ? 'tortoise' : 'achilles';
     const primary = isPoster ? ['to-contour', t.toContour] : stage === 'faces' ? ['ground', t.look] : ['poster', t.toPosters];
+    const coEdge = stage === 'faces' && !isPoster ? `<div class="figure-coedge" role="group" aria-label="${t.coEdgeLabel}">
+        <button type="button" class="figure-coedge-hit" id="fg-focus-vase" data-fg="focus-vase" aria-pressed="${coEdgeFocus === 'vase'}">${t.focusVase}</button>
+        <button type="button" class="figure-coedge-hit" id="fg-focus-faces" data-fg="focus-faces" aria-pressed="${coEdgeFocus === 'faces'}">${t.focusFaces}</button>
+      </div>` : '';
     root.dataset.step = stage;
     root.dataset.poster = String(isPoster);
     root.dataset.contour = String(!isPoster);
-    root.innerHTML = `<header class="figure-heading"><p>${t.eyebrow}</p><h2 id="figure-title" tabindex="-1">${t.title}</h2></header>
+    root.dataset.coedge = coEdgeFocus ?? '';
+    root.innerHTML = `<header class="figure-heading"><p>${t.eyebrow}</p><h2 id="figure-title" tabindex="-1">${t.title}</h2>${state.observed && stage === 'faces' ? `<p class="figure-observed" aria-hidden="true">${t.observed}</p>` : ''}</header>
       <div class="figure-fallback" aria-hidden="true" ${isPoster ? 'hidden' : ''}><img src="assets/art/rubin-contour.svg" alt=""></div>
+      ${coEdge}
       ${!isPoster && actor !== 'tortoise' ? `<div class="figure-reading">
-        <div class="dialogue figure-dialogue" aria-live="polite" aria-atomic="true"><span class="speaker">${COPY[locale].actors[actor]}</span><p>${t.dialogue[index]}</p></div>
+        <div class="dialogue figure-dialogue" aria-live="polite" aria-atomic="true"><span class="speaker">${COPY[locale].actors[actor]}</span><p>${achillesLine(stage)}</p></div>
       </div>` : ''}
       <div class="figure-action"><button class="figure-primary" id="fg-primary" data-fg="${primary[0]}">${primary[1]} <span aria-hidden="true">${primary[0] === 'poster' ? '←' : '→'}</span></button></div>
       <aside class="figure-notes">
@@ -54,13 +76,16 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
     if (action === 'back') { onBack(); return; }
     if (action === 'next') { onNext(); return; }
     if (action === 'close') { root.querySelector('dialog').close(); navigation.querySelector('#fg-next')?.focus(); return; }
-    if (action === 'poster') { poster = true; render('fg-primary'); sync(); onAnnounce(c().toPosters); return; }
+    if (action === 'focus-vase') { setCoEdgeFocus('vase'); return; }
+    if (action === 'focus-faces') { setCoEdgeFocus('faces'); return; }
+    if (action === 'poster') { poster = true; coEdgeFocus = null; render('fg-primary'); sync(); onAnnounce(c().toPosters); return; }
     if (action === 'to-contour') {
-      state = advanceFigure(state, action); poster = false; save(); render('fg-primary'); sync(); onAnnounce(c().toContour); return;
+      state = advanceFigure(state, action); poster = false; coEdgeFocus = null; save(); render('fg-primary'); sync(); onAnnounce(c().toContour); return;
     }
     const before = figureStage(state);
     state = advanceFigure(state, action);
     if (before === figureStage(state)) return;
+    if (before === 'faces') coEdgeFocus = null;
     save(); render('fg-primary'); sync(); onAnnounce(RUBIN_LABELS[locale].title);
   }
   root.addEventListener('click', handle); navigation.addEventListener('click', handle);
@@ -69,9 +94,13 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
     hide() { active = false; root.querySelector('dialog')?.close(); root.hidden = true; },
     setLocale(value) { locale = value; render(); if (active) sync(); },
     getState: () => state,
-    showContour() { poster=false;state=advanceFigure(state,'to-contour');save();render();sync(); },
+    showContour() { poster=false;state=advanceFigure(state,'to-contour');coEdgeFocus=null;save();render();sync(); },
     dismiss() { if (!poster) return false; poster = false; render('fg-primary'); sync(); return true; },
-    talk(id) { onMeet(id); if (id === 'achilles') onAnnounce(c().dialogue[viewingPosters() ? 0 : 1]); },
-    showPoster() { if (viewingPosters()) return; poster = true; render('fg-primary'); sync(); },
+    talk(id) { onMeet(id); if (id === 'achilles') onAnnounce(achillesLine(viewingPosters() ? 'posters' : figureStage(state))); },
+    showPoster() { if (viewingPosters()) return; poster = true; coEdgeFocus = null; render('fg-primary'); sync(); },
+    pickCoEdge(pointer, camera, scene) {
+      const mode = scene?.pickCoEdge(pointer, camera);
+      return mode ? setCoEdgeFocus(mode) : false;
+    },
   };
 }
