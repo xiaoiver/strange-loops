@@ -25,14 +25,15 @@ export function createCrab(root,{locale:initialLocale,navigation,reduced,onStage
   root.querySelector('.crab-fallback')?.setAttribute('aria-label',c().fallback);
  }
  function render(focus){
-  const t=c(),retained=root.contains(document.activeElement)?document.activeElement.id:null,detailsOpen=root.querySelector('details')?.open;
+  const t=c(),retained=root.contains(document.activeElement)?document.activeElement.id:null,dialogueOpen=root.querySelector('.crab-dialogue-sheet')?.classList.contains('is-open');
   root.innerHTML=`<header class="crab-heading"><p>${t.eyebrow}</p><h2 id="crab-title" tabindex="-1">${t.title}</h2></header>
    <div class="crab-reading"><p class="crab-stage">${t.stages[state.stage]}</p><p>${t.notes[state.stage]}</p><button id="crab-music" class="labyrinth-music" data-crab="music" aria-pressed="false"></button></div>
    <div class="crab-fallback" role="img" aria-label="${t.fallback}"><div class="crab-fallback-track"><i class="crab-marker-forward"></i><i class="crab-marker-reverse"></i>${state.notes.map((note,i)=>`<span style="--note-height:${20+(note-60)*3}px" data-fallback-note="${i}"></span>`).join('')}</div></div>
    <p class="crab-legend"><span>${t.forward}</span><span>${t.reverse}</span></p>
    <div class="dialogue crab-dialogue"><span class="speaker"></span><p></p></div>
    <div class="crab-action"><button class="figure-primary" id="crab-primary" data-crab="play">${playing?t.continue:t.actions[state.stage]} <span aria-hidden="true">→</span></button></div>
-   ${state.stage===3?`<div class="crab-explore"><div class="crab-note-buttons">${state.notes.map((note,i)=>`<button id="crab-note-${i}" data-note="${i}" aria-label="${t.noteLabel} ${i+1}" style="--note-height:${10+(note-60)*1.3}px"><i aria-hidden="true"></i><span aria-hidden="true">${String(i+1).padStart(2,'0')}</span></button>`).join('')}</div><div class="crab-explore-actions"><button class="figure-link" data-crab="reset">${t.reset}</button><button class="figure-link" data-crab="restart">${t.restart}</button></div><details ${detailsOpen?'open':''}><summary>${t.comparison}</summary><ol>${Array.from({length:7},(_,i)=>{const d=crabDialogue('together',i);return `<li><span>${actorName(d.actor)}</span>${t.lines[d.line]}</li>`;}).join('')}</ol></details></div>`:''}
+   ${state.stage===3?`<div class="crab-explore"><div class="crab-explore-actions"><button class="figure-link" data-crab="reset">${t.reset}</button><button class="figure-link" data-crab="restart">${t.restart}</button><button class="figure-link" id="crab-dialogue-open" data-crab="dialogue" aria-expanded="${dialogueOpen?'true':'false'}">${t.comparison}</button></div><div class="crab-note-buttons" aria-label="${t.noteLabel}">${state.notes.map((note,i)=>`<button id="crab-note-${i}" data-note="${i}" aria-label="${t.noteLabel} ${i+1}" style="--note-height:${10+(note-60)*1.3}px"><i aria-hidden="true"></i><span aria-hidden="true">${String(i+1).padStart(2,'0')}</span></button>`).join('')}</div></div>
+   <div class="crab-dialogue-sheet${dialogueOpen?' is-open':''}" ${dialogueOpen?'':'hidden'}><div class="crab-dialogue-sheet-panel" role="region" aria-labelledby="crab-dialogue-open"><button type="button" class="crab-dialogue-sheet-close" data-crab="close-dialogue">${t.close}</button><ol>${Array.from({length:7},(_,i)=>{const d=crabDialogue('together',i);return `<li><span class="crab-dialogue-name">${actorName(d.actor)}</span><span class="crab-dialogue-line">${t.lines[d.line]}</span></li>`;}).join('')}</ol></div></div>`:''}
    <dialog class="garden-dialog" id="crab-preview"><h3>${t.preview}</h3><button data-crab="close">${t.close}</button></dialog>`;
   navigation.innerHTML=`<button id="crab-back" data-crab="back">${t.back}</button><button id="crab-next" data-crab="next">${t.next}</button>`;
   syncSound();lastCaption='';display(playing?currentFrame:crabFrame(mode(),0));
@@ -62,6 +63,8 @@ export function createCrab(root,{locale:initialLocale,navigation,reduced,onStage
   else if(action==='close'){root.querySelector('dialog').close();navigation.querySelector('#crab-next')?.focus();}
   else if(action==='reset'){stop();state.notes=initialCrabState().notes;save();render('crab-primary');}
   else if(action==='restart'){stop();state=initialCrabState();save();onStage(mode());render('crab-primary');onAnnounce(c().notes[0]);}
+  else if(action==='dialogue'){const sheet=root.querySelector('.crab-dialogue-sheet');if(!sheet)return;sheet.hidden=false;sheet.classList.add('is-open');root.querySelector('#crab-dialogue-open')?.setAttribute('aria-expanded','true');sheet.querySelector('.crab-dialogue-sheet-close')?.focus({preventScroll:true});}
+  else if(action==='close-dialogue'){const sheet=root.querySelector('.crab-dialogue-sheet');if(!sheet)return;sheet.classList.remove('is-open');sheet.hidden=true;root.querySelector('#crab-dialogue-open')?.setAttribute('aria-expanded','false');root.querySelector('#crab-dialogue-open')?.focus({preventScroll:true});}
  }
  root.addEventListener('click',handle);navigation.addEventListener('click',handle);
  document.addEventListener('visibilitychange',()=>{if(!active||!playing)return;if(document.hidden){if(raf!==null)cancelAnimationFrame(raf);raf=null;audio.setActive(false);}else{last=performance.now();audio.setActive(true);audio.frame(currentFrame,state.notes,crabDuration(mode())/6,`${run}:${currentFrame.step}`);raf=requestAnimationFrame(tick);}});
@@ -72,7 +75,7 @@ export function createCrab(root,{locale:initialLocale,navigation,reduced,onStage
   setLocale(value){locale=value;if(active){const open=root.querySelector('dialog')?.open;render();if(open)root.querySelector('dialog').showModal();}},
   talk(id){onMeet(id);onAnnounce(c().lines[crabDialogue(mode(),currentFrame.dialogue).line]);},
   changeNote,
-  dismiss(){if(playing){finish();return true;}const details=root.querySelector('details[open]');if(details){details.open=false;return true;}return false;},
+  dismiss(){if(playing){finish();return true;}const sheet=root.querySelector('.crab-dialogue-sheet.is-open');if(sheet){sheet.classList.remove('is-open');sheet.hidden=true;root.querySelector('#crab-dialogue-open')?.setAttribute('aria-expanded','false');return true;}return false;},
   getState:()=>state,
  };
 }
