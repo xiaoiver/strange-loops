@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import fontData from 'three/examples/fonts/optimer_regular.typeface.json';
+import fontData from 'three/examples/fonts/optimer_regular.typeface.json' with {type:'json'};
 import { createExhibitFade } from './exhibit-fade.js';
 import { createLetterPile } from './letter-pile.js';
 import { displayWord, rewriteSources } from './miu-system.js';
@@ -16,7 +16,8 @@ export function createGardenScene(scene, reduced, { exitWall, shellMaterial } = 
   const font = new FontLoader().parse(fontData), geometries = new Map();
   const ink = new THREE.MeshStandardMaterial({color:0x252827,roughness:.62});
   const highlight = new THREE.MeshStandardMaterial({color:0xe9eae7,roughness:.68,emissive:0x343634,emissiveIntensity:.35});
-  const shell = shellMaterial || createFairFacedConcrete();
+  // The roof fades with this chapter; the lobby's permanent shadow receivers do not.
+  const shell = shellMaterial ? cloneWithHooks(shellMaterial) : createFairFacedConcrete();
   function box(w,h,d,material,x,y,z){
     const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
     mesh.position.set(x,y,z);mesh.castShadow=mesh.receiveShadow=true;group.add(mesh);return mesh;
