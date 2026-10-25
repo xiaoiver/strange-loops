@@ -5,6 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "preview:build": "esbuild dev/clip-preview-source.js --bundle --minify --outfile=dev/clip-preview.js",
     "test": "node --test test/*.test.js",
     "build": "node scripts/build-loading.mjs && esbuild src/main.js --bundle --minify --outfile=assets/app.js && esbuild src/sculpture-worker.js --bundle --minify --format=iife --outfile=assets/sculpture-worker.js && esbuild src/letter-pile-worker.js --bundle --minify --format=iife --outfile=assets/letter-pile-worker.js",
     "start": "python3 -m http.server 4173",

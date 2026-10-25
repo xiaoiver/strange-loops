@@ -4,7 +4,9 @@
 
 ## 当前文件
 
-- `geb-companions-jog.blend`：当前双人可编辑工程，包含人偶、低模乌龟、骨架、材质、四套人物动作、三套乌龟动作与摄影棚。默认显示 Idle 第一帧。
+- `geb-companions-motion.blend`：当前双人可编辑工程，保留 Formal 下肢和 Jog，并融合自然 Walk_Loop 肩臂摆动。
+- `refine_mannequin_arms.py`、`mannequin-natural-arms.json`：自然摆臂重定向与非肩臂曲线保持检查。
+- `geb-companions-jog.blend`：自然摆臂优化前的双人可编辑工程，包含人偶、低模乌龟、骨架、材质、四套人物动作、三套乌龟动作与摄影棚。默认显示 Idle 第一帧。
 - `optimize_mannequin.py`、`mannequin-optimization.json`、`mannequin-preview.png`：人偶优化与动作适配脚本、统计和 Cycles 双人预览。
 - `source/pollo28-mannequin.glb`：未修改的人偶原文件，保留作者与许可元数据。
 - `source/achilles-prototype-animated.glb`：替换前的本地建模角色备份。
@@ -22,7 +24,7 @@
 
 [STYLE Fortnite-creative-mannequin](https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c) by [POLLO28](https://sketchfab.com/POLLO28)，[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)。原始 GLB 约 2.30 MB，包含 89 根骨骼、9,324 面主体与一个极小辅助网格。当前移除无用对象和辅助骨骼，主体保留 5,000 面、3,704 个源顶点和 73 根骨骼；继续使用原蒙皮，限制每顶点最多四个权重并重新归一化。材质改为浅灰哑光 PBR，粗糙度 0.82、金属度 0。
 
-保留原抱臂 Idle 和 Look；Walk 使用 Quaternius Universal Animation Library Standard 的 `Walk_Formal_Loop`（CC0），在 Blender 中校准 T／A 静止姿态并转到现有骨架，按腿长缩放位移，适配鞋底接触，去掉根骨骼前进位移。网页继续独立控制路线。Draco 压缩后的 GLB 约 340 KB，含完整四套人物动作。作者、来源、许可与修改说明保存在 GLB extras、网页的中英文章节地图和 THIRD_PARTY_NOTICES.md。
+保留原抱臂 Idle 和 Look；Walk 使用 Quaternius Universal Animation Library Standard 的 `Walk_Formal_Loop`（CC0），在 Blender 中校准 T／A 静止姿态并转到现有骨架，按腿长缩放位移，适配鞋底接触，去掉根骨骼前进位移。网页继续独立控制路线。Draco 压缩后的 GLB 约 357 KB，含完整四套人物动作。作者、来源、许可与修改说明保存在 GLB extras、网页的中英文章节地图和 THIRD_PARTY_NOTICES.md。
 
 ## 动作与比例
 
@@ -54,7 +56,7 @@
 
 此步骤保留 `geb-companions-walk.blend`，另存 `geb-companions-ual.blend`，更新网页人偶 GLB 及 `mannequin-walk.json`，不改变乌龟 GLB。`mannequin-ual-walk-preview.gif` 为当前动作的 Blender 渲染预览。旧版程序生成慢走和脚本仍保留，供回退使用。
 
-动作源为 Quaternius 的 [Universal Animation Library](https://quaternius.com/packs/universalanimationlibrary.html)，许可为 CC0。用户提供的 Standard 压缩包包含原地和 `_RM` 带位移两套动画；本项目仅保留 `_RM` 中的 `Walk_Formal_Loop` 及参考模型为 `source/quaternius-walk-formal-loop.glb`，许可见 `source/quaternius-LICENSE.txt`。通过带位移动作取得原始每轮 1.30 的前进距离，再按腿长比约 1.485 转换为人偶每轮约 1.931、网页约 1.158 世界单位；循环为 1.333 秒。实际播放速度由路线位移决定，初次短距离入场也能完整切换到步行姿态。当前选用 Formal 版本，双臂摆动较小，上身更直立。
+动作源为 Quaternius 的 [Universal Animation Library](https://quaternius.com/packs/universalanimationlibrary.html)，许可为 CC0。用户提供的 Standard 压缩包包含原地和 `_RM` 带位移两套动画；本项目仅保留 `_RM` 中的 `Walk_Formal_Loop` 及参考模型为 `source/quaternius-walk-formal-loop.glb`，许可见 `source/quaternius-LICENSE.txt`。通过带位移动作取得原始每轮 1.30 的前进距离，再按腿长比约 1.485 转换为人偶每轮约 1.931、网页约 1.158 世界单位；循环为 1.333 秒。实际播放速度由路线位移决定，初次短距离入场也能完整切换到步行姿态。当前保留 Formal 下肢落脚，并叠加自然 Walk_Loop 的肩臂动作；两侧手臂与同侧腿反向摆动。
 
 自动验证使用导出的实际骨骼动画，检查支撑脚尖位置、所有骨骼的循环接缝、根骨骼无额外位移、变速与等待时的动作时间。Blender 逐帧适配两脚实际蒙皮网格的离地高度，保留原动作的脚跟落地、脚尖蹬地和抬脚时序。
 
@@ -97,3 +99,27 @@
 另存 `geb-companions-jog.blend`，原 Formal 工程保留。Jog 动作源为 `source/quaternius-jog-fwd-loop.glb`；源片段循环 0.933 秒、根位移 5.0 单位，本项目将前后步幅收至 30%、离地高度至 65%，适配轻慢跑。按腿长比缩放，并按实际脚尖支撑段校准步幅后，每轮模型 2.87224、网页 1.72335 世界单位，网页按实际位移推进动作，起停平滑混合 Idle。参数与接触检查见 `mannequin-jog.json`，近景预览为 `mannequin-ual-jog-preview.gif`（Blender 渲染）。
 
 慢跑重定向修正：先在源腿轴上提取膝盖弯曲方向，再投影到缩短步幅后的目标腿，防止膝盖反折。脚部在统一解剖坐标中限制俯仰至 −30°～75°、侧倾至 ±12°，保留转向。网页测试以每个关键帧间 8 个采样点检查膝盖、脚底、脚尖方向，并覆盖与 Idle 的五种混合权重。
+
+## 自然摆臂版本
+
+先在旧 Jog 工程上稳定 Walk 的膝盖和脚踝，再加入肩、上臂、肘与手腕的自然摆动：
+
+```sh
+mkdir -p work/companion-motion
+/Applications/Blender.app/Contents/MacOS/Blender \
+  --background outputs/characters/geb-companions-jog.blend \
+  --python outputs/characters/retarget_ual_walk.py -- --soft-walk \
+  --asset "$PWD/work/companion-motion/achilles-soft-legs.glb" \
+  --studio "$PWD/work/companion-motion/soft-walk.blend"
+/Applications/Blender.app/Contents/MacOS/Blender \
+  --background work/companion-motion/soft-walk.blend \
+  --python outputs/characters/refine_mannequin_arms.py
+```
+
+候选文件默认写到 `work/companion-motion/achilles-candidate.glb`，不会直接覆盖运行资产。`-- --asset /absolute/candidate.glb` 可指定输出。另存 `geb-companions-motion.blend`，保留原工程。使用 `ACHILLES_TEST_GLB=/absolute/candidate.glb node --test test/companion-animation.test.js`（在网页目录）验证候选后，再替换交付 GLB 并更新缓存键。
+
+`--soft-walk` 将 Walk 骨盆略降 0.025 单位，保留稳定屈膝，并统一投影膝盖弯曲方向、柔化脚踝恢复。新旧 640 段采样对比见 `mannequin-walk-quality.json`；自动测试检查膝盖不锁直、无异常角速度，以及支撑脚接触和循环。
+
+### 直立轻慢跑
+
+在完成自然摆臂的工程上运行 `retarget_ual_walk.py -- --clip Jog_Fwd_Loop --light-jog --asset /absolute/candidate.glb --studio /absolute/candidate.blend`，先导出候选，验证后替换运行 GLB 与当前工程。原 Jog 工程仍保留。该选项将躯干前倾减至约 2.5°–5.3°，缩小骨盆上下起伏、降低脚部抬升，并围绕肩臂的周期中性姿态减小相对摆幅；不向 T-pose 插值。步距、落脚、膝踝、循环、躯干姿态和回到抱臂待机均由实际 GLB 测试覆盖。

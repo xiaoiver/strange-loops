@@ -19,6 +19,18 @@ export function syncLocomotionToDistance(actor,distance,dt) {
   motion.setEffectiveTimeScale(speed*seconds/stride);
   const blend=Math.min(1,speed/(stride/seconds*.3));
   const weight=blend*blend*(3-2*blend);
-  motion.stopFading().setEffectiveWeight(weight);
-  if(idle){idle.enabled=true;idle.play();idle.stopFading().setEffectiveWeight(1-weight);}
+  if(idle){idle.enabled=true;idle.play();}
+  const transition=actor.locomotionTransition;
+  if(transition)transition.elapsed+=dt;
+  const t=transition?Math.min(1,transition.elapsed/transition.duration):1;
+  const fade=t*t*(3-2*t);
+  for(const [key,action] of Object.entries(actor.actions)){
+    const desired=key===name?weight:key==='Idle'?1-weight:0;
+    const from=transition?.weights[key]??desired;
+    action.stopFading().setEffectiveWeight(from+(desired-from)*fade);
+    // Both feet-bearing clips advance from the same actual movement during a blend.
+    const otherStride=key==='Walk'?actor.walkCycleDistance:key==='Jog'?actor.jogCycleDistance:null;
+    if(otherStride)action.setEffectiveTimeScale(speed*action.getClip().duration/otherStride);
+  }
+  if(t>=1)actor.locomotionTransition=null;
 }

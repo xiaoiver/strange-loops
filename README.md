@@ -74,6 +74,8 @@ npm start
 
 `npm run build` 会更新网页主脚本、翻牌样式及两个 Worker；修改后刷新浏览器。详细实现见[网页文档](outputs/strange-loop/README.md)。
 
+检查人物动作时，运行 `npm run preview:build`，在同一本地服务器打开 `/clip-preview.html?lang=zh`。可暂停、拖动动作相位，检查走跑切换、速度混合与头颈注视；该开发页不随展厅发布。详见[角色动作说明](outputs/strange-loop/docs/companion-motion.md)。
+
 ## 发布到 Gallery Mate
 
 在已提交的干净版本中运行：
@@ -90,7 +92,7 @@ npm run release
 ## 素材与项目结构
 
 - **阿基里斯模型**：POLLO28 的 [STYLE Fortnite-creative-mannequin](https://sketchfab.com/3d-models/style-fortnite-creative-mannequin-5da12762b03a40078e21e51a1e185e8c)，[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)，经减面、材质与动作适配。
-- **角色动作**：Quaternius [Universal Animation Library](https://quaternius.com/packs/universalanimationlibrary.html) 的 `Walk_Formal_Loop` 与 `Jog_Fwd_Loop`，CC0，经 Blender 重定向；保留原模型的抱臂待机与转头。
+- **角色动作**：Quaternius [Universal Animation Library](https://quaternius.com/packs/universalanimationlibrary.html) 的 `Walk_Formal_Loop`、自然摆臂 `Walk_Loop` 与 `Jog_Fwd_Loop`，CC0，经 Blender 重定向；保留原模型的抱臂待机与转头。
 - **乌龟**：由用户使用 Tripo 生成，经 Blender 清理、减面与骨骼绑定。
 - **展品**：《龙虾》海报由 Vasilis Marmatakis 设计，逐幅来源见展签与[素材声明](THIRD_PARTY_NOTICES.md)；Rubin 墙体使用原创轮廓，标注研究出处。项目未包含原书全文、封面扫描或埃舍尔原画。
 

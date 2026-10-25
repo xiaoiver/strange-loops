@@ -182,17 +182,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## Quaternius Walk_Formal_Loop (Achilles animation)
+## Quaternius Walk_Formal_Loop and Walk_Loop (Achilles animation)
 
 - Author: **Quaternius**. Source: https://quaternius.com/packs/universalanimationlibrary.html
 - License: **CC0 1.0 Universal**, https://creativecommons.org/publicdomain/zero/1.0/ . The supplied archive's license is preserved at `outputs/characters/source/quaternius-LICENSE.txt`.
-- The user supplied `Universal Animation Library[Standard].zip`. `Walk_Formal_Loop` and its reference mannequin were extracted from `Unreal-Godot/UAL1_Standard_RM.glb`; the extracted clip is preserved in `outputs/characters/source/quaternius-walk-formal-loop.glb`. The earlier `Walk_Loop` reference is preserved separately as `quaternius-walk-loop.glb`; the retargeted formal walk and chapter-passage jog are shipped in the website runtime.
-- Adaptation: Blender rest-pose calibration and retargeting to the existing POLLO28 skeleton, proportional pelvis/limb movement, shoe-contact fitting, removal of root translation, and distance-driven playback. The runtime `Achilles_Walk` is derived from this clip. The POLLO28 mesh and its CC BY 4.0 attribution remain separate and unchanged.
+- The user supplied `Universal Animation Library[Standard].zip`. `Walk_Formal_Loop` and its reference mannequin were extracted from `Unreal-Godot/UAL1_Standard_RM.glb`; the extracted clip is preserved in `outputs/characters/source/quaternius-walk-formal-loop.glb`. The `Walk_Loop` reference is preserved separately as `quaternius-walk-loop.glb`. Its shoulders, arms, elbows and wrists are now retargeted and phase-aligned onto the Formal lower body by `outputs/characters/refine_mannequin_arms.py`; Idle, Look and Jog are preserved. The runtime therefore ships an adapted composite walk, alongside the chapter-passage jog.
+- Adaptation: Blender rest-pose calibration and retargeting to the existing POLLO28 skeleton, proportional pelvis/limb movement, shoe-contact fitting, removal of root translation, and distance-driven playback. The runtime `Achilles_Walk` combines the Formal lower body with phase-aligned `Walk_Loop` arms. The walk additionally uses soft-knee pelvis clearance, a stable projected knee pole and cyclic ankle smoothing, authored in Blender. The POLLO28 mesh and its CC BY 4.0 attribution remain separate and unchanged.
 - Editable project: `outputs/characters/geb-companions-ual.blend`; reproducible retarget script: `outputs/characters/retarget_ual_walk.py`. Original Idle / Look and the tortoise are preserved.
 
 The chapter-map credits show the animation package, selected clips, Quaternius author and CC0 1.0 license links beside the model credit in all seven interface languages; the Chinese static HTML fallback includes the same animation credit.
 
-The chapter passage additionally uses Quaternius `Jog_Fwd_Loop` from the same CC0 Standard archive, preserved as `outputs/characters/source/quaternius-jog-fwd-loop.glb`. The original source's large stride and flight height are adapted to a light jog (30% longitudinal excursion, 65% sole clearance and pelvis lift), then fitted to the existing rig and shoes; root translation is removed. The runtime `Achilles_Jog` is distance-driven. Both selected clip names are listed in the seven-language map credit. The editable four-action studio is `outputs/characters/geb-companions-jog.blend`.
+The chapter passage additionally uses Quaternius `Jog_Fwd_Loop` from the same CC0 Standard archive, preserved as `outputs/characters/source/quaternius-jog-fwd-loop.glb`. The original source's large stride and flight height are adapted to a light jog (30% longitudinal excursion, 40% sole clearance in the light-jog revision, with separately reduced pelvis bounce), then fitted to the existing rig and shoes; root translation is removed. The runtime `Achilles_Jog` is distance-driven. The light-jog revision reduces trunk lean and coordinates the shoulder/arm motion around its neutral running pose. Both selected clip names are listed in the seven-language map credit. The current editable four-action studio is `outputs/characters/geb-companions-motion.blend`; the previous `geb-companions-jog.blend` remains available.
 
 ## Google Draco decoders
 

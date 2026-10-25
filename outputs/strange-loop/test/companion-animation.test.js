@@ -3,17 +3,22 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { AnimationMixer, Quaternion, Vector3 } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { playCompanionAnimation as play } from '../src/companion-animation.js';
+import { playCompanionAnimation as play, alignedLocomotionTime } from '../src/companion-animation.js';
 import { syncLocomotionToDistance, walkProgress } from '../src/companion-locomotion.js';
+import { createCompanionGaze, restoreCompanionGaze, applyCompanionGaze, companionBodyYaw } from '../src/companion-gaze.js';
+import { createCompanionActor, updateCompanionPose } from '../src/companion-rig.js';
+import { createCompanionPreview } from '../src/companion-preview-controller.js';
 
 async function achilles() {
   // Exercise the shipped rig and clips without needing a GPU or Draco mesh decode.
   // Keep all animation accessors and the original binary buffer intact.
-  const raw = await readFile(new URL('../assets/characters/achilles.glb', import.meta.url));
+  const raw = await readFile(process.env.ACHILLES_TEST_GLB || new URL('../assets/characters/achilles.glb', import.meta.url));
   const jsonLength = raw.readUInt32LE(12);
   const json = JSON.parse(raw.subarray(20, 20 + jsonLength));
   for (const node of json.nodes) { delete node.mesh; delete node.skin; }
-  delete json.meshes; delete json.skins;
+  // Keep joint definitions so GLTFLoader constructs real Bones. Mesh decoding
+  // is still unnecessary; deleting skins made bone-only seam loops vacuous.
+  delete json.meshes;
   delete json.extensionsRequired; delete json.extensionsUsed;
   let chunk = Buffer.from(JSON.stringify(json));
   chunk = Buffer.concat([chunk, Buffer.alloc((4 - chunk.length % 4) % 4, 32)]);
@@ -30,8 +35,187 @@ async function achilles() {
   // Fail clearly if the exported skeleton is replaced or renamed.
   assert.ok(arms.every(Boolean));
   const metadata=gltf.scene.getObjectByName('Achilles').userData;
-  return { root:gltf.scene, mixer, actions, arms, walkCycleDistance:metadata.walk_cycle_distance*.6, jogCycleDistance:metadata.jog_cycle_distance*.6, metadata, current: null, clipAge: 0 };
+  return { gltf, root:gltf.scene, mixer, actions, arms, walkCycleDistance:metadata.walk_cycle_distance*.6, jogCycleDistance:metadata.jog_cycle_distance*.6, metadata, current: null, clipAge: 0 };
 }
+
+test('distance-driven starts preserve the fade and all scheduled pose weights sum to one', async () => {
+  const actor = await achilles(); play(actor, 'Idle'); actor.mixer.update(.4); play(actor, 'Walk');
+  let previousWeight = 0;
+  for (let frame = 0; frame < 30; frame++) {
+    syncLocomotionToDistance(actor, .8 / 60, 1 / 60); actor.mixer.update(1 / 60);
+    const weight = actor.actions.Walk.getEffectiveWeight();
+    if (!frame) assert.ok(weight < .05, 'distance update skipped the fade');
+    assert.ok(weight >= previousWeight - 1e-8); previousWeight = weight;
+    const total = Object.values(actor.actions).filter(action => action.isScheduled() && action.enabled).reduce((sum, action) => sum + action.getEffectiveWeight(), 0);
+    assert.ok(Math.abs(total - 1) < 1e-6, `pose weight sum ${total}`);
+  }
+  assert.equal(actor.actions.Walk.getEffectiveWeight(), 1);
+});
+
+test('natural walking arms have a visible counter-swing synchronized to the opposite leg', async () => {
+  const actor = await achilles();
+  assert.equal(actor.metadata.walk_upper_body_source_clip, 'Walk_Loop');
+  assert.equal(actor.metadata.walk_upper_body_license, 'CC0-1.0');
+  const wrists = ['hand_l_21', 'hand_r_49'].map(name => actor.root.getObjectByName(name));
+  const feet = ['foot_l_68', 'foot_r_75'].map(name => actor.root.getObjectByName(name));
+  assert.ok(wrists.every(Boolean)); play(actor, 'Walk');
+  const samples = [];
+  for (let step = 0; step < 80; step++) {
+    actor.actions.Walk.time = actor.actions.Walk.getClip().duration * step / 80;
+    actor.mixer.update(0); actor.root.updateMatrixWorld(true);
+    samples.push({hands:wrists.map(bone => bone.getWorldPosition(new Vector3()).z),feet:feet.map(bone => bone.getWorldPosition(new Vector3()).z)});
+  }
+  for (let side = 0; side < 2; side++) {
+    const hands = samples.map(sample => sample.hands[side]), feet = samples.map(sample => sample.feet[side]);
+    const mean = values => values.reduce((sum, value) => sum + value, 0) / values.length;
+    const handMean = mean(hands), footMean = mean(feet);
+    assert.ok(Math.max(...hands) - Math.min(...hands) > .35, 'arm swing remains too small');
+    const covariance = hands.reduce((sum, value, i) => sum + (value - handMean) * (feet[i] - footMean), 0);
+    assert.ok(covariance < 0, 'same-side arm and leg should counter-swing');
+  }
+});
+
+test('walking knees keep a stable forward bend and avoid the near-straight support snap', async () => {
+  const actor = await achilles(); play(actor, 'Walk');
+  assert.equal(actor.metadata.walk_soft_knee_hip_drop, .025);
+  const legs = [['thigh_l_71', 'calf_l_69', 'foot_l_68'], ['thigh_r_78', 'calf_r_76', 'foot_r_75']]
+    .map(names => names.map(name => actor.root.getObjectByName(name)));
+  const previous = new Map();
+  for (let step = 0; step <= 640; step++) {
+    actor.actions.Walk.time = actor.actions.Walk.getClip().duration * step / 640;
+    actor.mixer.update(0); actor.root.updateMatrixWorld(true);
+    for (const [hip, knee, foot] of legs) {
+      const h = hip.getWorldPosition(new Vector3()), k = knee.getWorldPosition(new Vector3()), a = foot.getWorldPosition(new Vector3());
+      const axis = a.sub(h).normalize(), bend = k.sub(h); bend.addScaledVector(axis, -bend.dot(axis));
+      // The former right knee approached 0.0066 model units from straight.
+      assert.ok(bend.z > .08, `${knee.name} locks or changes bending plane at ${step}/640`);
+      for (const bone of [hip, knee]) {
+        const q = bone.getWorldQuaternion(new Quaternion());
+        if (previous.has(bone)) assert.ok(q.angleTo(previous.get(bone)) < .011, `${bone.name} snaps at ${step}/640`);
+        previous.set(bone, q);
+      }
+    }
+  }
+});
+
+test('light jog keeps the trunk upright and limits the pelvis bounce without raising the arms into a T-pose', async () => {
+  const actor = await achilles(); play(actor, 'Jog');
+  assert.ok(actor.metadata.jog_posture?.includes('upright light jog'));
+  const hips = [];
+  for (let step = 0; step <= 224; step++) {
+    actor.actions.Jog.time = actor.actions.Jog.getClip().duration * step / 224;
+    actor.mixer.update(0); actor.root.updateMatrixWorld(true);
+    const hip = actor.root.getObjectByName('pelvis_79').getWorldPosition(new Vector3());
+    const neck = actor.root.getObjectByName('neck_01_59').getWorldPosition(new Vector3());
+    hips.push(hip.y);
+    const direction = neck.clone().sub(hip), lean = Math.atan2(direction.z, direction.y) * 180 / Math.PI;
+    assert.ok(lean > -3 && lean < 8, `trunk leans ${lean} degrees at ${step}/224`);
+    for (const name of ['hand_l_21', 'hand_r_49']) {
+      const wrist = actor.root.getObjectByName(name).getWorldPosition(new Vector3());
+      assert.ok(wrist.y < neck.y - .15, 'running arm lost its lowered neutral posture');
+    }
+    for (const [shoulderName, elbowName] of [['upperarm_l_27', 'lowerarm_l_24'], ['upperarm_r_55', 'lowerarm_r_52']]) {
+      const shoulder = actor.root.getObjectByName(shoulderName).getWorldPosition(new Vector3());
+      const elbow = actor.root.getObjectByName(elbowName).getWorldPosition(new Vector3());
+      const arm = elbow.sub(shoulder);
+      assert.ok(Math.abs(arm.x) / arm.length() < .62, 'jogging elbow flares too far out');
+    }
+  }
+  assert.ok(Math.max(...hips) - Math.min(...hips) < .12, 'pelvis still has the full-stride running bounce');
+});
+
+test('Walk and Jog align support phase and survive an interrupted blend without over-weighting', async () => {
+  const actor = await achilles(); play(actor, 'Walk');
+  for (const phase of [.1, .35, .6, .85]) {
+    actor.actions.Walk.time = actor.actions.Walk.getClip().duration * phase; actor.current = 'Walk';
+    const expected = alignedLocomotionTime(actor.actions.Walk, actor.actions.Jog, 'Walk', 'Jog');
+    play(actor, 'Jog'); assert.ok(Math.abs(actor.actions.Jog.time - expected) < 1e-8);
+    for (let frame = 0; frame < 8; frame++) {syncLocomotionToDistance(actor, 1.2 / 60, 1 / 60); actor.mixer.update(1 / 60);}
+    const reverse = alignedLocomotionTime(actor.actions.Jog, actor.actions.Walk, 'Jog', 'Walk');
+    play(actor, 'Walk'); assert.ok(Math.abs(actor.actions.Walk.time - reverse) < 1e-8);
+    for (let frame = 0; frame < 30; frame++) {
+      syncLocomotionToDistance(actor, 1.2 / 60, 1 / 60); actor.mixer.update(1 / 60);
+      const total = Object.values(actor.actions).filter(action => action.isScheduled() && action.enabled).reduce((sum, action) => sum + action.getEffectiveWeight(), 0);
+      assert.ok(Math.abs(total - 1) < 1e-6, `interrupted pose weight sum ${total}`);
+    }
+  }
+});
+
+test('gaze only layers head and neck, preserves folded arms and never accumulates', async () => {
+  const actor = await achilles(); play(actor, 'Idle'); actor.mixer.update(.5);
+  actor.gaze = createCompanionGaze(actor.root, 'achilles'); assert.equal(actor.gaze.bones.length, 3);
+  const folded = actor.arms.map(bone => bone.quaternion.clone()), head = actor.root.getObjectByName('head_57');
+  const target = head.getWorldPosition(new Vector3()).add(new Vector3(3, 1, 5));
+  for (let frame = 0; frame < 180; frame++) {
+    restoreCompanionGaze(actor.gaze); actor.mixer.update(0); applyCompanionGaze(actor.gaze, target, 1 / 60);
+    assert.ok(Math.abs(actor.gaze.yaw) <= 28 * Math.PI / 180 + 1e-6);
+    assert.ok(Math.abs(actor.gaze.pitch) <= 12 * Math.PI / 180 + 1e-6);
+    actor.arms.forEach((bone, i) => bone.quaternion.toArray().forEach((value, j) => assert.ok(Math.abs(value - folded[i].toArray()[j]) < 1e-7)));
+  }
+  const settled = head.quaternion.clone();
+  for (let frame = 0; frame < 180; frame++) {
+    restoreCompanionGaze(actor.gaze); actor.mixer.update(0); applyCompanionGaze(actor.gaze, target, 1 / 60);
+  }
+  assert.ok(head.quaternion.angleTo(settled) < 1e-5, 'gaze fed back into the next pose');
+  applyCompanionGaze(actor.gaze, target, 1 / 60, {reduced:true});
+  assert.equal(actor.gaze.yaw, 0); assert.equal(actor.gaze.pitch, 0);
+  assert.ok(head.quaternion.angleTo(actor.gaze.bones.at(-1).base) < 1e-6);
+  assert.equal(createCompanionGaze(actor.root, 'tortoise'), null);
+});
+
+test('shipped feet stay forward and soles stay upright throughout live Walk/Jog crossfades', async () => {
+  const actor = await achilles();
+  const feet = ['foot_l_68', 'foot_r_75'].map(name => actor.root.getObjectByName(name));
+  assert.ok(feet.every(Boolean));
+  actor.root.updateMatrixWorld(true);
+  const rest = new Map(feet.map(foot => [foot, foot.getWorldQuaternion(new Quaternion()).invert()]));
+  for (const from of ['Walk', 'Jog']) for (const phase of [.05, .3, .55, .8]) {
+    actor.mixer.stopAllAction(); actor.current = null; play(actor, from);
+    actor.actions[from].time = phase * actor.actions[from].getClip().duration;
+    actor.mixer.update(0); play(actor, from === 'Walk' ? 'Jog' : 'Walk');
+    for (let frame = 0; frame < 30; frame++) {
+      syncLocomotionToDistance(actor, 1.2 / 60, 1 / 60); actor.mixer.update(1 / 60); actor.root.updateMatrixWorld(true);
+      for (const foot of feet) {
+        const rotation = foot.getWorldQuaternion(new Quaternion()).multiply(rest.get(foot));
+        const up = new Vector3(0, 1, 0).applyQuaternion(rotation);
+        const forward = new Vector3(0, 0, 1).applyQuaternion(rotation);
+        // Formal's toe-off approaches vertical; unlike the compact jog, it
+        // should not inherit the stricter 0.15 jog-only clearance threshold.
+        assert.ok(up.y > 0, `${foot.name} inverted: phase=${phase}, frame=${frame}, ${from}`);
+        assert.ok(forward.z > 0, `${foot.name} backwards during ${from} transition`);
+      }
+    }
+  }
+});
+
+test('shared pose update preserves reduced-motion idle and returns Look to Idle with gaze active', async () => {
+  const fixture = await achilles(), actor = createCompanionActor(fixture.gltf, {id:'achilles', scale:.6});
+  assert.ok(actor.gaze, 'shipped GLB has the expected head and neck joints');
+  assert.ok(Math.abs(actor.walkCycleDistance - fixture.walkCycleDistance) < 1e-8);
+  play(actor, 'Idle'); updateCompanionPose(actor, 0, {reduced:true});
+  const folded = fixture.arms.map(bone => bone.quaternion.clone()); play(actor, 'Look');
+  for (let frame = 0; frame < 180; frame++) updateCompanionPose(actor, 1 / 60, {gaze:true,target:new Vector3(.5, 1.5, 2)});
+  assert.equal(actor.current, 'Idle');
+  fixture.arms.forEach((bone, i) => assert.ok(bone.quaternion.angleTo(folded[i]) < .001));
+  assert.equal(companionBodyYaw(0, .15, true), 0);
+  assert.equal(companionBodyYaw(0, .15, false), .15);
+});
+
+test('preview pause, scrub and manual blend preserve production clip phases', async () => {
+  const actor = await achilles(), preview = createCompanionPreview(actor, {paused:true});
+  assert.equal(preview.select('Walk'), true); preview.setSpeed(.8); preview.update(1);
+  assert.equal(actor.actions.Walk.time, 0);
+  preview.seek(.35); assert.ok(Math.abs(actor.actions.Walk.time / actor.actions.Walk.getClip().duration - .35) < 1e-8);
+  const pausedTime = actor.actions.Walk.time; preview.setManualWeight(.4);
+  assert.equal(actor.actions.Walk.getEffectiveWeight(), .4); assert.equal(actor.actions.Idle.getEffectiveWeight(), .6);
+  assert.equal(actor.actions.Walk.time, pausedTime);
+  preview.setManualWeight(null); preview.paused = false;
+  for (let frame = 0; frame < 60; frame++) preview.update(1 / 60);
+  assert.ok(preview.distance > 0); assert.notEqual(actor.actions.Walk.time, pausedTime);
+  preview.paused = true; const stopped = actor.actions.Walk.time; preview.update(1);
+  assert.equal(actor.actions.Walk.time, stopped); assert.equal(preview.select('Missing'), false);
+  preview.reset(); assert.equal(actor.actions.Walk.time, 0); assert.equal(preview.distance, 0);
+});
 
 test('Look → Idle keeps the shipped mannequin’s arms folded throughout the blend', async () => {
   const actor = await achilles();
@@ -82,6 +266,7 @@ test('the retargeted library walk keeps support toes planted and closes its loop
     for(const point of points)assert.ok(point.distanceTo(points[0])<.025,`${name} support slides ${point.distanceTo(points[0])}`);
   }
   const bones=[];actor.root.traverse(node=>{if(node.isBone)bones.push(node);});
+  assert.ok(bones.length >= 70, 'seam checks must exercise the actual skeleton');
   actor.mixer.setTime(0);actor.root.updateMatrixWorld(true);
   const first=bones.map(bone=>({position:bone.position.clone(),rotation:bone.quaternion.clone()}));
   actor.mixer.setTime(duration-1e-6);actor.root.updateMatrixWorld(true);
@@ -148,6 +333,7 @@ test('the jogging clip loops continuously, has no root drift and follows actual 
   for(const point of points)assert.ok(point.distanceTo(points[0])<.008,name+' jogging support slide');
  }
  const bones=[];actor.root.traverse(node=>{if(node.isBone)bones.push(node);});
+ assert.ok(bones.length >= 70, 'jog seam checks must exercise the actual skeleton');
  actor.mixer.setTime(0);
  const first=bones.map(bone=>({position:bone.position.clone(),rotation:bone.quaternion.clone()}));
  actor.mixer.setTime(duration-1e-6);

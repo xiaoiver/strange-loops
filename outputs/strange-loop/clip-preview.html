@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Strange Loops · 动作预览</title>
+  <link rel="stylesheet" href="dev/clip-preview.css">
+</head>
+<body>
+  <header><a href="./">STRANGE LOOPS</a><span data-copy="developer">开发工具</span><button id="language" type="button">EN</button></header>
+  <main>
+    <aside aria-labelledby="title">
+      <p class="eyebrow">01 / CHARACTER STUDY</p>
+      <h1 id="title" data-copy="title">动作预览</h1>
+      <p class="intro" data-copy="intro">近看每一个动作，检查起停、落脚与视线。</p>
+      <fieldset id="controls" disabled>
+        <label><span data-copy="character">角色</span><select id="character"><option value="achilles" data-copy="achilles">阿基里斯</option><option value="tortoise" data-copy="tortoise">乌龟</option></select></label>
+        <label><span data-copy="clip">动作</span><select id="clip"><option value="Idle">Idle</option><option value="Walk" selected data-copy="walk">Walk · 自然摆臂</option><option value="Jog" data-copy="jog">Jog · 轻慢跑</option><option value="Look">Look</option></select></label>
+        <div class="transport"><button id="play" type="button" data-copy="pause">暂停</button><button id="reset" type="button" data-copy="reset">从头播放</button></div>
+        <label for="speed"><span><span data-copy="speed">行进速度</span><output id="speed-value" aria-hidden="true">0.80</output></span><input id="speed" type="range" min="0" max="3" value="0.8" step="0.02"></label>
+        <label for="phase"><span><span data-copy="phase">动作相位</span><output id="phase-value" aria-hidden="true">0%</output></span><input id="phase" type="range" min="0" max="0.9999" value="0" step="0.0001"></label>
+        <p class="hint" data-copy="scrub">拖动相位会暂停。滚轮缩放，拖动观察角度。</p>
+        <label class="check"><input id="automatic" type="checkbox" checked><span data-copy="automatic">按速度自动混合待机</span></label>
+        <label for="weight"><span><span data-copy="weight">步态权重</span><output id="weight-value" aria-hidden="true">100%</output></span><input id="weight" type="range" min="0" max="1" value="1" step="0.01" disabled></label>
+        <label><span data-copy="gaze">静止时注视</span><select id="gaze"><option value="off" data-copy="off">关闭</option><option value="left" data-copy="left">左侧</option><option value="right" data-copy="right">右侧</option><option value="camera" data-copy="camera">镜头</option></select></label>
+      </fieldset>
+      <p id="status" role="status" data-copy="loading">正在加载角色…</p>
+    </aside>
+    <section class="stage" aria-label="3D character preview">
+      <canvas id="stage"></canvas>
+      <p class="stage-label"><span id="actor-title">ACHILLES</span><span data-copy="stageHint">同一模型 · 同一播放逻辑</span></p>
+      <dl class="telemetry" aria-label="Animation state">
+        <div><dt>CLIP</dt><dd id="metric-clip">—</dd></div><div><dt>TIME</dt><dd id="metric-time">—</dd></div><div><dt>RATE</dt><dd id="metric-rate">—</dd></div><div><dt>IDLE / GAIT</dt><dd id="metric-blend">—</dd></div>
+      </dl>
+    </section>
+  </main>
+  <footer><span data-copy="footer">本地预览，不随展厅发布</span><span>POLLO28 · Quaternius · Tripo</span></footer>
+  <script src="dev/clip-preview.js" defer></script>
+</body>
+</html>
