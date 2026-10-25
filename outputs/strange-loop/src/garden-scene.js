@@ -7,14 +7,16 @@ import { createLetterPile } from './letter-pile.js';
 import { displayWord, rewriteSources } from './miu-system.js';
 import { GARDEN_EXIT } from './chapter-passage.js';
 import { passageGeometry, applyPassageOcclusion } from './passage-occlusion.js';
+import { createFairFacedConcrete } from './fair-faced-concrete.js';
+import { cloneWithHooks } from './shader-hooks.js';
 
-export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = {}) {
-  const group = new THREE.Group(); group.visible = false; scene.add(group);
+export function createGardenScene(scene, reduced, { exitWall, shellMaterial } = {}) {
+  const group = new THREE.Group(); group.name = 'garden-hall'; group.visible = false; scene.add(group);
   const fade = createExhibitFade(group, { anchorY: -3.8, lift: .12, shrink: .018 });
   const font = new FontLoader().parse(fontData), geometries = new Map();
   const ink = new THREE.MeshStandardMaterial({color:0x252827,roughness:.62});
   const highlight = new THREE.MeshStandardMaterial({color:0xe9eae7,roughness:.68,emissive:0x343634,emissiveIntensity:.35});
-  const pale = new THREE.MeshStandardMaterial({color:0xe0e0de,roughness:.9});
+  const shell = shellMaterial || createFairFacedConcrete();
   function box(w,h,d,material,x,y,z){
     const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
     mesh.position.set(x,y,z);mesh.castShadow=mesh.receiveShadow=true;group.add(mesh);return mesh;
@@ -26,7 +28,7 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
   // Open the existing wall instead of placing a dark rectangle on its surface.
   const lobbyWallGeometry = exitWall?.geometry, lobbyWallMaterial=exitWall?.material;
   const lobbyWallCastShadow=exitWall?.castShadow, doorZ=GARDEN_EXIT.z, doorScale=.8;
-  const doorwayWallMaterial=lobbyWallMaterial?.clone();
+  const doorwayWallMaterial=lobbyWallMaterial?cloneWithHooks(lobbyWallMaterial):undefined;
   // The gallery wall must occlude light on both sides of the opening.
   if(doorwayWallMaterial)doorwayWallMaterial.shadowSide=THREE.DoubleSide;
   let doorwayWallGeometry;
@@ -46,8 +48,8 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
     if(occlusion){mesh.geometry.dispose();mesh.geometry=passageGeometry(w,h,d,x,y,z);}
     doorway.add(mesh);return mesh;
   }
-  const reveal = new THREE.MeshStandardMaterial({color:0xd7d8d5,roughness:.94});
-  const passageFloor=floorMaterial?.clone()||new THREE.MeshStandardMaterial({color:0xd6d6d5,roughness:.84});
+  const reveal = cloneWithHooks(shell);
+  const passageFloor = cloneWithHooks(shell);
   for(const material of [reveal,passageFloor])applyPassageOcclusion(material);
   const darkness = new THREE.MeshStandardMaterial({color:0x101312,roughness:1,envMapIntensity:0,fog:false});
   // Continuous jambs avoid a painted light/dark seam partway into the passage.
@@ -64,7 +66,7 @@ export function createGardenScene(scene, reduced, { exitWall, floorMaterial } = 
   // creates one continuous band on the wall and floor, including object shadows.
   const roofY=5.7, apertureBack=-5.55, apertureFront=-2.08, apertureCenter=(apertureBack+apertureFront)/2;
   const roof=new THREE.Group();roof.position.y=roofY;roof.rotation.y=-Math.atan(.2);group.add(roof);
-  function roofBox(w,d,x,z){const mesh=box(w,.12,d,pale,x,0,z);roof.add(mesh);}
+  function roofBox(w,d,x,z){const mesh=box(w,.12,d,shell,x,0,z);roof.add(mesh);}
   roofBox(40,apertureBack+20,0,(-20+apertureBack)/2);
   roofBox(40,20-apertureFront,0,(20+apertureFront)/2);
   roofBox(12,apertureFront-apertureBack,-14,apertureCenter);

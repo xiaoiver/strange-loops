@@ -7,6 +7,7 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { applySoftShadows } from './soft-shadows.js';
+import { createFairFacedConcrete } from './fair-faced-concrete.js';
 import { COPY } from './copy.js';
 import { FIGURE_COPY } from './figure-ground-copy.js';
 import { figureStage } from './figure-ground-system.js';
@@ -261,27 +262,31 @@ async function init(){
   camera=new THREE.PerspectiveCamera(34,innerWidth/innerHeight,.1,150);clock=new THREE.Clock();
   const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment();
   scene.environment=pmrem.fromScene(room,.03).texture;scene.environmentIntensity=.22;room.dispose();pmrem.dispose();
-  const tex=microTexture(),floorMat=new THREE.MeshStandardMaterial({color:0xd6d6d5,roughness:.84});
-  const wallMat=new THREE.MeshStandardMaterial({color:0xe2e2e1,roughness:.92});
+  const tex=microTexture();
+  // Floor and walls share one fair-faced pour. The shader keeps the floor troweled
+  // and puts board joints only on vertical and soffit faces.
+  const shell=createFairFacedConcrete();
   // Three perpendicular receivers. Each is illuminated normally by one collimated source.
   // G falls on z-, E on x-, B on y-. No silhouette textures or compositing.
-  plane(42,42,floorMat,17.2,-3.8,17.2,-Math.PI/2);
-  plane(42,42,wallMat,17.2,17.2,-3.8);
-  const exitWall=plane(42,42,wallMat,-3.8,17.2,17.2,0,Math.PI/2);
+  plane(42,42,shell,17.2,-3.8,17.2,-Math.PI/2);
+  plane(42,42,shell,17.2,17.2,-3.8);
+  const exitWall=plane(42,42,shell,-3.8,17.2,17.2,0,Math.PI/2);
   // An original solid created by intersecting three perpendicular letter extrusions.
   const modelData=await fetch('assets/sculpture.bin?v=smooth4',{signal:AbortSignal.timeout(20000)}).then(r=>{if(!r.ok)throw Error('sculpture');return r.arrayBuffer()});
   const geometry=binToGeometry(modelData);
   graphiteMaterial=new THREE.MeshStandardMaterial({color:0x292c2b,metalness:.18,roughness:.44,bumpMap:tex,bumpScale:.008});
   graphiteMaterial.shadowSide=THREE.DoubleSide;
-  for(const material of [graphiteMaterial,floorMat,wallMat])applySoftShadows(material,innerWidth<=760);
+  for(const material of [graphiteMaterial,shell])applySoftShadows(material,innerWidth<=760);
   sculpture=new THREE.Mesh(geometry,graphiteMaterial);sculpture.position.y=-.12;sculpture.castShadow=sculpture.receiveShadow=true;scene.add(sculpture);fadeSculpture=createExhibitFade(sculpture);
-  gardenScene=createGardenScene(scene,reduced,{exitWall,floorMaterial:floorMat});
+  gardenScene=createGardenScene(scene,reduced,{exitWall,shellMaterial:shell});
   figureScene=createFigureGroundScene(scene,reduced,refreshShadows);
   labyrinthScene=createLabyrinthScene(scene,reduced,()=>{if(renderer)renderer.shadowMap.needsUpdate=true;});
   garden.setLocale(locale);
   if(inGarden){sculpture.visible=false;gardenScene.setVisible(true);}
   currentLetters=DEFAULT_LETTERS;
-  const ambient=new THREE.HemisphereLight(0xf4f4f3,0x8c8d8c,.22);scene.add(ambient);
+  // Cooler ground and a little more sky so the concrete shade stays open
+  // without lifting the three letter projections off the walls.
+  const ambient=new THREE.HemisphereLight(0xf3f4f2,0x727672,.30);scene.add(ambient);
   const lightSet=[['G',[0,0,8],3.4],['E',[8,0,0],2.8],['B',[0,8,0],3.1]];
   for(const [letter,position,intensity]of lightSet){
    const light=new THREE.DirectionalLight(0xf5f5f4,intensity);light.position.set(...position);light.target.position.set(0,0,0);

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { chainShaderHook } from './shader-hooks.js';
 
 // Cosine-weighted sky visibility through the only opening in a closed passage.
 // This bakes the missing architectural AO for the global environment lighting;
@@ -38,11 +39,10 @@ export function passageGeometry(w,h,d,x,y,z) {
 }
 
 export function applyPassageOcclusion(material) {
-  material.onBeforeCompile=shader=>{
+  chainShaderHook(material, shader => {
     shader.vertexShader='attribute float passageOcclusion;\nvarying float vPassageOcclusion;\n'+shader.vertexShader;
     shader.vertexShader=shader.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\nvPassageOcclusion = passageOcclusion;');
     shader.fragmentShader='varying float vPassageOcclusion;\n'+shader.fragmentShader;
     shader.fragmentShader=shader.fragmentShader.replace('#include <aomap_fragment>','#include <aomap_fragment>\nreflectedLight.indirectDiffuse *= vPassageOcclusion;\nreflectedLight.indirectSpecular *= vPassageOcclusion;');
-  };
-  material.customProgramCacheKey=()=> 'passage-occlusion-v1';
+  }, 'passage-occlusion-v1');
 }

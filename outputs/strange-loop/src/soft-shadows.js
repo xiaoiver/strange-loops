@@ -1,4 +1,5 @@
 import { ShaderChunk } from 'three';
+import { chainShaderHook } from './shader-hooks.js';
 
 // PCSS for this scene's orthographic directional shadow cameras.
 // Shadow cameras share a 10-unit width and a linear depth range of 19.9 units.
@@ -63,7 +64,7 @@ float gebPCSS( sampler2D depths, vec2 mapSize, vec3 coord ) {
 }
 
 export function applySoftShadows(material, mobile) {
-  material.onBeforeCompile = shader => {
+  chainShaderHook(material, shader => {
     shader.uniforms.uPcssEnabled = softShadowSettings.enabled;
     shader.uniforms.uPcssAngularRadius = softShadowSettings.angularRadius;
     const original = ShaderChunk.shadowmap_pars_fragment;
@@ -87,6 +88,5 @@ export function applySoftShadows(material, mobile) {
       '( directLight.visible && receiveShadow && dot( geometryNormal, directLight.direction ) > 0.0001 ) ? getShadow( directionalShadowMap'
     );
     shader.fragmentShader = shader.fragmentShader.replace('#include <lights_fragment_begin>', lights);
-  };
-  material.customProgramCacheKey = () => `geb-pcss-v1-${mobile ? 'mobile' : 'desktop'}`;
+  }, `geb-pcss-v1-${mobile ? 'mobile' : 'desktop'}`);
 }

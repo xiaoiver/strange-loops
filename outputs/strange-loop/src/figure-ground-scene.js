@@ -4,29 +4,29 @@ import { traceProfile } from './rubin-contour.js';
 import { figureStage } from './figure-ground-system.js';
 import { LOBSTER_POSTERS } from './gallery-art.js';
 import { applySoftShadows } from './soft-shadows.js';
+import { createFairFacedConcrete } from './fair-faced-concrete.js';
 
 export function createFigureGroundScene(scene, reduced, invalidate) {
   const group = new THREE.Group(); group.name = 'figure-ground-gallery'; group.visible = false; scene.add(group);
-  const pale = new THREE.MeshStandardMaterial({ color: 0xd7d8d4, roughness: .92 });
-  const paper = new THREE.MeshStandardMaterial({ color: 0xe9e9e4, roughness: .88 });
+  const shell = createFairFacedConcrete();
   const ink = new THREE.MeshStandardMaterial({ color: 0x424641, roughness: .85 });
-  for (const m of [pale, paper, ink]) { m.shadowSide = THREE.DoubleSide; applySoftShadows(m, innerWidth <= 760); }
+  for (const m of [shell, ink]) { m.shadowSide = THREE.DoubleSide; applySoftShadows(m, innerWidth <= 760); }
   function box(w,h,d,material,x,y,z) {
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), material);
     mesh.position.set(x,y,z); mesh.castShadow = mesh.receiveShadow = true; group.add(mesh); return mesh;
   }
-  box(45,.16,62,pale,2,-3.89,0);
-  box(30,12,.35,paper,2,2.2,-19);
+  box(45,.16,62,shell,2,-3.89,0);
+  box(30,12,.35,shell,2,2.2,-19);
   // An actual side-wall opening receives the companions from the previous room.
   const entry=GALLERY_ENTRY,back=-19.2,front=21.8,left=entry.z-entry.halfWidth,right=entry.z+entry.halfWidth,top=-.64;
-  box(.35,12,left-back,pale,entry.x,2.2,(back+left)/2);
-  box(.35,12,front-right,pale,entry.x,2.2,(right+front)/2);
-  box(.35,8.2-top,right-left,pale,entry.x,(8.2+top)/2,entry.z);
-  box(entry.depth,3.16,.12,pale,entry.x-entry.depth/2,-2.22,left-.06);
-  box(entry.depth,3.16,.12,pale,entry.x-entry.depth/2,-2.22,right+.06);
+  box(.35,12,left-back,shell,entry.x,2.2,(back+left)/2);
+  box(.35,12,front-right,shell,entry.x,2.2,(right+front)/2);
+  box(.35,8.2-top,right-left,shell,entry.x,(8.2+top)/2,entry.z);
+  box(entry.depth,3.16,.12,shell,entry.x-entry.depth/2,-2.22,left-.06);
+  box(entry.depth,3.16,.12,shell,entry.x-entry.depth/2,-2.22,right+.06);
   box(.08,3.16,right-left,ink,entry.x-entry.depth,-2.22,entry.z);
-  box(.35,12,41,pale,17,2.2,1.3);
-  group.add(new THREE.HemisphereLight(0xf0f0ea,0x9a9e96,.35));
+  box(.35,12,41,shell,17,2.2,1.3);
+  group.add(new THREE.HemisphereLight(0xf2f3f0,0x6e726e,.42));
   // Two architectural piers share the vase boundary. The middle remains empty space.
   const contour = new THREE.Group(); contour.position.set(0,-3.8,0); group.add(contour);
   const contourWalls = [];
@@ -40,9 +40,9 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
     wall.userData.coEdge = 'faces'; contourWalls.push(wall); contour.add(wall);
   }
   // A real roof aperture casts the diagonal light band onto walls, floor and actors.
-  box(40,.18,8,pale,4,6.1,-16.5);
-  box(40,.18,11,pale,4,6.1,-1.1);
-  box(40,.18,22,pale,4,6.1,18.6);
+  box(40,.18,8,shell,4,6.1,-16.5);
+  box(40,.18,11,shell,4,6.1,-1.1);
+  box(40,.18,22,shell,4,6.1,18.6);
   const sun = new THREE.DirectionalLight(0xf4f4ef,2.7); sun.position.set(5,17,10); sun.target.position.set(-1,-3.8,-2);
   sun.castShadow = true; sun.shadow.mapSize.set(2048,2048);
   Object.assign(sun.shadow.camera,{left:-19,right:19,top:16,bottom:-16,near:1,far:70});

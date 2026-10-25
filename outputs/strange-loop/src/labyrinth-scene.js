@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { traceProfile } from './rubin-contour.js';
 import { LOBSTER_POSTERS } from './gallery-art.js';
 import { applySoftShadows } from './soft-shadows.js';
+import { createFairFacedConcrete } from './fair-faced-concrete.js';
 import { MAX_DEPTH } from './labyrinth-system.js';
 
 export const MODEL_ORIGIN = [0, -2.7, -10];
@@ -32,8 +33,9 @@ export function createLabyrinthScene(scene, reduced, invalidate) {
   const paper = new THREE.MeshStandardMaterial({ color: 0xe2e3de, roughness:.9 });
   const pale = new THREE.MeshStandardMaterial({ color: 0xb9bcb6, roughness:.9 });
   const ink = new THREE.MeshStandardMaterial({ color: 0x41463f, roughness:.84 });
-  for (const material of [paper,pale,ink]) { material.shadowSide=THREE.DoubleSide; applySoftShadows(material, mobile()); }
-  const geometries=[], materials=[paper,pale,ink], textures=[];
+  const shell = createFairFacedConcrete();
+  for (const material of [paper,pale,ink,shell]) { material.shadowSide=THREE.DoubleSide; applySoftShadows(material, mobile()); }
+  const geometries=[], materials=[paper,pale,ink,shell], textures=[];
   function mesh(parent,geometry,material,position) {
     geometries.push(geometry);
     const object=new THREE.Mesh(geometry,material); object.position.set(...position);
@@ -58,11 +60,11 @@ export function createLabyrinthScene(scene, reduced, invalidate) {
   });
   function buildRoom(parent,depth,position) {
     const room=new THREE.Group();room.name=`nested-gallery-${depth}`;room.position.set(...position);room.scale.setScalar(MODEL_SCALE);parent.add(room);rooms[depth]=room;
-    box(room,14,.18,14,paper,0,-.09,0);
-    box(room,14,5.7,.16,paper,0,2.85,-6.8);
-    box(room,.16,5.7,14,pale,-7,2.85,0);
+    box(room,14,.18,14,shell,0,-.09,0);
+    box(room,14,5.7,.16,shell,0,2.85,-6.8);
+    box(room,.16,5.7,14,shell,-7,2.85,0);
     // Open front and low right wall let visitors read the model before entering it.
-    box(room,.16,1.1,14,pale,7,.55,0);
+    box(room,.16,1.1,14,shell,7,.55,0);
     const contour=new THREE.Group();contour.position.set(0,0,-3.7);contour.scale.setScalar(.68);room.add(contour);
     for(const sign of [-1,1]){
       const shape=traceProfile(new THREE.Shape(),sign);shape.lineTo(sign*5.2,0);shape.lineTo(sign*5.2,6);shape.closePath();
