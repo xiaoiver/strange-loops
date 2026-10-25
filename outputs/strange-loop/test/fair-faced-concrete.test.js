@@ -46,8 +46,8 @@ test('fair-faced concrete is matte, cool gray, and keeps chained shader hooks', 
   applySoftShadows(material, false);
   const passage = cloneWithHooks(material);
   applyPassageOcclusion(passage);
-  assert.match(material.customProgramCacheKey(), /geb-ando-concrete-v4\|geb-pcss-v1-desktop/);
-  assert.match(passage.customProgramCacheKey(), /geb-ando-concrete-v4/);
+  assert.match(material.customProgramCacheKey(), /geb-ando-concrete-v5\|geb-pcss-v1-desktop/);
+  assert.match(passage.customProgramCacheKey(), /geb-ando-concrete-v5/);
   assert.match(passage.customProgramCacheKey(), /geb-pcss-v1-desktop/);
   assert.match(passage.customProgramCacheKey(), /passage-occlusion-v1/);
 
@@ -55,28 +55,34 @@ test('fair-faced concrete is matte, cool gray, and keeps chained shader hooks', 
   passage.onBeforeCompile(shader);
   assert.match(shader.vertexShader, /vConcreteLocal = transformed/);
   assert.match(shader.vertexShader, /vPassageOcclusion = passageOcclusion/);
-  assert.match(shader.fragmentShader, /BOARD_W = 1\.8/);
-  assert.match(shader.fragmentShader, /BOARD_H = 0\.9/);
+  assert.match(shader.fragmentShader, /BOARD_W = 3\.6/);
+  assert.match(shader.fragmentShader, /BOARD_H = 1\.8/);
   assert.match(shader.fragmentShader, /floorFace/);
   assert.match(shader.fragmentShader, /gebPCSS/);
   assert.match(shader.fragmentShader, /vPassageOcclusion/);
   assert.match(shader.fragmentShader, /roughnessFactor = concreteRough/);
   assert.match(shader.fragmentShader, /fwidth\(coord\)/);
-  assert.match(shader.fragmentShader, /fract\(uv \/ vec2\(BOARD_W, BOARD_H\)\)/);
+  assert.match(shader.fragmentShader, /fract\(uv \/ 1\.8\)/);
   assert.doesNotMatch(shader.fragmentShader, /fwidth\(jointDist\)/);
   assert.doesNotMatch(shader.fragmentShader, /dFdx\(concreteHeight\)/);
-  assert.doesNotMatch(shader.fragmentShader, /\/ 0\.9/);
 });
 
-test('board seams stay covered when the joint falls between pixels', () => {
-  for (const px of [0.004, 0.012, 0.02, 0.05, 0.08]) {
-    for (const offset of [0, 0.25, 0.5]) {
-      const coverage = boardSeam(offset * px, 0.9, px);
-      assert.ok(coverage > 0.45, `seam broke into a gap at px ${px}, offset ${offset}: ${coverage}`);
-    }
-    assert.ok(boardSeam(0.4, 0.9, px) < 0.05, 'seam leaked across the board');
-    assert.ok(boardSeam(0.9, 0.9, px) > 0.95, 'the next course is not a continuous joint');
+test('distant formwork seams lose contrast without growing into a screen-space grid', () => {
+  const average = px => {
+    let sum=0;
+    for(let i=0;i<10000;i++)sum+=boardSeam((i+.5)/10000*.9,.9,px);
+    return sum/10000;
+  };
+  const close=average(.001);
+  let previous=1;
+  for(const px of [.004,.012,.02,.05,.08]){
+    const center=boardSeam(0,.9,px);
+    assert.ok(center<previous, 'a distant seam must not keep a fixed dark contrast');
+    previous=center;
+    assert.ok(boardSeam(.4,.9,px)<.001, 'the board field remains uninterrupted');
+    assert.ok(Math.abs(average(px)/close-1)<.3, 'filtering must preserve coverage, not thicken the joints');
   }
+  assert.ok(previous<.04, 'unresolved joints should recede into the wall');
 });
 
 test('exhibition shells use the concrete and exhibit objects do not', t => {

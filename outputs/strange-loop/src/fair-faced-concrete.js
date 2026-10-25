@@ -1,18 +1,13 @@
 import * as THREE from 'three';
 
-// Fair-faced concrete for the shared exhibition shell.
-// Full-scale rooms share one world-space board grid, locked to the lobby
-// corner and floor so courses meet the ground. Miniature galleries keep the
-// same 900×1800 mm module in their unscaled local coordinates.
-// Tie holes sit in the field of each board, not on the joints.
-const CONCRETE_CACHE_KEY = 'geb-ando-concrete-v4';
+// Cast concrete: cloudy cement, faint formwork ghosts and small recessed ties.
+// The construction grid is secondary to the continuous poured surface.
+const CONCRETE_CACHE_KEY = 'geb-ando-concrete-v5';
 
-// Joint width in metres. Screen coverage uses the raw axis derivative, never
-// the folded distance: fwidth of a V-shaped SDF collapses on the seam and
-// leaves a one-pixel line that breaks into dashes in perspective. The line is
-// kept a few pixels wide so FXAA sees a soft gradient instead of a sparkle.
-export const JOINT_WIDTH = 0.012;
-export const SEAM_PIXELS = 2.25;
+// Preserve a thin seam's coverage as it recedes, rather than drawing a fixed
+// dark screen-space grid. Derivatives come from the unfolded coordinate.
+export const JOINT_WIDTH = 0.003;
+export const SEAM_PIXELS = 0.75;
 
 export function periodDistance(coord, period) {
   const f = coord / period - Math.floor(coord / period);
@@ -24,7 +19,7 @@ export function boardSeam(coord, period, px, width = JOINT_WIDTH) {
   const outer = Math.max(width, px * SEAM_PIXELS);
   const t = Math.min(1, Math.max(0, dist / outer));
   const s = t * t * (3 - 2 * t);
-  return 1 - s;
+  return (1 - s) * Math.min(1, width / Math.max(px, width));
 }
 
 const CONCRETE_VARYINGS = /* glsl */`
@@ -53,9 +48,7 @@ float concreteNoise(vec2 p) {
   return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
 }
 
-// Continuous groove. Coverage is a smoothstep of distance-to-joint; the width
-// is at least the requested pixel count of the raw coordinate so perspective cannot skip pixels.
-// slope is d(height)/d(coord) for height = -depth * coverage.
+// The unresolved seam loses contrast instead of becoming a thick drawn line.
 void concreteSeam(float coord, float period, float width, float depth, float pixels, out float coverage, out float slope) {
   float f = fract(coord / period);
   float dist = min(f, 1.0 - f) * period;
@@ -63,21 +56,25 @@ void concreteSeam(float coord, float period, float width, float depth, float pix
   float outer = max(width, px * pixels);
   float t = clamp(dist / outer, 0.0, 1.0);
   float s = t * t * (3.0 - 2.0 * t);
-  coverage = 1.0 - s;
+  float keep = min(1.0, width / max(px, width));
+  coverage = (1.0 - s) * keep;
   float ds = (t > 0.0 && t < 1.0) ? (6.0 * t * (1.0 - t) / outer) : 0.0;
   float dDist = f < 0.5 ? 1.0 : -1.0;
-  slope = depth * ds * dDist;
+  slope = depth * ds * dDist * keep;
+}
+
+float concretePit(vec2 point, float radius, float pixel) {
+  float aa = max(0.001, pixel * 0.65);
+  float edge = 1.0 - smoothstep(radius - aa, radius + aa, length(point));
+  return edge * min(1.0, pow(2.0 * radius / max(pixel, 0.001), 2.0));
 }
 
 // Albedo multiplier, roughness, and an analytic groove gradient in pattern axes.
 void concreteSurface(out vec3 albedo, out float rough, out vec3 grooveGrad) {
-  // 1.8 m × 0.9 m plywood, long side horizontal: the quiet Ando course.
-  const float BOARD_W = 1.8;
-  const float BOARD_H = 0.9;
-  const float JOINT = 0.012;
-  // Shallow recess. A steep V catches the sun on one face and cancels the
-  // albedo line, which FXAA then reads as dashes.
-  const float GROOVE = 0.00055;
+  const float BOARD_W = 3.6;
+  const float BOARD_H = 1.8;
+  const float JOINT = ${JOINT_WIDTH.toFixed(4)};
+  const float GROOVE = 0.00015;
   const vec3 ORIGIN = vec3(-3.8, -3.8, -3.8);
   bool miniature = vConcreteScale < 0.5;
   vec3 p = miniature ? vConcreteLocal : (vConcreteWorld - ORIGIN);
@@ -95,46 +92,56 @@ void concreteSurface(out vec3 albedo, out float rough, out vec3 grooveGrad) {
   }
   bool floorFace = nWorld.y > 0.65;
 
-  float cloud = concreteNoise(uv * 0.17);
-  float blot = concreteNoise(uv * 0.85);
-  float grainPx = max(fwidth(uv.x), 1e-4);
-  float grainFade = clamp(0.0035 / grainPx, 0.0, 1.0);
-  float grain = (concreteNoise(uv * 14.0) - 0.5) * grainFade;
-  float tone = 0.972 + cloud * 0.034 + (blot - 0.5) * 0.02 + grain * 0.018;
+  float pixel = max(max(fwidth(uv.x), fwidth(uv.y)), 0.0001);
+  // Domain-warped low frequencies avoid a recognizable noise lattice or veins.
+  vec2 warp = vec2(concreteNoise(uv * 0.42), concreteNoise(uv * 0.42 + 19.7));
+  vec2 cement = uv + (warp - 0.5) * 0.7;
+  float cloud = concreteNoise(cement * 0.34) * 0.65
+              + concreteNoise(cement * 0.93 + 7.1) * 0.35;
+  float mottling = concreteNoise(cement * vec2(2.6, 3.9) + 31.4);
+  float slurry = concreteNoise(cement * vec2(5.8, 0.8) + 8.5);
+  float grainKeep = 1.0 - smoothstep(0.015, 0.07, pixel);
+  float grain = (concreteNoise(uv * 22.0) - 0.5) * grainKeep;
+  float surfaceVariation = (cloud - 0.5) * 0.65 + (mottling - 0.5) * 0.16
+                         + (slurry - 0.5) * 0.055 + grain * 0.07;
+  float tone = 0.97 + surfaceVariation * (floorFace ? 0.48 : 1.0);
 
   grooveGrad = vec3(0.0);
   float seam = 0.0;
   float hole = 0.0;
   if (!floorFace) {
     float seamX, slopeX, seamY, slopeY;
-    concreteSeam(uv.x, BOARD_W, JOINT, GROOVE, 2.25, seamX, slopeX);
-    concreteSeam(uv.y, BOARD_H, JOINT, GROOVE, 2.25, seamY, slopeY);
+    concreteSeam(uv.x, BOARD_W, JOINT, GROOVE, ${SEAM_PIXELS.toFixed(2)}, seamX, slopeX);
+    concreteSeam(uv.y, BOARD_H, JOINT, GROOVE, ${SEAM_PIXELS.toFixed(2)}, seamY, slopeY);
     seam = max(seamX, seamY);
-    // A wider, lighter shade sits under the hairline so the recess stays a
-    // continuous band when the hairline itself is only a couple of pixels.
-    float shadeX, shadeSlopeX, shadeY, shadeSlopeY;
-    concreteSeam(uv.x, BOARD_W, 0.05, 0.0, 4.5, shadeX, shadeSlopeX);
-    concreteSeam(uv.y, BOARD_H, 0.05, 0.0, 4.5, shadeY, shadeSlopeY);
-    tone *= mix(1.0, 0.94, max(shadeX, shadeY));
-    tone *= mix(1.0, 0.84, seam);
+    float jointWear = 0.25 + 0.75 * concreteNoise(cement * 2.1 + 12.0);
+    tone *= 1.0 - seam * 0.055 * jointWear;
+    // A trace of a form board, with a soft boundary rather than a tiled edge.
+    vec2 board = floor(uv / vec2(BOARD_W, BOARD_H));
+    vec2 edge = min(fract(uv / vec2(BOARD_W, BOARD_H)), 1.0 - fract(uv / vec2(BOARD_W, BOARD_H))) * vec2(BOARD_W, BOARD_H);
+    float boardField = smoothstep(0.0, 0.12, min(edge.x, edge.y));
+    tone += (concreteHash(board + 3.4) - 0.5) * 0.035 * boardField;
     grooveGrad = axisU * slopeX + axisV * slopeY;
 
-    // One soft tie hole in the middle of each board. No normal, so it cannot
-    // sparkle into a second dotted rhythm beside the joint.
-    vec2 cell = fract(uv / vec2(BOARD_W, BOARD_H)) - 0.5;
-    vec2 toCenter = cell * vec2(BOARD_W, BOARD_H);
-    float holeDist = length(toCenter);
-    float holePx = max(fwidth(uv.x), fwidth(uv.y));
-    float feather = max(0.022, holePx * 2.2);
-    float ht = clamp((holeDist - 0.01) / feather, 0.0, 1.0);
-    float hs = ht * ht * (3.0 - 2.0 * ht);
-    float holeKeep = 1.0 - smoothstep(0.028, 0.06, holePx);
-    hole = (1.0 - hs) * holeKeep;
-    tone *= mix(1.0, 0.955, hole);
+    // Recessed tie marks are clearer than board joints, on a construction rhythm.
+    vec2 tieCell = floor(uv / 1.8);
+    float tieRandom = concreteHash(tieCell + 71.3);
+    vec2 tiePoint = (fract(uv / 1.8) - 0.5) * 1.8;
+    tiePoint -= vec2(tieRandom - 0.5, concreteHash(tieCell + 6.2) - 0.5) * 0.012;
+    hole = concretePit(tiePoint, 0.030, pixel);
+    float tieHalo = concretePit(tiePoint, 0.050, pixel);
+    tone *= 1.0 - hole * mix(0.58, 0.74, tieRandom) - tieHalo * 0.035;
+
+    // Sparse small air pockets: fixed on the wall and filtered out at a distance.
+    vec2 poreCell = floor(uv * 14.0);
+    vec2 poreCenter = vec2(concreteHash(poreCell), concreteHash(poreCell + 29.1));
+    float poreSeed = concreteHash(poreCell + 93.7);
+    float pore = concretePit((fract(uv * 14.0) - poreCenter) / 14.0, mix(0.002, 0.007, poreSeed), pixel);
+    tone *= 1.0 - pore * step(0.82, poreSeed) * 0.24;
   }
 
   albedo = vec3(tone);
-  rough = floorFace ? 0.86 : 0.93;
+  rough = (floorFace ? 0.86 : 0.93) + (mottling - 0.5) * 0.035;
   rough = mix(rough, min(1.0, rough + 0.04), max(seam, hole * 0.35));
 }
 `;

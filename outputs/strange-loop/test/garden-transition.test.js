@@ -30,7 +30,7 @@ test('entering and leaving the garden preserves the lobby shadow receivers', t =
     hall.traverse(object=>{
       if(!object.isMesh||!object.material.userData.fairFaced)return;
       assert.equal(object.material.opacity,amount,'the garden architecture should still fade');
-      assert.equal(object.material.customProgramCacheKey().includes('geb-ando-concrete-v4|geb-pcss-v1-desktop'),true,'the garden must retain its concrete and shadow shader hooks');
+      assert.equal(object.material.customProgramCacheKey().includes('geb-ando-concrete-v5|geb-pcss-v1-desktop'),true,'the garden must retain its concrete and shadow shader hooks');
     });
   }
   garden.setVisible(true);garden.setVisible(false);
