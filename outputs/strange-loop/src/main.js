@@ -358,7 +358,7 @@ function tick(){raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta
   }
   camPos.lerp(camGoal,a);camera.position.copy(camPos);look.lerp(new THREE.Vector3(0,.1,0),a);
   up.lerp(currentView==='B'?UPTOP:Y,a).normalize();camera.up.copy(up);camera.lookAt(look);
- }else if(stage==='labyrinth'||stage==='to-labyrinth'||stage==='from-labyrinth'){labyrinthScene?.update(dt,camera,look);if(stage==='to-labyrinth'||stage==='from-labyrinth')updateCameraProjection();
+ }else if(stage==='labyrinth'||stage==='to-labyrinth'||stage==='from-labyrinth'||stage==='labyrinth-unfold'){labyrinthScene?.update(dt,camera,look);figureScene?.setPresence(labyrinthScene?.envelopePresence()??1);if(stage==='to-labyrinth'||stage==='from-labyrinth')updateCameraProjection();
  }else if(stage==='figure'){figureScene?.update(dt,camera,look);updatePassage(dt);
  }else if(stage==='exiting-garden'||stage==='passage-cut'){updatePassage(dt);
  }else if(stage==='entering'||stage==='returning'){
@@ -570,7 +570,8 @@ function leaveLabyrinth(){
 function returnToFigure(){
  labyrinth.stopMusic();
  if(document.body.dataset.scene!=='ready'||!camera||!labyrinthScene||!figureScene){leaveLabyrinth();showFigure();figure.showContour();return;}
- lockLabyrinthPassage();stage='from-labyrinth';companions?.crossContour(true);
+ lockLabyrinthPassage();
+ const walk=()=>{stage='from-labyrinth';companions?.crossContour(true);
  labyrinthScene.beginExit(camera,look,figureScene.contourPose(),()=>{
   labyrinth.hide();labyrinthScene.cancel();currentChapter=2;stage='figure';figureArea='contour';
   document.body.classList.remove('in-labyrinth');document.body.classList.add('in-figure');
@@ -578,7 +579,8 @@ function returnToFigure(){
   // The eye has already arrived at the shared contour; no second camera move.
   figureScene.setVisible(true);figureScene.setState(figure.getState(),locale);
   syncDynamicLabels();resize();refreshShadows();world.setAttribute('aria-label',FIGURE_COPY[locale].title);
- });
+ });};
+ if(labyrinth.getState().depth>0){stage='labyrinth-unfold';labyrinthScene.setDepth(0,camera,look,walk);}else walk();
 }
 
 // The chapter boundary is crossed on foot. The dark threshold joins two rooms.

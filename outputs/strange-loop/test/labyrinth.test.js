@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { Scene, PerspectiveCamera, Vector3, TextureLoader, Texture, Box3, Raycaster } from 'three';
 import { initialLabyrinthState, advanceLabyrinth, restoreLabyrinthState, labyrinthReading, MAX_DEPTH } from '../src/labyrinth-system.js';
 import { createLabyrinthScene, passageRail } from '../src/labyrinth-scene.js';
-import { contourRoute, routeSample } from '../src/chapter-passage.js';
+import { contourRoute, routeSample, labyrinthStop } from '../src/chapter-passage.js';
 import { LABYRINTH_COPY } from '../src/labyrinth-copy.js';
 import { LANGUAGES } from '../src/languages.js';
 import { createFigureGroundScene } from '../src/figure-ground-scene.js';
@@ -108,5 +108,99 @@ for(const mobile of [false,true])test(`chapter passage is one smooth rail throug
   assert.ok(camera.position.distanceTo(end.position)<1e-6);assert.ok(look.distanceTo(end.look)<1e-6);
   let stale=0;view.beginEntry(camera,look,()=>stale++);view.update(.1,camera,look);view.setVisible(false);view.setVisible(true);
   for(let i=0;i<320;i++)view.update(1/60,camera,look);assert.equal(stale,0);
+  view.dispose();
+});
+
+for(const mobile of [false,true])test(`architecture unfolds around an upright, gently moving eye (${mobile?'mobile':'desktop'})`,t=>{
+  const oldWidth=globalThis.innerWidth;globalThis.innerWidth=mobile?390:1280;t.after(()=>{globalThis.innerWidth=oldWidth;});
+  t.mock.method(TextureLoader.prototype,'load',()=>new Texture());
+  const scene=new Scene(),view=createLabyrinthScene(scene,{matches:false},()=>{}),camera=new PerspectiveCamera(),look=new Vector3();
+  view.setVisible(true);view.setDepth(0,camera,look,null,{immediate:true});
+  const outer=camera.position.clone(),model=scene.getObjectByName('nested-gallery-1'),child=scene.getObjectByName('nested-gallery-2');
+  const table=scene.getObjectByName('suspended-parent-table'),initialSize=new Box3().setFromObject(model).getSize(new Vector3()).x;
+  function move(depth){
+    let done=false,previous=camera.position.clone(),rotation=camera.quaternion.clone();view.setDepth(depth,camera,look,()=>{done=true;});
+    for(let frame=0;frame<720&&!done;frame++){
+      view.update(1/60,camera,look);scene.updateMatrixWorld(true);
+      assert.ok(camera.position.distanceTo(previous)<.04,'a fold moved the eye too abruptly');
+      assert.ok(camera.quaternion.angleTo(rotation)<.01,'the eye followed the rotating architecture');
+      assert.ok(camera.up.distanceTo(new Vector3(0,1,0))<1e-10,'the camera rolled');
+      assert.equal(camera.position.y,outer.y,'the scale change must come from architecture, not an eye drop');
+      const parentFloor=model.localToWorld(new Vector3()).y;
+      for(const x of [-7,7])for(const z of [-7,7]){
+        const corner=child.localToWorld(new Vector3(x,0,z));
+        assert.ok(corner.y>=parentFloor-.001,'the folding floor tunneled underneath its parent');
+      }
+      previous.copy(camera.position);rotation.copy(camera.quaternion);
+    }
+    assert.ok(done);return camera.quaternion.clone();
+  }
+  const firstRotation=move(1),firstPosition=camera.position.clone();
+  assert.ok(new Box3().setFromObject(model).getSize(new Vector3()).x>initialSize*4,'the miniature must become architectural scale');
+  assert.ok(table.scale.x>5,'the parent table must remain as an oversized frame');
+  const secondRotation=move(2);
+  assert.ok(firstRotation.angleTo(secondRotation)<1e-6,'the wall fold must not rotate the eye');
+  const width=mobile?390:1280,height=mobile?844:800;
+  camera.fov=mobile?48:36;camera.aspect=width/height;camera.setViewOffset(width,height,-width*(mobile?0:.12),0,width,height);
+  camera.updateMatrixWorld(true);
+  const leaf=scene.getObjectByName('recursion-leaf').getWorldPosition(new Vector3()).project(camera);
+  assert.ok(Math.abs(leaf.x)<.5&&Math.abs(leaf.y)<.5,'the stopping point must stay visible above the footer');
+  for(const room of [model,child]){
+    const eye=room.worldToLocal(camera.position.clone());
+    assert.ok(Math.abs(eye.x)<7&&Math.abs(eye.z)<7&&eye.y>0&&eye.y<5.7,'the final eye must be inside both room boundaries');
+  }
+  move(1);assert.ok(camera.position.distanceTo(firstPosition)<1e-8);
+  move(0);assert.ok(camera.position.distanceTo(outer)<1e-8);
+  camera.updateMatrixWorld(true);
+  for(const [index,actorHeight] of [1.5,.34].entries()){
+    const [x,z]=labyrinthStop(index),actor=new Vector3(x,-3.8+actorHeight*.55,z).project(camera);
+    assert.ok(Math.abs(actor.x)<.94&&Math.abs(actor.y)<.92,'a companion was lost outside the outer observation frame');
+  }
+  move(2);move(0);assert.ok(camera.position.distanceTo(outer)<1e-8,'a direct chapter exit must restore the outer room too');
+  assert.equal(table.scale.x,1);view.dispose();
+});
+
+test('parent motion pauses during a nested visit and continues from the same point on return',t=>{
+  const oldWidth=globalThis.innerWidth;globalThis.innerWidth=1280;t.after(()=>{globalThis.innerWidth=oldWidth;});
+  t.mock.method(TextureLoader.prototype,'load',()=>new Texture());
+  const scene=new Scene(),view=createLabyrinthScene(scene,{matches:false},()=>{}),camera=new PerspectiveCamera(),look=new Vector3();
+  view.setVisible(true);view.setDepth(0,camera,look,null,{immediate:true});view.update(1,camera,look);
+  const outer=scene.getObjectByName('labyrinth-moment-0'),inner=scene.getObjectByName('labyrinth-moment-1');
+  const paused=outer.position.clone();view.setDepth(1,camera,look);
+  for(let frame=0;frame<240;frame++)view.update(1/60,camera,look);
+  assert.ok(outer.position.equals(paused));const inside=inner.position.clone();view.update(1,camera,look);
+  assert.ok(outer.position.equals(paused));assert.ok(inner.position.distanceTo(inside)>.1);
+  view.setDepth(0,camera,look,null,{immediate:true});view.update(0,camera,look);assert.ok(outer.position.equals(paused));
+  view.update(.1,camera,look);assert.ok(outer.position.distanceTo(paused)>0&&outer.position.distanceTo(paused)<.04);
+  view.dispose();
+});
+
+test('saved inner architecture restores immediately and reduced motion leaves all kinetic exhibits still',t=>{
+  const oldWidth=globalThis.innerWidth;globalThis.innerWidth=1280;t.after(()=>{globalThis.innerWidth=oldWidth;});
+  t.mock.method(TextureLoader.prototype,'load',()=>new Texture());
+  const scene=new Scene(),view=createLabyrinthScene(scene,{matches:true},()=>{}),camera=new PerspectiveCamera(),look=new Vector3();
+  view.setVisible(true);view.setDepth(2,camera,look,null,{immediate:true});
+  const hinge=scene.getObjectByName('folding-gallery-hinge');assert.equal(hinge.rotation.x,0);
+  const ball=scene.getObjectByName('labyrinth-moment-2'),still=ball.position.clone();view.update(10,camera,look);assert.ok(ball.position.equals(still));
+  let old=0;view.setDepth(0,camera,look,()=>old++);view.setVisible(false);view.setVisible(true);
+  view.setDepth(2,camera,look,null,{immediate:true});view.update(10,camera,look);assert.equal(old,0);assert.equal(hinge.rotation.x,0);
+  view.dispose();
+});
+
+test('suspended architecture advances only with its active parent level and respects reduced motion',t=>{
+  const oldWidth=globalThis.innerWidth;globalThis.innerWidth=1280;t.after(()=>{globalThis.innerWidth=oldWidth;});
+  t.mock.method(TextureLoader.prototype,'load',()=>new Texture());
+  const scene=new Scene(),reduced={matches:false},view=createLabyrinthScene(scene,reduced,()=>{}),camera=new PerspectiveCamera(),look=new Vector3();
+  view.setVisible(true);view.setDepth(1,camera,look,null,{immediate:true});
+  assert.equal(view.envelopePresence(),0);
+  const rib=scene.getObjectByName('suspended-gallery-0'),initial=rib.quaternion.clone();
+  view.update(2,camera,look);assert.ok(rib.quaternion.angleTo(initial)>.001);
+  const paused=rib.quaternion.clone();view.setDepth(2,camera,look,null,{immediate:true});view.update(2,camera,look);
+  assert.ok(rib.quaternion.angleTo(paused)<1e-6,'the enclosing architecture keeps moving inside its child');
+  const leaf=scene.getObjectByName('recursion-leaf'),atLeaf=leaf.position.clone();view.update(2,camera,look);
+  assert.ok(leaf.position.distanceTo(atLeaf)>.001,'the finite stopping point should still feel suspended');
+  reduced.matches=true;const still=leaf.position.clone();view.update(2,camera,look);assert.ok(leaf.position.equals(still));
+  view.setDepth(0,camera,look,null,{immediate:true});assert.equal(view.envelopePresence(),1);
+  assert.equal(scene.getObjectByName('suspended-galleries').visible,false);
   view.dispose();
 });

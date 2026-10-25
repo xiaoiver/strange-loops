@@ -2,11 +2,12 @@ import * as THREE from 'three';
 import { traceProfile } from './rubin-contour.js';
 import { LOBSTER_POSTERS } from './gallery-art.js';
 import { applySoftShadows } from './soft-shadows.js';
-import { createFairFacedConcrete } from './fair-faced-concrete.js';
 import { MAX_DEPTH } from './labyrinth-system.js';
+import { createFairFacedConcrete } from './fair-faced-concrete.js';
+import { cloneWithHooks } from './shader-hooks.js';
 
-export const MODEL_ORIGIN = [0, -2.7, -10];
-export const MODEL_SCALE = .24;
+import {MODEL_ORIGIN,MODEL_SCALE,FOLD_DURATION,foldEase,foldLayout} from './labyrinth-fold.js';
+export {MODEL_ORIGIN,MODEL_SCALE} from './labyrinth-fold.js';
 const ease = t => t*t*(3-2*t);
 const mobile = () => innerWidth <= 760;
 // The eye crosses the actual opening at x=0 without dipping toward the floor.
@@ -33,24 +34,51 @@ export function createLabyrinthScene(scene, reduced, invalidate) {
   const paper = new THREE.MeshStandardMaterial({ color: 0xe2e3de, roughness:.9 });
   const pale = new THREE.MeshStandardMaterial({ color: 0xb9bcb6, roughness:.9 });
   const ink = new THREE.MeshStandardMaterial({ color: 0x41463f, roughness:.84 });
-  const shell = createFairFacedConcrete();
+  const shell=createFairFacedConcrete({space:'local'});
   for (const material of [paper,pale,ink,shell]) { material.shadowSide=THREE.DoubleSide; applySoftShadows(material, mobile()); }
-  const geometries=[], materials=[paper,pale,ink,shell], textures=[];
+  const echoMaterial=cloneWithHooks(shell);
+  const geometries=[], materials=[paper,pale,ink,shell,echoMaterial], textures=[];
   function mesh(parent,geometry,material,position) {
     geometries.push(geometry);
     const object=new THREE.Mesh(geometry,material); object.position.set(...position);
     object.castShadow=object.receiveShadow=true; parent.add(object); return object;
   }
   const box=(parent,w,h,d,mat,x,y,z)=>mesh(parent,new THREE.BoxGeometry(w,h,d),mat,[x,y,z]);
-  function table(parent,scale=1) {
-    const table=new THREE.Group();table.scale.setScalar(scale);parent.add(table);
-    box(table,4.3,.14,4.1,paper,0,.96,0);
-    for(const x of [-1.8,1.8])for(const z of [-1.7,1.7])box(table,.09,.9,.09,ink,x,.45,z);
-    return table;
+  function table(parent) {
+    const stand=new THREE.Group();stand.name='suspended-parent-table';parent.add(stand);
+    // The original tabletop's aperture becomes a skylight as its scale changes.
+    for(const z of [-1.75,1.75])box(stand,4.3,.14,.6,paper,0,.96,z);
+    for(const x of [-1.925,1.925])box(stand,.45,.14,2.9,paper,x,.96,0);
+    for(const x of [-1.8,1.8])for(const z of [-1.7,1.7])box(stand,.09,.9,.09,ink,x,.45,z);
+    return stand;
   }
-  // An architectural model sits on a light table, behind the shared contour.
-  const outerTable=table(group);outerTable.position.set(0,-3.8,-10);
-  const rooms=[null];
+  const outerTable=table(group);outerTable.position.set(MODEL_ORIGIN[0],-3.8,-10);
+  const rooms=[null],moments=[],times=[0,0,0];
+  const echoes=new THREE.Group();echoes.name='suspended-galleries';group.add(echoes);
+  const ribs=[];
+  // Architectural repetitions extend outside the ordinary floor and turn through
+  // impossible orientations. They belong to the first nested level's clock.
+  for(const [index,[x,y,z,angle,tilt]] of [
+    [10.2,1.4,-13.8,.38,.2],[-1.7,5.2,-18.8,-.28,.6],[-6.4,2.8,-22.5,1.25,-.25],
+  ].entries()){
+    const rib=new THREE.Group();rib.name=`suspended-gallery-${index}`;
+    rib.position.set(x,y,z);rib.rotation.set(tilt,index===0?.3:-.12,angle);echoes.add(rib);
+    const w=index===1?16:12,h=10;
+    for(const side of [-1,1])box(rib,.25,h,.65,echoMaterial,side*w/2,0,0);
+    for(const side of [-1,1])box(rib,w,.25,.65,echoMaterial,0,side*h/2,0);
+    // A second offset edge reads as room depth rather than a flat picture frame.
+    box(rib,w,.18,.18,echoMaterial,0,h/2,-3.8);
+    for(const side of [-1,1])box(rib,.18,.18,3.8,echoMaterial,side*w/2,h/2,-1.9);
+    ribs.push({object:rib,y,angle,tilt});
+  }
+  function moment(parent,index,position,scale=1){
+    const device=new THREE.Group();device.position.set(...position);device.scale.setScalar(scale);parent.add(device);
+    const rail=mesh(device,new THREE.TorusGeometry(.52,.012,8,48),pale,[0,0,0]);rail.rotation.x=-Math.PI/2;
+    const ball=mesh(device,new THREE.SphereGeometry(.085,12,8),ink,[.52,.04,0]);ball.name=`labyrinth-moment-${index}`;
+    moments[index]=ball;
+  }
+  moment(outerTable,0,[1.05,1.09,.5],.65);
+  let childHinge,leafRing,leafSphere,leafSupport;
   const posterMaterials=LOBSTER_POSTERS.map(art=>{
     const material=new THREE.MeshStandardMaterial({color:0xf4f4ed,roughness:1});materials.push(material);
     new THREE.TextureLoader().load(art.file,texture=>{
@@ -59,13 +87,13 @@ export function createLabyrinthScene(scene, reduced, invalidate) {
     return material;
   });
   function buildRoom(parent,depth,position) {
-    const room=new THREE.Group();room.name=`nested-gallery-${depth}`;room.position.set(...position);room.scale.setScalar(MODEL_SCALE);parent.add(room);rooms[depth]=room;
+    const room=new THREE.Group();room.name=`nested-gallery-${depth}`;room.position.set(...position);parent.add(room);rooms[depth]=room;
     box(room,14,.18,14,shell,0,-.09,0);
     box(room,14,5.7,.16,shell,0,2.85,-6.8);
     box(room,.16,5.7,14,shell,-7,2.85,0);
-    // Open front and low right wall let visitors read the model before entering it.
     box(room,.16,1.1,14,shell,7,.55,0);
-    const contour=new THREE.Group();contour.position.set(0,0,-3.7);contour.scale.setScalar(.68);room.add(contour);
+    // Familiar exhibits remain as landmarks while the room takes a different scale.
+    const contour=new THREE.Group();contour.position.set(3.7,.02,-4.7);contour.scale.setScalar(.39);room.add(contour);
     for(const sign of [-1,1]){
       const shape=traceProfile(new THREE.Shape(),sign);shape.lineTo(sign*5.2,0);shape.lineTo(sign*5.2,6);shape.closePath();
       mesh(contour,new THREE.ExtrudeGeometry(shape,{depth:.25,bevelEnabled:false,curveSegments:14}),ink,[0,0,0]);
@@ -75,79 +103,120 @@ export function createLabyrinthScene(scene, reduced, invalidate) {
       const poster=mesh(room,new THREE.PlaneGeometry(width,height),posterMaterials[index],[-6.89,2.8,1.1+index*2.25]);
       poster.rotation.y=Math.PI/2;
     }
-    const stand=table(room,.72);stand.position.set(0,0,1);
-    if(depth<MAX_DEPTH)buildRoom(room,depth+1,[0,.8,1]);
-    else {
-      const circle=mesh(room,new THREE.TorusGeometry(.72,.045,10,64),ink,[0,.84,1]);circle.rotation.x=-Math.PI/2;
-      const center=mesh(room,new THREE.SphereGeometry(.12,12,8),pale,[0,.88,1]);center.name='recursion-leaf';
+    if(depth<MAX_DEPTH){
+      // The child's front edge is the hinge. Its entire floor stays above the parent floor.
+      childHinge=new THREE.Group();childHinge.name='folding-gallery-hinge';room.add(childHinge);
+      buildRoom(childHinge,depth+1,[0,0,-7]);
+      moment(room,1,[3.3,1.15,1.7]);
+      box(room,.04,1.15,.04,pale,3.3,.575,1.7);
+    } else {
+      const circle=mesh(room,new THREE.TorusGeometry(.85,.035,10,64),ink,[-.8,4.2,-1]);
+      circle.rotation.y=.64;circle.name='recursion-leaf-ring';
+      const center=mesh(room,new THREE.SphereGeometry(.15,16,10),pale,[-.8,4.2,-1]);center.name='recursion-leaf';
+      leafRing=circle;leafSphere=center;
+      leafSupport=box(room,.05,1,.05,pale,-.8,1.65,-1);
+      moment(room,2,[2.4,1.5,-1]);
     }
     return room;
   }
   buildRoom(group,1,MODEL_ORIGIN);
-  group.updateMatrixWorld(true);
-  // Smaller rooms have their own light; its shadow volume scales with the room.
-  const lights=[];
-  for(let depth=1;depth<=MAX_DEPTH;depth++){
-    const room=rooms[depth],light=new THREE.DirectionalLight(0xf3f3ee,1.6);
-    room.updateWorldMatrix(true,false);
-    light.position.copy(room.localToWorld(new THREE.Vector3(3,12,7)));
-    light.target.position.copy(room.localToWorld(new THREE.Vector3(0,0,-1)));
-    const scale=room.getWorldScale(new THREE.Vector3()).x;
-    Object.assign(light.shadow.camera,{left:-10*scale,right:10*scale,top:10*scale,bottom:-10*scale,near:.1*scale,far:35*scale});
-    light.shadow.mapSize.set(1024,1024);light.shadow.normalBias=.003*scale;light.shadow.bias=-.00001;
-    light.shadow.camera.name='floor-shadow';light.shadow.autoUpdate=false;light.castShadow=true;light.visible=false;
-    scene.add(light,light.target);lights.push(light);
+  const sun=new THREE.DirectionalLight(0xf3f3ee,1.05);sun.position.set(10,16,2);sun.target.position.set(2.8,-3.78,-10);
+  Object.assign(sun.shadow.camera,{left:-22,right:22,top:22,bottom:-22,near:1,far:65});
+  sun.shadow.mapSize.set(mobile()?1024:2048,mobile()?1024:2048);sun.shadow.normalBias=.008;sun.shadow.camera.name='floor-shadow';
+  sun.shadow.autoUpdate=false;sun.castShadow=true;sun.visible=false;scene.add(sun,sun.target);
+  let visible=false,depth=0,level=0,anim=null,manual=0,passageProgress=0,drift=0;
+  function applyLayout(value,bob=0){
+    drift=bob;
+    level=value;const layout=foldLayout(value);
+    rooms[1].scale.setScalar(layout.roomScale);rooms[1].position.y=layout.roomY+bob;
+    outerTable.scale.setScalar(layout.tableScale);outerTable.position.y=layout.tableY;
+    childHinge.position.set(layout.childX,layout.childY,layout.childZ);
+    childHinge.scale.setScalar(layout.childScale);childHinge.rotation.x=layout.childAngle;
+    for(const [index,rib] of ribs.entries()){
+      rib.object.position.y=rib.y+Math.sin(times[1]*.23+index)*.35;
+      rib.object.rotation.z=rib.angle+Math.sin(times[1]*.17+index)*.075;
+      rib.object.rotation.x=rib.tilt+Math.sin(times[1]*.13+index)*.04;
+    }
+    const presence=foldEase(layout.first);
+    echoes.visible=presence>.001;echoes.scale.setScalar(.85+.15*presence);echoes.position.y=(1-presence)*3;
+    echoMaterial.opacity=presence;
+    const translucent=presence<1;
+    if(echoMaterial.transparent!==translucent){echoMaterial.transparent=translucent;echoMaterial.needsUpdate=true;}
+    echoMaterial.depthWrite=!translucent;
+    echoes.traverse(object=>{if(object.isMesh)object.castShadow=presence>.98;});
+    // A portrait view looks farther up into the suspended architecture. Keep its
+    // terminal sculpture within that same upright sight line, above the controls.
+    const leafY=mobile()?5.1:4.2;
+    leafRing.position.y=leafY;leafRing.rotation.y=.64+Math.sin(times[2]*.18)*.16;
+    leafSphere.position.y=leafY+Math.sin(times[2]*.5)*.065;
+    leafSupport.scale.y=leafY-.9;leafSupport.position.y=(leafY-.9)/2;
+    group.updateMatrixWorld(true);refreshShadows();
   }
-  let visible=false,depth=0,anim=null,manual=0,passageProgress=0;
-  function pose(level=depth) {
-    if(level===0)return {position:new THREE.Vector3(7.6,mobile()?1.8:.7,-3.4),look:new THREE.Vector3(0,-2.18,-10)};
-    const room=rooms[level];room.updateWorldMatrix(true,false);
-    return {position:room.localToWorld(new THREE.Vector3(mobile()?2.4:5.5,mobile()?9.4:7.2,mobile()?17.5:12)),look:room.localToWorld(new THREE.Vector3(0,1,0))};
+  function pose(value=depth){
+    if(value===0)return {position:new THREE.Vector3(7.6,.7,-3.4),look:new THREE.Vector3(MODEL_ORIGIN[0],-2.18,-10)};
+    const travel=value===1?2.4:4.5,yaw=Math.atan2(4.8,6.6),pitch=(mobile()?7:3)*Math.PI/180;
+    const position=new THREE.Vector3(7.6-Math.sin(yaw)*travel,.7,-3.4-Math.cos(yaw)*travel);
+    const direction=new THREE.Vector3(-Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch));
+    return {position,look:position.clone().addScaledVector(direction,10)};
   }
-  function start(camera,look,points,looks,duration,onDone) {
-    anim={age:0,positions:[camera.position.clone(),...points],looks:[look.clone(),...looks],duration,onDone};manual=0;
+  function start(camera,look,end,duration,onDone,kind='passage'){
+    anim={age:0,from:camera.position.clone(),fromLook:look.clone(),end,duration,onDone,kind,fromLevel:level,fromDrift:drift};manual=0;
   }
-  function refreshShadows(){for(const light of lights)light.shadow.needsUpdate=true;invalidate();}
+  function refreshShadows(){sun.shadow.needsUpdate=true;invalidate();}
+  function layerGaze(a,p,camera,look){
+    const v=a.fromLook.clone().sub(a.from).normalize(),w=a.end.look.clone().sub(a.end.position).normalize();
+    const yaw=Math.atan2(v.x,v.z),delta=THREE.MathUtils.euclideanModulo(Math.atan2(w.x,w.z)-yaw+Math.PI,Math.PI*2)-Math.PI;
+    const pitch=THREE.MathUtils.lerp(Math.asin(v.y),Math.asin(w.y),p),angle=yaw+delta*p;
+    look.copy(camera.position).addScaledVector(new THREE.Vector3(Math.sin(angle)*Math.cos(pitch),Math.sin(pitch),Math.cos(angle)*Math.cos(pitch)),THREE.MathUtils.lerp(a.from.distanceTo(a.fromLook),10,p));
+  }
+  function setDepth(value,camera,look,onDone,{immediate=false}={}){
+    const previous=depth;manual=0;
+    if(immediate){
+      depth=value;anim=null;applyLayout(depth);const end=pose();
+      camera.position.copy(end.position);look.copy(end.look);camera.up.set(0,1,0);camera.lookAt(look);onDone?.();return;
+    }
+    // A restored deep visit or a chapter exit still unfolds one room at a time.
+    // Each hinge settles before the next scale change starts, in either direction.
+    const next=Math.abs(value-level)>1.00001?(value>level?Math.floor(level)+1:Math.ceil(level)-1):value;
+    depth=next;
+    start(camera,look,pose(),FOLD_DURATION[Math.max(previous,next)]||3.8,
+      next===value?onDone:()=>setDepth(value,camera,look,onDone),'fold');
+  }
+  applyLayout(0);
   return {
-    setVisible(value){visible=value;group.visible=value;for(const light of lights)light.visible=value;anim=null;manual=0;refreshShadows();},
+    setVisible(value){visible=value;group.visible=value;sun.visible=value;anim=null;manual=0;refreshShadows();},
     beginEntry(camera,look,onDone){
-      depth=0;const end=pose(0);
-      start(camera,look,[end.position],[end.look],4.2,onDone);
+      depth=0;applyLayout(0);const end=pose(0);start(camera,look,end,4.2,onDone);
       anim.rail=passageRail(camera.position.clone(),end.position);passageProgress=0;
     },
     beginExit(camera,look,end,onDone){
-      start(camera,look,[end.position],[end.look],4.2,onDone);
-      anim.rail=passageRail(camera.position.clone(),end.position,true);passageProgress=0;
+      start(camera,look,end,4.2,onDone);anim.rail=passageRail(camera.position.clone(),end.position,true);passageProgress=0;
     },
-    setDepth(value,camera,look,onDone,{immediate=false}={}){
-      depth=value;manual=0;const end=pose();
-      if(immediate){anim=null;camera.position.copy(end.position);look.copy(end.look);camera.lookAt(look);onDone?.();return;}
-      start(camera,look,[end.position],[end.look],1.8,onDone);
-    },
+    setDepth,
+    outerPose:()=>pose(0),
+    envelopePresence:()=>1-foldEase(Math.min(1,level)),
     passageProgress:()=>passageProgress,
     cancel(){anim=null;},
     refreshShadows,
     update(dt,camera,look){
       if(!visible)return false;
       if(anim){
-        const a=anim;a.age+=dt;const t=reduced.matches?1:Math.min(1,a.age/a.duration);
-        passageProgress=ease(t);
-        const segment=Math.min(a.positions.length-2,Math.floor(t*(a.positions.length-1)));
-        const u=ease(t===1?1:t*(a.positions.length-1)-segment);
-        if(a.rail)a.rail.getPointAt(passageProgress,camera.position);
-        else camera.position.lerpVectors(a.positions[segment],a.positions[segment+1],u);
-        look.lerpVectors(a.looks[segment],a.looks[segment+1],u);
-        camera.up.set(0,1,0);camera.lookAt(look);
-        camera.near=Math.max(.001,Math.min(.1,camera.position.distanceTo(look)*.008));camera.updateProjectionMatrix();
+        const a=anim;a.age+=dt;const t=reduced.matches?1:Math.min(1,a.age/a.duration),p=a.kind==='fold'?foldEase(t):ease(t);
+        if(a.rail){passageProgress=p;a.rail.getPointAt(p,camera.position);look.lerpVectors(a.fromLook,a.end.look,p);}
+        else {applyLayout(THREE.MathUtils.lerp(a.fromLevel,depth,p),a.fromDrift*(1-p));camera.position.lerpVectors(a.from,a.end.position,p);layerGaze(a,p,camera,look);}
+        camera.up.set(0,1,0);camera.lookAt(look);camera.near=.1;camera.updateProjectionMatrix();
         if(t===1){anim=null;a.onDone?.();}return true;
       }
-      const end=pose();
-      const scale=depth===0?1:MODEL_SCALE**depth;end.position.x+=manual*scale;
-      camera.position.copy(end.position);look.copy(end.look);camera.up.set(0,1,0);camera.lookAt(look);
-      const near=Math.max(.001,Math.min(.1,camera.position.distanceTo(look)*.008));
-      if(camera.near!==near){camera.near=near;camera.updateProjectionMatrix();}return false;
+      const end=pose();end.position.x+=manual;camera.position.copy(end.position);look.copy(end.look);camera.up.set(0,1,0);camera.lookAt(look);camera.near=.1;
+      if(!reduced.matches){
+        times[depth]+=dt;const ball=moments[depth];ball.position.set(Math.cos(times[depth]*.55)*.52,.04,Math.sin(times[depth]*.55)*.52);
+        const target=depth===0?Math.sin(times[0]*.45)*.045:0;
+        applyLayout(level,THREE.MathUtils.lerp(drift,target,1-Math.exp(-dt*3)));
+        refreshShadows();
+      }
+      return true;
     },
     drag(delta){manual=THREE.MathUtils.clamp(manual+delta,-.7,.7);},
-    dispose(){scene.remove(group);for(const light of lights){scene.remove(light,light.target);light.shadow.map?.dispose();}for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();},
+    dispose(){scene.remove(group,sun,sun.target);sun.shadow.map?.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();},
   };
 }

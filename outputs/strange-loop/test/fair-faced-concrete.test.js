@@ -46,8 +46,8 @@ test('fair-faced concrete is matte, cool gray, and keeps chained shader hooks', 
   applySoftShadows(material, false);
   const passage = cloneWithHooks(material);
   applyPassageOcclusion(passage);
-  assert.match(material.customProgramCacheKey(), /geb-ando-concrete-v5\|geb-pcss-v1-desktop/);
-  assert.match(passage.customProgramCacheKey(), /geb-ando-concrete-v5/);
+  assert.match(material.customProgramCacheKey(), /geb-ando-concrete-v6-world\|geb-pcss-v1-desktop/);
+  assert.match(passage.customProgramCacheKey(), /geb-ando-concrete-v6-world/);
   assert.match(passage.customProgramCacheKey(), /geb-pcss-v1-desktop/);
   assert.match(passage.customProgramCacheKey(), /passage-occlusion-v1/);
 
@@ -114,4 +114,15 @@ test('exhibition shells use the concrete and exhibit objects do not', t => {
   assert.ok(modelShell >= 4, 'the architectural model repeats the shell');
   assert.ok(modelOther >= 3, 'table, contour and posters stay separate');
   labyrinth.dispose();
+});
+
+test('moving architecture keeps object-space concrete through scale and orientation changes', () => {
+  const fixed=createFairFacedConcrete(),moving=createFairFacedConcrete({space:'local'});
+  const fixedShader=stubShader(),movingShader=stubShader();
+  fixed.onBeforeCompile(fixedShader);moving.onBeforeCompile(movingShader);
+  assert.equal(fixedShader.uniforms.uConcreteLocalSpace.value,0);
+  assert.equal(movingShader.uniforms.uConcreteLocalSpace.value,1);
+  assert.notEqual(fixed.customProgramCacheKey(),moving.customProgramCacheKey());
+  assert.doesNotMatch(movingShader.fragmentShader,/vConcreteScale\s*</,'scale changes must not switch the coordinate system');
+  assert.match(movingShader.fragmentShader,/vConcreteBasis \* concreteGroove/,'the surface recess must rotate with its wall');
 });

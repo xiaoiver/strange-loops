@@ -55,7 +55,7 @@ export function createLabyrinth(root,{locale:initialLocale,navigation,onMove,onB
     root.setAttribute('aria-busy',String(busy));root.dataset.depth=state.depth;
     root.innerHTML=`<header class="labyrinth-heading"><p>${t.eyebrow}</p><h2 id="labyrinth-title" tabindex="-1">${t.title}</h2></header>
       <div class="labyrinth-reading"><p class="labyrinth-level">${t.location}<span>${t.levels[state.depth]}<small class="labyrinth-key"> · ${t.keys[state.depth]}</small></span></p>
-      <p class="labyrinth-note">${state.depth===MAX_DEPTH?t.leafNote:state.leafSeen?t.returnNote:t.note}</p>
+      <p class="labyrinth-note">${state.depth===MAX_DEPTH?t.leafNote:state.leafSeen?t.returnNote:state.depth===1?t.foldNote:t.note}</p>
       <div class="labyrinth-music-wrap">
         <button id="labyrinth-music" class="labyrinth-music" data-labyrinth="music" aria-pressed="false"></button>
         <aside id="labyrinth-music-prompt" class="labyrinth-music-prompt" ${showMusicPrompt?'':'hidden'}>
@@ -68,7 +68,7 @@ export function createLabyrinth(root,{locale:initialLocale,navigation,onMove,onB
       </div></div>
       <div class="labyrinth-fallback" aria-label="${t.fallback}">${fallbackRooms(state.depth)}</div>
       <div class="labyrinth-dialogue dialogue"><span class="speaker">${COPY[locale].actors[actor]}</span><p>${t[reading]}</p></div>
-      <div class="labyrinth-action"><button id="labyrinth-primary" class="figure-primary" data-labyrinth="${action}" ${busy?'disabled':''}>${t[action]} <span aria-hidden="true">${action==='return'?'←':'→'}</span></button>
+      <div class="labyrinth-action"><button id="labyrinth-primary" class="figure-primary" data-labyrinth="${action}" ${busy?'disabled':''}>${action==='enter'&&state.depth===1?t.unfold:t[action]} <span aria-hidden="true">${action==='return'?'←':'→'}</span></button>
       ${state.depth===1&&!state.leafSeen?`<button id="labyrinth-return" class="figure-link" data-labyrinth="return" ${busy?'disabled':''}>← ${t.return}</button>`:''}</div>
       <dialog class="garden-dialog" id="labyrinth-preview"><h3>${t.preview}</h3><button data-labyrinth="close">${t.close}</button></dialog>`;
     syncMusic();
