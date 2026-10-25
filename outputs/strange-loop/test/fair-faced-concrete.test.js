@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Scene, Texture, TextureLoader } from 'three';
-import { createFairFacedConcrete } from '../src/fair-faced-concrete.js';
+import { createFairFacedConcrete, boardSeam } from '../src/fair-faced-concrete.js';
 import { cloneWithHooks } from '../src/shader-hooks.js';
 import { applySoftShadows } from '../src/soft-shadows.js';
 import { applyPassageOcclusion } from '../src/passage-occlusion.js';
@@ -46,8 +46,8 @@ test('fair-faced concrete is matte, cool gray, and keeps chained shader hooks', 
   applySoftShadows(material, false);
   const passage = cloneWithHooks(material);
   applyPassageOcclusion(passage);
-  assert.match(material.customProgramCacheKey(), /geb-ando-concrete-v1\|geb-pcss-v1-desktop/);
-  assert.match(passage.customProgramCacheKey(), /geb-ando-concrete-v1/);
+  assert.match(material.customProgramCacheKey(), /geb-ando-concrete-v4\|geb-pcss-v1-desktop/);
+  assert.match(passage.customProgramCacheKey(), /geb-ando-concrete-v4/);
   assert.match(passage.customProgramCacheKey(), /geb-pcss-v1-desktop/);
   assert.match(passage.customProgramCacheKey(), /passage-occlusion-v1/);
 
@@ -61,6 +61,22 @@ test('fair-faced concrete is matte, cool gray, and keeps chained shader hooks', 
   assert.match(shader.fragmentShader, /gebPCSS/);
   assert.match(shader.fragmentShader, /vPassageOcclusion/);
   assert.match(shader.fragmentShader, /roughnessFactor = concreteRough/);
+  assert.match(shader.fragmentShader, /fwidth\(coord\)/);
+  assert.match(shader.fragmentShader, /fract\(uv \/ vec2\(BOARD_W, BOARD_H\)\)/);
+  assert.doesNotMatch(shader.fragmentShader, /fwidth\(jointDist\)/);
+  assert.doesNotMatch(shader.fragmentShader, /dFdx\(concreteHeight\)/);
+  assert.doesNotMatch(shader.fragmentShader, /\/ 0\.9/);
+});
+
+test('board seams stay covered when the joint falls between pixels', () => {
+  for (const px of [0.004, 0.012, 0.02, 0.05, 0.08]) {
+    for (const offset of [0, 0.25, 0.5]) {
+      const coverage = boardSeam(offset * px, 0.9, px);
+      assert.ok(coverage > 0.45, `seam broke into a gap at px ${px}, offset ${offset}: ${coverage}`);
+    }
+    assert.ok(boardSeam(0.4, 0.9, px) < 0.05, 'seam leaked across the board');
+    assert.ok(boardSeam(0.9, 0.9, px) > 0.95, 'the next course is not a continuous joint');
+  }
 });
 
 test('exhibition shells use the concrete and exhibit objects do not', t => {
