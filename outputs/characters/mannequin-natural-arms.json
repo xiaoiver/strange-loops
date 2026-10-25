@@ -1,0 +1,14 @@
+{
+  "source_clip": "Walk_Loop",
+  "base_lower_body": "Walk_Formal_Loop",
+  "license": "CC0-1.0",
+  "phase_offset": 0.9833333333333333,
+  "seconds": 1.3333333333333333,
+  "non_arm_curves_unchanged": true,
+  "non_arm_curves_sha256": "c05285f86abd5e790e68d927123d77a04a88da0f9cd2249ebfa2c9d4cfa8c8f6",
+  "hand_forward_ranges": {
+    "l": 0.4910055547952652,
+    "r": 0.5154749900102615
+  },
+  "glb_bytes": 349944
+}

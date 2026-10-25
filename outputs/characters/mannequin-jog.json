@@ -5,13 +5,21 @@
   "source_cycle_distance": 4.999998092651003,
   "leg_scale": 1.4850225885735593,
   "stride_gain": 0.3,
-  "lift_gain": 0.65,
+  "lift_gain": 0.4,
   "root_based_cycle_distance": 2.2275330331234353,
-  "model_cycle_distance": 2.8722424432635307,
-  "web_cycle_distance": 1.7233454659581184,
+  "model_cycle_distance": 2.8722444772720337,
+  "web_cycle_distance": 1.72334668636322,
   "seconds": 0.9333333333333333,
   "frames": 29,
-  "glb_bytes": 340204,
-  "minimum_clearance": 0.0009998054010793567,
-  "maximum_reach_correction": 0
+  "glb_bytes": 353948,
+  "minimum_clearance": 0.0009998647728934884,
+  "maximum_reach_correction": 0,
+  "torso_lean_degrees": [
+    2.503660111495791,
+    5.22983500597609
+  ],
+  "pelvis_height_range": [
+    1.3159674406051636,
+    1.406859040260315
+  ]
 }

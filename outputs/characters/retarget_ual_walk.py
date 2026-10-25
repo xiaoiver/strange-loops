@@ -11,6 +11,10 @@ OUT=Path(__file__).resolve().parent
 PROOF=OUT.parent.parent/'work/ual-retarget';PROOF.mkdir(parents=True,exist_ok=True)
 ASSET=OUT.parent/'strange-loop/assets/characters/achilles.glb'
 args=sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []
+if '--asset' in args:ASSET=Path(args[args.index('--asset')+1]).resolve()
+STUDIO=Path(args[args.index('--studio')+1]).resolve() if '--studio' in args else None
+SOFT_WALK='--soft-walk' in args
+LIGHT_JOG='--light-jog' in args
 CLIP=args[args.index('--clip')+1] if '--clip' in args else 'Walk_Formal_Loop'
 assert CLIP in ['Walk_Formal_Loop','Jog_Fwd_Loop'],CLIP
 MODE='Jog' if CLIP=='Jog_Fwd_Loop' else 'Walk'
@@ -18,7 +22,7 @@ PREFIX=MODE.lower()
 SOURCE='quaternius-jog-fwd-loop.glb' if MODE=='Jog' else 'quaternius-walk-formal-loop.glb'
 # Fit the library's very long running stride to a light gallery jog.
 STRIDE_GAIN=.30 if MODE=='Jog' else 1
-LIFT_GAIN=.65 if MODE=='Jog' else 1
+LIFT_GAIN=(.4 if LIGHT_JOG else .65) if MODE=='Jog' else 1
 scene=bpy.context.scene;scene.render.fps=30
 arm=bpy.data.objects['Achilles'];studio=arm.matrix_world.copy();arm.matrix_world=Matrix.Identity(4)
 mesh=next(o for o in arm.children if o.type=='MESH')
@@ -81,6 +85,12 @@ def orient(p,q):
  bpy.context.view_layer.update()
 def delta(name):return srcbones[name].matrix.to_quaternion()@srest[name].to_quaternion().inverted()
 def foot_delta(name):
+ if SOFT_WALK and MODE=='Walk':
+  values=foot_samples[name];i=phase_frame%frames
+  # Circular, symmetric smoothing keeps timing and loop closure. It softens
+  # the abrupt airborne heel recovery without shifting the support phase.
+  neighbor=values[(i-1)%frames].slerp(values[(i+1)%frames],.5)
+  return values[i].slerp(neighbor,.5)
  q=delta(name)
  if MODE!='Jog':return q
  # Use an anatomical foot frame, not the source rig's mirrored local axes.
@@ -98,10 +108,29 @@ def foot_delta(name):
 # Map the three source spine segments continuously over five target segments.
 spine_names=['pelvis','spine_01','spine_02','spine_03','neck_01','Head']
 sz=[(srest[n].translation.z-srest['pelvis'].translation.z)/(srest['neck_01'].translation.z-srest['pelvis'].translation.z) for n in spine_names]
+def relaxed_delta(q):
+ if not LIGHT_JOG or MODE!='Jog':return q
+ e=q.to_euler('XYZ');e.x*=.35;e.y*=.6;e.z*=.7
+ return e.to_quaternion()
 def body_delta(fraction):
  for i in range(len(sz)-1):
-  if fraction<=sz[i+1]:return delta(spine_names[i]).slerp(delta(spine_names[i+1]),max(0,(fraction-sz[i])/(sz[i+1]-sz[i])))
- return delta('Head')
+  if fraction<=sz[i+1]:return relaxed_delta(delta(spine_names[i]).slerp(delta(spine_names[i+1]),max(0,(fraction-sz[i])/(sz[i+1]-sz[i]))))
+ return relaxed_delta(delta('Head'))
+def upper_delta(name):
+ q=delta(name)
+ if not LIGHT_JOG or MODE!='Jog':return q
+ torso=delta('spine_03')
+ relative=torso.inverted()@q
+ # Reduce motion around its neutral running pose, never toward the T-pose.
+ return relaxed_delta(torso)@upper_centers[name].slerp(relative,.8)
+upper_centers={}
+if LIGHT_JOG and MODE=='Jog':
+ upper_names=[name for name in target if name in srest and (name.startswith(('clavicle_','upperarm_','lowerarm_','hand_')) or re.match(r'(thumb|index|middle|ring|pinky)_\d+_[lr]$',name))]
+ for sample in range(frames):
+  scene.frame_set(start+sample);torso=delta('spine_03')
+  for name in upper_names:
+   relative=torso.inverted()@delta(name)
+   upper_centers[name]=upper_centers[name].slerp(relative,1/(sample+1)) if name in upper_centers else relative
 max_reach_correction=0
 
 def leg(side,goal,rotation,ball_rotation):
@@ -113,7 +142,7 @@ def leg(side,goal,rotation,ball_rotation):
   max_reach_correction=max(max_reach_correction,d-limit);goal=h+v*(limit/d);v=goal-h;d=limit
  axis=v.normalized();a=(upper*upper-lower*lower+d*d)/(2*d)
  pole=srcbones['calf_'+side].head-srcbones['thigh_'+side].head
- if MODE=='Jog':
+ if MODE=='Jog' or SOFT_WALK:
   # Remove the source leg's axial component BEFORE fitting the shorter target
   # stride. Projecting the whole source thigh onto the compressed target axis
   # can cross zero and invert the knee (and force a compensating ankle twist).
@@ -128,28 +157,43 @@ def leg(side,goal,rotation,ball_rotation):
  aim('calf_'+side,'foot_'+side,goal-knee.head)
  orient(foot,rotation);orient(bone('ball_'+side),ball_rotation)
 
+foot_samples={name:[] for name in ['foot_l','foot_r','ball_l','ball_r']}
+if SOFT_WALK and MODE=='Walk':
+ for frame in range(frames):
+  scene.frame_set(start+frame)
+  for name in foot_samples:foot_samples[name].append(delta(name))
 walk=bpy.data.actions.new('Achilles_'+MODE);walk.use_fake_user=True;arm.animation_data.action=walk
 samples=[];previous={};first={}
 for frame in range(frames+1):
+ phase_frame=frame
  scene.frame_set(start+frame)
  for p in arm.pose.bones:p.matrix_basis=Matrix.Identity(4)
  bpy.context.view_layer.update()
  root=srcbones['root'].head.copy()
- pelvis=bone('pelvis');q=delta('pelvis')@rest['pelvis'].to_quaternion()
+ pelvis=bone('pelvis');q=relaxed_delta(delta('pelvis'))@rest['pelvis'].to_quaternion()
  offset=(srcbones['pelvis'].head-root-srest['pelvis'].translation)*ratio
- offset.y*=STRIDE_GAIN;offset.z*=LIFT_GAIN
+ offset.y*=STRIDE_GAIN
+ offset.z=offset.z*.25-.01 if LIGHT_JOG and MODE=='Jog' else offset.z*LIFT_GAIN
  m=q.to_matrix().to_4x4();m.translation=rest['pelvis'].translation+offset
+ if SOFT_WALK and MODE=='Walk':m.translation.z-=.025
  pelvis.matrix=m;bpy.context.view_layer.update()
  for name in ['spine_01','spine_02','spine_03','spine_04','spine_05','neck_01','neck_02','head']:
   frac=(rest[name].translation.z-rest['pelvis'].translation.z)/(rest['neck_01'].translation.z-rest['pelvis'].translation.z)
   orient(bone(name),body_delta(frac)@rest[name].to_quaternion())
  for side in ['l','r']:
-  name='clavicle_'+side;orient(bone(name),delta(name)@rest[name].to_quaternion())
+  name='clavicle_'+side;orient(bone(name),upper_delta(name)@rest[name].to_quaternion())
   for name in ['upperarm_'+side,'lowerarm_'+side,'hand_'+side]:
-   orient(bone(name),delta(name)@reference[name].to_quaternion())
+   orient(bone(name),upper_delta(name)@reference[name].to_quaternion())
   for name,p in target.items():
    if re.match(r'(thumb|index|middle|ring|pinky)_\d+_'+side+'$',name) and name in srest:
-    orient(p,delta(name)@reference[name].to_quaternion())
+    orient(p,upper_delta(name)@reference[name].to_quaternion())
+  if LIGHT_JOG and MODE=='Jog':
+   # Keep elbows close for a compact jog. Rotate the complete arm chain so the
+   # elbow bend and wrist/finger relationships remain intact.
+   direction=bone('lowerarm_'+side).head-bone('upperarm_'+side).head
+   direction.x*=.55
+   direction.z=min(direction.z,-.2*direction.length)
+   aim('upperarm_'+side,'lowerarm_'+side,direction)
  source_clear=clearances(srcmesh,sshoe)
  goals={};rotations={};ballrot={}
  for side in ['l','r']:
@@ -179,7 +223,8 @@ for frame in range(frames+1):
   if frame==0:first[p.name]=(p.location.copy(),q.copy(),p.scale.copy())
   if frame==frames:p.location,p.rotation_quaternion,p.scale=first[p.name]
   for path in ['location','rotation_quaternion','scale']:p.keyframe_insert(data_path=path,frame=frame,group=p.name)
- samples.append({'frame':frame,'clearance':actual,'source_clearance':source_clear,'feet':{s:list(bone('foot_'+s).head) for s in ['l','r']},'toes':{s:list(bone('ball_'+s).head) for s in ['l','r']}})
+ torso=bone('neck_01').head-bone('pelvis').head
+ samples.append({'frame':frame,'clearance':actual,'source_clearance':source_clear,'pelvis_height':bone('pelvis').head.z,'torso_lean_degrees':math.degrees(math.atan2(-torso.y,torso.z)),'feet':{s:list(bone('foot_'+s).head) for s in ['l','r']},'toes':{s:list(bone('ball_'+s).head) for s in ['l','r']}})
 for layer in walk.layers:
  for strip in layer.strips:
   for bag in strip.channelbags:
@@ -200,6 +245,13 @@ arm[PREFIX+'_stride_gain']=STRIDE_GAIN;arm[PREFIX+'_lift_gain']=LIFT_GAIN
 arm[PREFIX+'_adaptation']=f'Quaternius {CLIP} (CC0): rest-pose retarget, proportional pelvis/limbs, anatomical knee-plane and shoe-contact IK fitting; root motion removed and distance-driven at runtime.'
 arm[PREFIX+'_source']='https://quaternius.com/packs/universalanimationlibrary.html'
 arm[PREFIX+'_source_clip']=CLIP;arm[PREFIX+'_license']='CC0-1.0';arm[PREFIX+'_author']='Quaternius'
+if SOFT_WALK and MODE=='Walk':
+ arm['walk_soft_knee_hip_drop']=.025
+ arm['walk_ankle_filter']='circular 0.25 / 0.5 / 0.25 quaternion filter'
+ arm['walk_adaptation']+=' Soft-knee pelvis clearance, projected knee pole and cyclic ankle smoothing.'
+if LIGHT_JOG and MODE=='Jog':
+ arm['jog_posture']='upright light jog: reduced trunk pitch, compact relative arm swing, 25% pelvis bounce, 40% foot lift'
+ arm['jog_adaptation']+=' Upright torso and coordinated compact arms; pelvis bounce reduced independently from foot lift.'
 assert min(min(s['clearance'].values()) for s in samples)>-.001
 assert max_reach_correction<.01
 # Remove reference objects/actions from the delivered studio and export only Achilles.
@@ -210,6 +262,8 @@ bpy.ops.export_scene.gltf(filepath=str(ASSET),export_format='GLB',use_selection=
 raw=ASSET.read_bytes();g=json.loads(raw[20:20+struct.unpack_from('<I',raw,12)[0]])
 assert {'Achilles_Idle','Achilles_Look','Achilles_Walk','Achilles_'+MODE}.issubset({a['name'] for a in g['animations']})
 report={'source':'Quaternius Universal Animation Library Standard','clip':CLIP,'license':'CC0-1.0','source_cycle_distance':travel.length,'leg_scale':ratio,'stride_gain':STRIDE_GAIN,'lift_gain':LIFT_GAIN,'root_based_cycle_distance':root_distance,'model_cycle_distance':distance,'web_cycle_distance':distance*.6,'seconds':frames/30,'frames':frames+1,'glb_bytes':len(raw),'minimum_clearance':min(min(s['clearance'].values()) for s in samples),'maximum_reach_correction':max_reach_correction}
+report['torso_lean_degrees']=[min(s['torso_lean_degrees'] for s in samples),max(s['torso_lean_degrees'] for s in samples)]
+report['pelvis_height_range']=[min(s['pelvis_height'] for s in samples),max(s['pelvis_height'] for s in samples)]
 assert report['minimum_clearance']>-.001,report
 assert max_reach_correction<.01,report
 (PROOF/f'{PREFIX}-measurements.json').write_text(json.dumps({**report,'samples':samples},indent=2))
@@ -218,5 +272,5 @@ optimization=json.loads((OUT/'mannequin-optimization.json').read_text());optimiz
 (OUT/'mannequin-optimization.json').write_text(json.dumps(optimization,indent=2)+'\n')
 arm.matrix_world=studio
 arm.animation_data.action=bpy.data.actions['Achilles_Idle'];scene.frame_start=1;scene.frame_end=421;scene.frame_set(1)
-bpy.ops.wm.save_as_mainfile(filepath=str(OUT/('geb-companions-jog.blend' if MODE=='Jog' else 'geb-companions-ual.blend')))
+bpy.ops.wm.save_as_mainfile(filepath=str(STUDIO or OUT/('geb-companions-jog.blend' if MODE=='Jog' else 'geb-companions-ual.blend')))
 print('RETARGET_READY',json.dumps(report))
