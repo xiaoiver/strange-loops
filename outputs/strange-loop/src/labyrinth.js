@@ -10,7 +10,7 @@ function fallbackRooms(depth){
   return `<svg viewBox="0 0 640 400" role="presentation" aria-hidden="true"><g fill="none" stroke="currentColor">${[0,1,2].map(i=>{
     const width=510-i*130,height=300-i*78,x=60+i*65,y=45+i*39;
     return `<rect x="${x}" y="${y}" width="${width}" height="${height}" stroke-width="${i===depth?3:1}" opacity="${i===depth?1:.28}"/><path d="M${x+width*.35} ${y+height}v-30h${width*.3}v30" stroke-width="1"/>`;
-  }).join('')}<circle cx="315" cy="195" r="18" stroke-width="2"/></g></svg>`;
+  }).join('')}</g></svg>`;
 }
 function readMusicPromptState(){
   try{return sessionStorage.getItem(MUSIC_PROMPT_STORAGE);}catch{return 'dismissed';}

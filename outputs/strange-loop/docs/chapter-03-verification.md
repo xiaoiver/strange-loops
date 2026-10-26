@@ -79,3 +79,15 @@
 - [悬置框架与折起的房间](screenshots/labyrinth-recursive-inside.png)
 - [最内层悬浮终点](screenshots/labyrinth-recursive-leaf.png)
 - [手机悬置建筑](screenshots/labyrinth-recursive-mobile.png)
+
+
+## 空框停止点 · 2026-10-26
+
+替代上一版圆环、悬浮球和各层圆轨道。最后一间地板只保留开放结构边框，中央留下有内壁厚度的混凝土空框；第二次展开时，包围墙面、旧展品、巨大展桌与悬置骨架逐渐退去。框内是真实开口，未放置白色遮挡面或更小的模型，终点自身保持静止。回程恢复上一层建筑与暂停的时间。
+
+- 构建与 94 项测试通过。更新了旧装置的测试，改验空框中心射线穿过完整可见场景无阻挡、内壁有真实厚度、父层淡出材质隔离及返回恢复。
+- 七语言终点文案和无 WebGL 嵌套图解同步更新；中文自托管字体重新生成子集。
+- 手机空框调整比例及位置，使完整轮廓位于说明与对白之间；桌面保留建筑尺度的悬置框。
+- [展开前的父层建筑](screenshots/labyrinth-empty-frame-parent.png)
+- [桌面空框](screenshots/labyrinth-empty-frame.png)
+- [手机空框](screenshots/labyrinth-empty-frame-mobile.png)

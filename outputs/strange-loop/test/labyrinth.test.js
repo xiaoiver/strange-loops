@@ -59,7 +59,7 @@ for(const mobile of [false,true])test(`camera enters two real nested models and 
     view.setDepth(depth,camera,look);advance();poses.push(camera.position.clone());
     assert.ok(camera.near<camera.position.distanceTo(look));
     const room=scene.getObjectByName(`nested-gallery-${depth}`);assert.ok(room);
-    const target=new Box3().setFromObject(room);assert.ok(target.containsPoint(look),'camera focus left the entered model');
+    const eye=room.worldToLocal(camera.position.clone());assert.ok(Math.abs(eye.x)<7&&Math.abs(eye.z)<7,'camera left the entered room floor');
   }
   view.setDepth(1,camera,look);advance();assert.ok(camera.position.distanceTo(poses[0])<1e-8);
   view.setDepth(0,camera,look);advance();assert.ok(camera.position.distanceTo(outer)<1e-8);
@@ -160,28 +160,13 @@ for(const mobile of [false,true])test(`architecture unfolds around an upright, g
   assert.equal(table.scale.x,1);view.dispose();
 });
 
-test('parent motion pauses during a nested visit and continues from the same point on return',t=>{
-  const oldWidth=globalThis.innerWidth;globalThis.innerWidth=1280;t.after(()=>{globalThis.innerWidth=oldWidth;});
-  t.mock.method(TextureLoader.prototype,'load',()=>new Texture());
-  const scene=new Scene(),view=createLabyrinthScene(scene,{matches:false},()=>{}),camera=new PerspectiveCamera(),look=new Vector3();
-  view.setVisible(true);view.setDepth(0,camera,look,null,{immediate:true});view.update(1,camera,look);
-  const outer=scene.getObjectByName('labyrinth-moment-0'),inner=scene.getObjectByName('labyrinth-moment-1');
-  const paused=outer.position.clone();view.setDepth(1,camera,look);
-  for(let frame=0;frame<240;frame++)view.update(1/60,camera,look);
-  assert.ok(outer.position.equals(paused));const inside=inner.position.clone();view.update(1,camera,look);
-  assert.ok(outer.position.equals(paused));assert.ok(inner.position.distanceTo(inside)>.1);
-  view.setDepth(0,camera,look,null,{immediate:true});view.update(0,camera,look);assert.ok(outer.position.equals(paused));
-  view.update(.1,camera,look);assert.ok(outer.position.distanceTo(paused)>0&&outer.position.distanceTo(paused)<.04);
-  view.dispose();
-});
-
 test('saved inner architecture restores immediately and reduced motion leaves all kinetic exhibits still',t=>{
   const oldWidth=globalThis.innerWidth;globalThis.innerWidth=1280;t.after(()=>{globalThis.innerWidth=oldWidth;});
   t.mock.method(TextureLoader.prototype,'load',()=>new Texture());
   const scene=new Scene(),view=createLabyrinthScene(scene,{matches:true},()=>{}),camera=new PerspectiveCamera(),look=new Vector3();
   view.setVisible(true);view.setDepth(2,camera,look,null,{immediate:true});
   const hinge=scene.getObjectByName('folding-gallery-hinge');assert.equal(hinge.rotation.x,0);
-  const ball=scene.getObjectByName('labyrinth-moment-2'),still=ball.position.clone();view.update(10,camera,look);assert.ok(ball.position.equals(still));
+  const frame=scene.getObjectByName('recursion-leaf'),still=frame.matrixWorld.clone();view.update(10,camera,look);assert.ok(frame.matrixWorld.equals(still));
   let old=0;view.setDepth(0,camera,look,()=>old++);view.setVisible(false);view.setVisible(true);
   view.setDepth(2,camera,look,null,{immediate:true});view.update(10,camera,look);assert.equal(old,0);assert.equal(hinge.rotation.x,0);
   view.dispose();
@@ -198,9 +183,36 @@ test('suspended architecture advances only with its active parent level and resp
   const paused=rib.quaternion.clone();view.setDepth(2,camera,look,null,{immediate:true});view.update(2,camera,look);
   assert.ok(rib.quaternion.angleTo(paused)<1e-6,'the enclosing architecture keeps moving inside its child');
   const leaf=scene.getObjectByName('recursion-leaf'),atLeaf=leaf.position.clone();view.update(2,camera,look);
-  assert.ok(leaf.position.distanceTo(atLeaf)>.001,'the finite stopping point should still feel suspended');
+  assert.ok(leaf.position.equals(atLeaf),'the empty stopping point should settle instead of endlessly animating');
   reduced.matches=true;const still=leaf.position.clone();view.update(2,camera,look);assert.ok(leaf.position.equals(still));
+  reduced.matches=false;view.setDepth(1,camera,look,null,{immediate:true});view.update(2,camera,look);
+  assert.ok(rib.quaternion.angleTo(paused)>.001,'the parent must resume its suspended motion on return');
   view.setDepth(0,camera,look,null,{immediate:true});assert.equal(view.envelopePresence(),1);
   assert.equal(scene.getObjectByName('suspended-galleries').visible,false);
+  view.dispose();
+});
+
+
+test('the final frame is a genuine empty aperture and its enclosing walls restore on return',t=>{
+  const oldWidth=globalThis.innerWidth;globalThis.innerWidth=1280;t.after(()=>{globalThis.innerWidth=oldWidth;});
+  t.mock.method(TextureLoader.prototype,'load',()=>new Texture());
+  const scene=new Scene(),view=createLabyrinthScene(scene,{matches:false},()=>{}),camera=new PerspectiveCamera(),look=new Vector3();
+  view.setVisible(true);view.setDepth(1,camera,look,null,{immediate:true});
+  const enclosure=scene.getObjectByName('parent-room-enclosure'),frame=scene.getObjectByName('recursion-leaf');
+  const wall=enclosure.children.find(object=>object.isMesh),floor=scene.getObjectByName('nested-gallery-1').children.find(object=>object.isMesh);
+  assert.equal(enclosure.visible,true);assert.notEqual(wall.material,floor.material);
+  view.setDepth(2,camera,look,null,{immediate:true});assert.equal(enclosure.visible,false);assert.equal(floor.material.opacity,1);
+  assert.equal(scene.getObjectByName('suspended-galleries').visible,false);assert.equal(scene.getObjectByName('parent-table-structure').visible,false);
+  assert.equal(scene.getObjectByName('recursion-leaf-ring'),undefined);
+  const center=frame.getWorldPosition(new Vector3()),edge=frame.localToWorld(new Vector3(1.01,0,0));
+  const ray=new Raycaster(camera.position,center.clone().sub(camera.position).normalize(),0,30);
+  const hits=ray.intersectObject(scene.getObjectByName('harmonic-labyrinth'),true).filter(hit=>{
+    for(let node=hit.object;node;node=node.parent)if(!node.visible)return false;
+    return true;
+  });
+  assert.equal(hits.length,0,'the frame center must open onto empty space, not a white picture or an enclosing wall');
+  ray.set(camera.position,edge.sub(camera.position).normalize());assert.ok(ray.intersectObject(frame,true).length>0,'the concrete reveals must have real depth');
+  view.setDepth(1,camera,look,null,{immediate:true});assert.equal(enclosure.visible,true);assert.equal(wall.material.opacity,1);assert.equal(wall.material.transparent,false);
+  assert.equal(scene.getObjectByName('suspended-galleries').visible,true);assert.equal(scene.getObjectByName('parent-table-structure').visible,true);
   view.dispose();
 });

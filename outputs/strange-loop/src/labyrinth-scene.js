@@ -5,6 +5,7 @@ import { applySoftShadows } from './soft-shadows.js';
 import { MAX_DEPTH } from './labyrinth-system.js';
 import { createFairFacedConcrete } from './fair-faced-concrete.js';
 import { cloneWithHooks } from './shader-hooks.js';
+import { createExhibitFade } from './exhibit-fade.js';
 
 import {MODEL_ORIGIN,MODEL_SCALE,FOLD_DURATION,foldEase,foldLayout} from './labyrinth-fold.js';
 export {MODEL_ORIGIN,MODEL_SCALE} from './labyrinth-fold.js';
@@ -32,12 +33,11 @@ export function passageRail(start,end,returning=false) {
 export function createLabyrinthScene(scene, reduced, invalidate) {
   const group = new THREE.Group(); group.name = 'harmonic-labyrinth'; group.visible = false; scene.add(group);
   const paper = new THREE.MeshStandardMaterial({ color: 0xe2e3de, roughness:.9 });
-  const pale = new THREE.MeshStandardMaterial({ color: 0xb9bcb6, roughness:.9 });
   const ink = new THREE.MeshStandardMaterial({ color: 0x41463f, roughness:.84 });
   const shell=createFairFacedConcrete({space:'local'});
-  for (const material of [paper,pale,ink,shell]) { material.shadowSide=THREE.DoubleSide; applySoftShadows(material, mobile()); }
-  const echoMaterial=cloneWithHooks(shell);
-  const geometries=[], materials=[paper,pale,ink,shell,echoMaterial], textures=[];
+  for (const material of [paper,ink,shell]) { material.shadowSide=THREE.DoubleSide; applySoftShadows(material, mobile()); }
+  const echoMaterial=cloneWithHooks(shell),enclosureShell=cloneWithHooks(shell),enclosureInk=ink.clone();
+  const geometries=[], materials=[paper,ink,shell,echoMaterial,enclosureShell,enclosureInk], textures=[];
   function mesh(parent,geometry,material,position) {
     geometries.push(geometry);
     const object=new THREE.Mesh(geometry,material); object.position.set(...position);
@@ -46,14 +46,16 @@ export function createLabyrinthScene(scene, reduced, invalidate) {
   const box=(parent,w,h,d,mat,x,y,z)=>mesh(parent,new THREE.BoxGeometry(w,h,d),mat,[x,y,z]);
   function table(parent) {
     const stand=new THREE.Group();stand.name='suspended-parent-table';parent.add(stand);
+    const structure=new THREE.Group();structure.name='parent-table-structure';stand.add(structure);
     // The original tabletop's aperture becomes a skylight as its scale changes.
-    for(const z of [-1.75,1.75])box(stand,4.3,.14,.6,paper,0,.96,z);
-    for(const x of [-1.925,1.925])box(stand,.45,.14,2.9,paper,x,.96,0);
-    for(const x of [-1.8,1.8])for(const z of [-1.7,1.7])box(stand,.09,.9,.09,ink,x,.45,z);
+    for(const z of [-1.75,1.75])box(structure,4.3,.14,.6,paper,0,.96,z);
+    for(const x of [-1.925,1.925])box(structure,.45,.14,2.9,paper,x,.96,0);
+    for(const x of [-1.8,1.8])for(const z of [-1.7,1.7])box(structure,.09,.9,.09,ink,x,.45,z);
     return stand;
   }
   const outerTable=table(group);outerTable.position.set(MODEL_ORIGIN[0],-3.8,-10);
-  const rooms=[null],moments=[],times=[0,0,0];
+  const tableStructure=outerTable.getObjectByName('parent-table-structure'),fadeTable=createExhibitFade(tableStructure,{lift:0,shrink:0});
+  const rooms=[null],times=[0,0,0];
   const echoes=new THREE.Group();echoes.name='suspended-galleries';group.add(echoes);
   const ribs=[];
   // Architectural repetitions extend outside the ordinary floor and turn through
@@ -71,14 +73,7 @@ export function createLabyrinthScene(scene, reduced, invalidate) {
     for(const side of [-1,1])box(rib,.18,.18,3.8,echoMaterial,side*w/2,h/2,-1.9);
     ribs.push({object:rib,y,angle,tilt});
   }
-  function moment(parent,index,position,scale=1){
-    const device=new THREE.Group();device.position.set(...position);device.scale.setScalar(scale);parent.add(device);
-    const rail=mesh(device,new THREE.TorusGeometry(.52,.012,8,48),pale,[0,0,0]);rail.rotation.x=-Math.PI/2;
-    const ball=mesh(device,new THREE.SphereGeometry(.085,12,8),ink,[.52,.04,0]);ball.name=`labyrinth-moment-${index}`;
-    moments[index]=ball;
-  }
-  moment(outerTable,0,[1.05,1.09,.5],.65);
-  let childHinge,leafRing,leafSphere,leafSupport;
+  let childHinge,leafFrame,parentEnclosure,fadeEnclosure;
   const posterMaterials=LOBSTER_POSTERS.map(art=>{
     const material=new THREE.MeshStandardMaterial({color:0xf4f4ed,roughness:1});materials.push(material);
     new THREE.TextureLoader().load(art.file,texture=>{
@@ -88,34 +83,40 @@ export function createLabyrinthScene(scene, reduced, invalidate) {
   });
   function buildRoom(parent,depth,position) {
     const room=new THREE.Group();room.name=`nested-gallery-${depth}`;room.position.set(...position);parent.add(room);rooms[depth]=room;
-    box(room,14,.18,14,shell,0,-.09,0);
-    box(room,14,5.7,.16,shell,0,2.85,-6.8);
-    box(room,.16,5.7,14,shell,-7,2.85,0);
-    box(room,.16,1.1,14,shell,7,.55,0);
-    // Familiar exhibits remain as landmarks while the room takes a different scale.
-    const contour=new THREE.Group();contour.position.set(3.7,.02,-4.7);contour.scale.setScalar(.39);room.add(contour);
-    for(const sign of [-1,1]){
-      const shape=traceProfile(new THREE.Shape(),sign);shape.lineTo(sign*5.2,0);shape.lineTo(sign*5.2,6);shape.closePath();
-      mesh(contour,new THREE.ExtrudeGeometry(shape,{depth:.25,bevelEnabled:false,curveSegments:14}),ink,[0,0,0]);
-    }
-    for(const [index,art] of LOBSTER_POSTERS.entries()){
-      const height=2.45,width=height*art.width/art.height;
-      const poster=mesh(room,new THREE.PlaneGeometry(width,height),posterMaterials[index],[-6.89,2.8,1.1+index*2.25]);
-      poster.rotation.y=Math.PI/2;
+    if(depth<MAX_DEPTH)box(room,14,.18,14,shell,0,-.09,0);
+    else {
+      // The final floor is an open outline too. Folded upright, it must not
+      // obscure the empty frame with a solid wall; the parent floor stays below.
+      for(const side of [-1,1])box(room,.22,.18,14,shell,side*6.89,-.09,0);
+      for(const side of [-1,1])box(room,13.56,.18,.22,shell,0,-.09,side*6.89);
     }
     if(depth<MAX_DEPTH){
+      // Only the enclosing room carries the earlier exhibits. The last room is
+      // empty: the same architectural language ends without another miniature.
+      parentEnclosure=new THREE.Group();parentEnclosure.name='parent-room-enclosure';room.add(parentEnclosure);
+      box(parentEnclosure,14,5.7,.16,enclosureShell,0,2.85,-6.8);
+      box(parentEnclosure,.16,5.7,14,enclosureShell,-7,2.85,0);
+      box(parentEnclosure,.16,1.1,14,enclosureShell,7,.55,0);
+      const contour=new THREE.Group();contour.position.set(3.7,.02,-4.7);contour.scale.setScalar(.39);parentEnclosure.add(contour);
+      for(const sign of [-1,1]){
+        const shape=traceProfile(new THREE.Shape(),sign);shape.lineTo(sign*5.2,0);shape.lineTo(sign*5.2,6);shape.closePath();
+        mesh(contour,new THREE.ExtrudeGeometry(shape,{depth:.25,bevelEnabled:false,curveSegments:14}),enclosureInk,[0,0,0]);
+      }
+      for(const [index,art] of LOBSTER_POSTERS.entries()){
+        const height=2.45,width=height*art.width/art.height;
+        const poster=mesh(parentEnclosure,new THREE.PlaneGeometry(width,height),posterMaterials[index],[-6.89,2.8,1.1+index*2.25]);
+        poster.rotation.y=Math.PI/2;
+      }
+      fadeEnclosure=createExhibitFade(parentEnclosure,{lift:0,shrink:0});
       // The child's front edge is the hinge. Its entire floor stays above the parent floor.
       childHinge=new THREE.Group();childHinge.name='folding-gallery-hinge';room.add(childHinge);
       buildRoom(childHinge,depth+1,[0,0,-7]);
-      moment(room,1,[3.3,1.15,1.7]);
-      box(room,.04,1.15,.04,pale,3.3,.575,1.7);
     } else {
-      const circle=mesh(room,new THREE.TorusGeometry(.85,.035,10,64),ink,[-.8,4.2,-1]);
-      circle.rotation.y=.64;circle.name='recursion-leaf-ring';
-      const center=mesh(room,new THREE.SphereGeometry(.15,16,10),pale,[-.8,4.2,-1]);center.name='recursion-leaf';
-      leafRing=circle;leafSphere=center;
-      leafSupport=box(room,.05,1,.05,pale,-.8,1.65,-1);
-      moment(room,2,[2.4,1.5,-1]);
+      // A real aperture, never a picture or an opaque white panel. Its concrete
+      // reveals frame the scene background; no smaller room exists behind it.
+      leafFrame=new THREE.Group();leafFrame.name='recursion-leaf';leafFrame.rotation.y=.64;room.add(leafFrame);
+      for(const side of [-1,1])box(leafFrame,.18,2.3,.85,shell,side*1.01,0,0);
+      for(const side of [-1,1])box(leafFrame,2.2,.18,.85,shell,0,side*1.06,0);
     }
     return room;
   }
@@ -137,19 +138,20 @@ export function createLabyrinthScene(scene, reduced, invalidate) {
       rib.object.rotation.z=rib.angle+Math.sin(times[1]*.17+index)*.075;
       rib.object.rotation.x=rib.tilt+Math.sin(times[1]*.13+index)*.04;
     }
-    const presence=foldEase(layout.first);
+    const quiet=foldEase(layout.second),presence=foldEase(layout.first)*(1-quiet);
     echoes.visible=presence>.001;echoes.scale.setScalar(.85+.15*presence);echoes.position.y=(1-presence)*3;
     echoMaterial.opacity=presence;
     const translucent=presence<1;
     if(echoMaterial.transparent!==translucent){echoMaterial.transparent=translucent;echoMaterial.needsUpdate=true;}
     echoMaterial.depthWrite=!translucent;
     echoes.traverse(object=>{if(object.isMesh)object.castShadow=presence>.98;});
-    // A portrait view looks farther up into the suspended architecture. Keep its
-    // terminal sculpture within that same upright sight line, above the controls.
-    const leafY=mobile()?5.1:4.2;
-    leafRing.position.y=leafY;leafRing.rotation.y=.64+Math.sin(times[2]*.18)*.16;
-    leafSphere.position.y=leafY+Math.sin(times[2]*.5)*.065;
-    leafSupport.scale.y=leafY-.9;leafSupport.position.y=(leafY-.9)/2;
+    // The enclosing walls dissolve only as the last room unfolds. Parent
+    // architecture stays in memory and returns on the same clock when folding back.
+    fadeEnclosure(1-quiet);fadeTable(1-quiet);
+    tableStructure.traverse(object=>{if(object.isMesh)object.castShadow=layout.second<.02;});
+    parentEnclosure.traverse(object=>{if(object.isMesh)object.castShadow=layout.second<.02;});
+    leafFrame.position.set(-.8,mobile()?4.95:4.5,-1.1);
+    leafFrame.scale.setScalar(mobile()?.56:1);
     group.updateMatrixWorld(true);refreshShadows();
   }
   function pose(value=depth){
@@ -209,7 +211,7 @@ export function createLabyrinthScene(scene, reduced, invalidate) {
       }
       const end=pose();end.position.x+=manual;camera.position.copy(end.position);look.copy(end.look);camera.up.set(0,1,0);camera.lookAt(look);camera.near=.1;
       if(!reduced.matches){
-        times[depth]+=dt;const ball=moments[depth];ball.position.set(Math.cos(times[depth]*.55)*.52,.04,Math.sin(times[depth]*.55)*.52);
+        times[depth]+=dt;
         const target=depth===0?Math.sin(times[0]*.45)*.045:0;
         applyLayout(level,THREE.MathUtils.lerp(drift,target,1-Math.exp(-dt*3)));
         refreshShadows();
