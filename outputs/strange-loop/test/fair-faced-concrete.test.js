@@ -111,8 +111,8 @@ test('exhibition shells use the concrete and exhibit objects do not', t => {
     if (object.material.userData.fairFaced) modelShell += 1;
     else modelOther += 1;
   });
-  assert.ok(modelShell >= 4, 'the architectural model repeats the shell');
-  assert.ok(modelOther >= 3, 'table, contour and posters stay separate');
+  assert.ok(modelShell >= 20, 'Menger branches and the empty frame use the concrete');
+  assert.equal(modelOther, 0, 'the Menger architecture does not duplicate the earlier artworks');
   labyrinth.dispose();
 });
 

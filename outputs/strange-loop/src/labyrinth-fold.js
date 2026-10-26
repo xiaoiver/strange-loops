@@ -9,7 +9,6 @@ export const foldEase=t=>{const p=Math.max(0,Math.min(1,t));return p*p*p*(p*(p*6
 export function foldLayout(level){
  const first=Math.max(0,Math.min(1,level)),second=Math.max(0,Math.min(1,level-1));
  return {first,second,roomScale:mix(MODEL_SCALE,ROOM_SCALE,first),roomY:mix(MODEL_ORIGIN[1],-3.78,first),
-  tableScale:mix(1,6,first),tableY:mix(-3.8,-2.6,first),
   childScale:mix(.4,CHILD_SCALE,second),childAngle:mix(Math.PI/2,0,second),
-  childX:mix(-4.7,0,second),childY:.035,childZ:mix(-6.5,6,second)};
+  childX:mix(-1.2,0,second),childY:.035,childZ:mix(-3.8,6,second)};
 }

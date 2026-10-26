@@ -1,7 +1,7 @@
 // Original dialogue and labels; no passages from published translations.
 export const LABYRINTH_COPY = {
   zh: {
-    unfold: "展开下一层", foldNote: "下一间展厅折在墙上；外层仍停在原处。",
+    unfold: "展开下一层", foldNote: "孔洞里，还有同样的结构。外层在等你。",
     musicStart: "开启音乐", musicMute: "静音", musicUnavailable: "音乐不可用",
     musicHint: "每层乐句随进入与返回转调，内外层接续播放",
     musicPrompt: "往里走时，乐句会随层次转调；开启音乐，更能听见接续。",
@@ -16,7 +16,7 @@ export const LABYRINTH_COPY = {
     resume: '继续刚才的探索', fallback: '同一座展厅，嵌套在模型中。选择进入或返回，观察所在的层次。',
   },
   en: {
-    unfold: "Unfold the next room", foldNote: "The next room is folded against the wall. The outer room is still waiting.",
+    unfold: "Unfold the next room", foldNote: "The same structure appears inside the opening. The outer room is waiting.",
     musicStart: "Enable music", musicMute: "Mute music", musicUnavailable: "Music unavailable",
     musicHint: "Each level modulates as you enter and return; inner and outer phrases connect",
     musicPrompt: "As you go deeper, the phrase shifts with each level. Turn music on to hear how the layers connect.",
@@ -31,7 +31,7 @@ export const LABYRINTH_COPY = {
     resume: 'Continue your visit', fallback: 'A gallery nested inside a model. Enter or return to explore its levels.',
   },
   ja: {
-    unfold: "次の部屋を広げる", foldNote: "次の部屋は壁に折り畳まれています。外の部屋はそのまま待っています。",
+    unfold: "次の部屋を広げる", foldNote: "穴の中にも同じ構造があります。外の部屋は待っています。",
     musicStart: "音楽をオン", musicMute: "消音", musicUnavailable: "音楽は利用できません",
     musicHint: "入る・戻るたびに転調し、内外の楽句がつながる",
     musicPrompt: "奥へ進むと、階層ごとに楽句が転調します。音楽をオンにすると、つながりが聞こえます。",
@@ -46,7 +46,7 @@ export const LABYRINTH_COPY = {
     resume: 'さっきの探索を続ける', fallback: '模型の中に重なる展示室。入るか戻るかを選び、階層を確かめてください。',
   },
   ko: {
-    unfold: "다음 방 펼치기", foldNote: "다음 방은 벽에 접혀 있어요. 바깥 방은 그대로 기다립니다.",
+    unfold: "다음 방 펼치기", foldNote: "구멍 안에도 같은 구조가 있어요. 바깥 방은 기다립니다.",
     musicStart: "음악 켜기", musicMute: "음소거", musicUnavailable: "음악을 사용할 수 없습니다",
     musicHint: "들어가고 돌아올 때 조성이 바뀌며 안팎의 악구가 이어집니다",
     musicPrompt: "안으로 들어갈 때마다 층마다 조성이 바뀝니다. 음악을 켜면 그 연결이 들립니다.",
@@ -61,7 +61,7 @@ export const LABYRINTH_COPY = {
     resume: '탐색 이어가기', fallback: '모형 속에 중첩된 전시실입니다. 들어가거나 돌아오며 층위를 살펴보세요.',
   },
   fr: {
-    unfold: "Déplier la salle suivante", foldNote: "La salle suivante est repliée contre le mur. La salle extérieure vous attend.",
+    unfold: "Déplier la salle suivante", foldNote: "La même structure apparaît dans l’ouverture. La salle extérieure vous attend.",
     musicStart: "Activer la musique", musicMute: "Couper le son", musicUnavailable: "Musique indisponible",
     musicHint: "Chaque niveau module à l’entrée et au retour ; les phrases intérieure et extérieure se rejoignent",
     musicPrompt: "En avançant, la phrase change de niveau en niveau. Activez la musique pour entendre la continuité.",
@@ -76,7 +76,7 @@ export const LABYRINTH_COPY = {
     resume: 'Poursuivre la visite', fallback: 'Une galerie emboîtée dans une maquette. Entrez ou revenez pour explorer ses niveaux.',
   },
   de: {
-    unfold: "Den nächsten Raum entfalten", foldNote: "Der nächste Raum ist an die Wand gefaltet. Der äußere Raum wartet weiter.",
+    unfold: "Den nächsten Raum entfalten", foldNote: "In der Öffnung erscheint dieselbe Struktur. Der äußere Raum wartet.",
     musicStart: "Musik einschalten", musicMute: "Stummschalten", musicUnavailable: "Musik nicht verfügbar",
     musicHint: "Jede Ebene moduliert beim Betreten und Zurückkehren; innere und äußere Phrasen schließen an",
     musicPrompt: "Mit jeder Ebene wechselt die Phrase. Schalten Sie die Musik ein, um die Verbindung zu hören.",
@@ -91,7 +91,7 @@ export const LABYRINTH_COPY = {
     resume: 'Erkundung fortsetzen', fallback: 'Eine Galerie, verschachtelt in einem Modell. Betreten Sie es oder kehren Sie eine Ebene zurück.',
   },
   es: {
-    unfold: "Desplegar la siguiente sala", foldNote: "La siguiente sala está plegada contra la pared. La sala exterior sigue esperando.",
+    unfold: "Desplegar la siguiente sala", foldNote: "La misma estructura aparece en la abertura. La sala exterior sigue esperando.",
     musicStart: "Activar música", musicMute: "Silenciar", musicUnavailable: "Música no disponible",
     musicHint: "Cada nivel modula al entrar y volver; las frases interior y exterior se enlazan",
     musicPrompt: "Al adentrarte, la frase cambia con cada nivel. Activa la música para oír cómo se enlazan.",

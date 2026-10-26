@@ -117,7 +117,7 @@ for(const mobile of [false,true])test(`architecture unfolds around an upright, g
   const scene=new Scene(),view=createLabyrinthScene(scene,{matches:false},()=>{}),camera=new PerspectiveCamera(),look=new Vector3();
   view.setVisible(true);view.setDepth(0,camera,look,null,{immediate:true});
   const outer=camera.position.clone(),model=scene.getObjectByName('nested-gallery-1'),child=scene.getObjectByName('nested-gallery-2');
-  const table=scene.getObjectByName('suspended-parent-table'),initialSize=new Box3().setFromObject(model).getSize(new Vector3()).x;
+  const initialSize=new Box3().setFromObject(model).getSize(new Vector3()).x;
   function move(depth){
     let done=false,previous=camera.position.clone(),rotation=camera.quaternion.clone();view.setDepth(depth,camera,look,()=>{done=true;});
     for(let frame=0;frame<720&&!done;frame++){
@@ -137,7 +137,6 @@ for(const mobile of [false,true])test(`architecture unfolds around an upright, g
   }
   const firstRotation=move(1),firstPosition=camera.position.clone();
   assert.ok(new Box3().setFromObject(model).getSize(new Vector3()).x>initialSize*4,'the miniature must become architectural scale');
-  assert.ok(table.scale.x>5,'the parent table must remain as an oversized frame');
   const secondRotation=move(2);
   assert.ok(firstRotation.angleTo(secondRotation)<1e-6,'the wall fold must not rotate the eye');
   const width=mobile?390:1280,height=mobile?844:800;
@@ -152,12 +151,20 @@ for(const mobile of [false,true])test(`architecture unfolds around an upright, g
   move(1);assert.ok(camera.position.distanceTo(firstPosition)<1e-8);
   move(0);assert.ok(camera.position.distanceTo(outer)<1e-8);
   camera.updateMatrixWorld(true);
+  scene.getObjectByName('menger-parent').traverse(object=>{
+    if(!object.isMesh)return;
+    const positions=object.geometry.getAttribute('position');
+    for(let i=0;i<positions.count;i++){
+      const point=new Vector3().fromBufferAttribute(positions,i).applyMatrix4(object.matrixWorld).project(camera);
+      assert.ok(Math.abs(point.x)<.94&&Math.abs(point.y)<.94,'the complete miniature must fit inside the outer observation frame');
+    }
+  });
   for(const [index,actorHeight] of [1.5,.34].entries()){
     const [x,z]=labyrinthStop(index),actor=new Vector3(x,-3.8+actorHeight*.55,z).project(camera);
     assert.ok(Math.abs(actor.x)<.94&&Math.abs(actor.y)<.92,'a companion was lost outside the outer observation frame');
   }
   move(2);move(0);assert.ok(camera.position.distanceTo(outer)<1e-8,'a direct chapter exit must restore the outer room too');
-  assert.equal(table.scale.x,1);view.dispose();
+  view.dispose();
 });
 
 test('saved inner architecture restores immediately and reduced motion leaves all kinetic exhibits still',t=>{
@@ -178,15 +185,18 @@ test('suspended architecture advances only with its active parent level and resp
   const scene=new Scene(),reduced={matches:false},view=createLabyrinthScene(scene,reduced,()=>{}),camera=new PerspectiveCamera(),look=new Vector3();
   view.setVisible(true);view.setDepth(1,camera,look,null,{immediate:true});
   assert.equal(view.envelopePresence(),0);
-  const rib=scene.getObjectByName('suspended-gallery-0'),initial=rib.quaternion.clone();
+  const rib=scene.getObjectByName('suspended-gallery-0'),initial=rib.quaternion.clone(),piece=scene.getObjectByName('menger-parent-piece-0'),initialPiece=piece.position.clone();
   view.update(2,camera,look);assert.ok(rib.quaternion.angleTo(initial)>.001);
-  const paused=rib.quaternion.clone();view.setDepth(2,camera,look,null,{immediate:true});view.update(2,camera,look);
+  assert.ok(piece.position.distanceTo(initialPiece)>.001,'the Menger subdivision must open with the active layer');
+  const pausedPiece=piece.position.clone(),paused=rib.quaternion.clone();view.setDepth(2,camera,look,null,{immediate:true});view.update(2,camera,look);
   assert.ok(rib.quaternion.angleTo(paused)<1e-6,'the enclosing architecture keeps moving inside its child');
+  assert.ok(piece.position.equals(pausedPiece),'a parent Menger cell moved while visiting its child');
   const leaf=scene.getObjectByName('recursion-leaf'),atLeaf=leaf.position.clone();view.update(2,camera,look);
   assert.ok(leaf.position.equals(atLeaf),'the empty stopping point should settle instead of endlessly animating');
   reduced.matches=true;const still=leaf.position.clone();view.update(2,camera,look);assert.ok(leaf.position.equals(still));
   reduced.matches=false;view.setDepth(1,camera,look,null,{immediate:true});view.update(2,camera,look);
   assert.ok(rib.quaternion.angleTo(paused)>.001,'the parent must resume its suspended motion on return');
+  assert.ok(piece.position.distanceTo(pausedPiece)>.001,'the Menger structure must also resume after returning');
   view.setDepth(0,camera,look,null,{immediate:true});assert.equal(view.envelopePresence(),1);
   assert.equal(scene.getObjectByName('suspended-galleries').visible,false);
   view.dispose();
@@ -199,10 +209,10 @@ test('the final frame is a genuine empty aperture and its enclosing walls restor
   const scene=new Scene(),view=createLabyrinthScene(scene,{matches:false},()=>{}),camera=new PerspectiveCamera(),look=new Vector3();
   view.setVisible(true);view.setDepth(1,camera,look,null,{immediate:true});
   const enclosure=scene.getObjectByName('parent-room-enclosure'),frame=scene.getObjectByName('recursion-leaf');
-  const wall=enclosure.children.find(object=>object.isMesh),floor=scene.getObjectByName('nested-gallery-1').children.find(object=>object.isMesh);
+  const wall=scene.getObjectByName('menger-parent-piece-0'),floor=scene.getObjectByName('nested-gallery-1').children.find(object=>object.isMesh);
   assert.equal(enclosure.visible,true);assert.notEqual(wall.material,floor.material);
   view.setDepth(2,camera,look,null,{immediate:true});assert.equal(enclosure.visible,false);assert.equal(floor.material.opacity,1);
-  assert.equal(scene.getObjectByName('suspended-galleries').visible,false);assert.equal(scene.getObjectByName('parent-table-structure').visible,false);
+  assert.equal(scene.getObjectByName('suspended-galleries').visible,false);
   assert.equal(scene.getObjectByName('recursion-leaf-ring'),undefined);
   const center=frame.getWorldPosition(new Vector3()),edge=frame.localToWorld(new Vector3(1.01,0,0));
   const ray=new Raycaster(camera.position,center.clone().sub(camera.position).normalize(),0,30);
@@ -213,6 +223,6 @@ test('the final frame is a genuine empty aperture and its enclosing walls restor
   assert.equal(hits.length,0,'the frame center must open onto empty space, not a white picture or an enclosing wall');
   ray.set(camera.position,edge.sub(camera.position).normalize());assert.ok(ray.intersectObject(frame,true).length>0,'the concrete reveals must have real depth');
   view.setDepth(1,camera,look,null,{immediate:true});assert.equal(enclosure.visible,true);assert.equal(wall.material.opacity,1);assert.equal(wall.material.transparent,false);
-  assert.equal(scene.getObjectByName('suspended-galleries').visible,true);assert.equal(scene.getObjectByName('parent-table-structure').visible,true);
+  assert.equal(scene.getObjectByName('suspended-galleries').visible,true);
   view.dispose();
 });

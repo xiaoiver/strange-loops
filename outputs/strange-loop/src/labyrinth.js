@@ -1,17 +1,11 @@
 import { createLabyrinthMusic } from './labyrinth-music.js';
 import { COPY } from './copy.js';
+import { mengerDiagram } from './menger-architecture.js';
 import { LABYRINTH_COPY } from './labyrinth-copy.js';
 import { LABYRINTH_STORAGE, MAX_DEPTH, initialLabyrinthState, restoreLabyrinthState, advanceLabyrinth, labyrinthReading } from './labyrinth-system.js';
 
 const MUSIC_PROMPT_STORAGE = 'geb.labyrinth.musicPrompt.v1';
 
-function fallbackRooms(depth){
-  // A diagram of the same three levels, available without WebGL or image downloads.
-  return `<svg viewBox="0 0 640 400" role="presentation" aria-hidden="true"><g fill="none" stroke="currentColor">${[0,1,2].map(i=>{
-    const width=510-i*130,height=300-i*78,x=60+i*65,y=45+i*39;
-    return `<rect x="${x}" y="${y}" width="${width}" height="${height}" stroke-width="${i===depth?3:1}" opacity="${i===depth?1:.28}"/><path d="M${x+width*.35} ${y+height}v-30h${width*.3}v30" stroke-width="1"/>`;
-  }).join('')}</g></svg>`;
-}
 function readMusicPromptState(){
   try{return sessionStorage.getItem(MUSIC_PROMPT_STORAGE);}catch{return 'dismissed';}
 }
@@ -66,7 +60,7 @@ export function createLabyrinth(root,{locale:initialLocale,navigation,onMove,onB
           </div>
         </aside>
       </div></div>
-      <div class="labyrinth-fallback" aria-label="${t.fallback}">${fallbackRooms(state.depth)}</div>
+      <div class="labyrinth-fallback" aria-label="${t.fallback}">${mengerDiagram(state.depth)}</div>
       <div class="labyrinth-dialogue dialogue"><span class="speaker">${COPY[locale].actors[actor]}</span><p>${t[reading]}</p></div>
       <div class="labyrinth-action"><button id="labyrinth-primary" class="figure-primary" data-labyrinth="${action}" ${busy?'disabled':''}>${action==='enter'&&state.depth===1?t.unfold:t[action]} <span aria-hidden="true">${action==='return'?'←':'→'}</span></button>
       ${state.depth===1&&!state.leafSeen?`<button id="labyrinth-return" class="figure-link" data-labyrinth="return" ${busy?'disabled':''}>← ${t.return}</button>`:''}</div>
