@@ -2,7 +2,7 @@
 import { MODEL_ORIGIN } from './labyrinth-fold.js';
 export const GARDEN_EXIT = Object.freeze({ x:-3.8, z:-1.3, halfWidth:.76, depth:.72 });
 export const GALLERY_ENTRY = Object.freeze({ x:-6.9, z:10.4, halfWidth:.9, depth:.9 });
-export const labyrinthStop = index => [MODEL_ORIGIN[0]+(index===0?1.2:2.2),index===0?-7.7:-9.3];
+export const labyrinthStop = index => [MODEL_ORIGIN[0]+(index===0?1.7:2.2),index===0?-9.4:-9.3];
 export function contourRoute(start,index,returning=false,mobile=false) {
   const end=returning?(mobile?(index===0?[-2.5,.9]:[-1.5,1.2]):(index===0?[-3,3.9]:[-1.9,4.3])):labyrinthStop(index);
   // Approach the front before crossing; no diagonal can clip either profile wall.

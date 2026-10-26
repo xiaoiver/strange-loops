@@ -1,20 +1,15 @@
 import * as THREE from 'three';
-import { applySoftShadows } from './soft-shadows.js';
-import { MAX_DEPTH } from './labyrinth-system.js';
-import { createFairFacedConcrete } from './fair-faced-concrete.js';
-import { cloneWithHooks } from './shader-hooks.js';
-import { createExhibitFade } from './exhibit-fade.js';
-import { createMengerArchitecture } from './menger-architecture.js';
-
-import {MODEL_ORIGIN,MODEL_SCALE,FOLD_DURATION,foldEase,foldLayout} from './labyrinth-fold.js';
+import {applySoftShadows} from './soft-shadows.js';
+import {createFairFacedConcrete} from './fair-faced-concrete.js';
+import {createMengerArchitecture} from './menger-architecture.js';
+import {MODEL_ORIGIN,MODEL_SCALE} from './labyrinth-fold.js';
+import {createFractalSpace} from './fractal-space.js';
+import {PORTAL_Z,INTERIOR_SCALE,END_INTERIOR_Z,CRUISE_SPEED,createTravelFrame,advanceTravel,cruiseCamera,entryEase,smooth} from './fractal-journey.js';
 export {MODEL_ORIGIN,MODEL_SCALE} from './labyrinth-fold.js';
-const ease = t => t*t*(3-2*t);
-const mobile = () => innerWidth <= 760;
-// The eye crosses the actual opening at x=0 without dipping toward the floor.
-export const CONTOUR_CROSSING = [[0,1.15,4.2], [0,1.05,1.2], [0,1.0,-.6], [0,.95,-1.8]];
+const ease=t=>t*t*(3-2*t);
+const mobile=()=>innerWidth<=760;
+export const CONTOUR_CROSSING=[[0,1.15,4.2],[0,1.05,1.2],[0,1.0,-.6],[0,.95,-1.8]];
 
-// Arc-length sampling keeps speed independent of the distance between control points.
-// Four centered points leave a straight, safe stretch through the narrow profile opening.
 export function passageRail(start,end,returning=false) {
   const portal=CONTOUR_CROSSING.map(p=>{
     const point=new THREE.Vector3(...p);
@@ -29,180 +24,118 @@ export function passageRail(start,end,returning=false) {
   return curve;
 }
 
-export function createLabyrinthScene(scene, reduced, invalidate) {
-  const group = new THREE.Group(); group.name = 'harmonic-labyrinth'; group.visible = false; scene.add(group);
-  const shell=createFairFacedConcrete({space:'local'});
-  for (const material of [shell]) { material.shadowSide=THREE.DoubleSide; applySoftShadows(material, mobile()); }
-  const echoMaterial=cloneWithHooks(shell),enclosureShell=cloneWithHooks(shell),childShell=cloneWithHooks(shell),floorShell=cloneWithHooks(shell);
-  const geometries=[], materials=[shell,echoMaterial,enclosureShell,childShell,floorShell];
-  function mesh(parent,geometry,material,position) {
-    geometries.push(geometry);
-    const object=new THREE.Mesh(geometry,material); object.position.set(...position);
-    object.castShadow=object.receiveShadow=true; parent.add(object); return object;
-  }
-  const box=(parent,w,h,d,mat,x,y,z)=>mesh(parent,new THREE.BoxGeometry(w,h,d),mat,[x,y,z]);
-  const rooms=[null],times=[0,0,0];
-  const echoes=new THREE.Group();echoes.name='suspended-galleries';group.add(echoes);
-  const ribs=[];
-  // Architectural repetitions extend outside the ordinary floor and turn through
-  // impossible orientations. They belong to the first nested level's clock.
-  for(const [index,[x,y,z,angle,tilt]] of [
-    [10.2,1.4,-13.8,.38,.2],[-1.7,5.2,-18.8,-.28,.6],[-6.4,2.8,-22.5,1.25,-.25],
-  ].entries()){
-    const rib=new THREE.Group();rib.name=`suspended-gallery-${index}`;
-    rib.position.set(x,y,z);rib.rotation.set(tilt,index===0?.3:-.12,angle);echoes.add(rib);
-    const w=index===1?16:12,h=10;
-    for(const side of [-1,1])box(rib,.25,h,.65,echoMaterial,side*w/2,0,0);
-    for(const side of [-1,1])box(rib,w,.25,.65,echoMaterial,0,side*h/2,0);
-    // A second offset edge reads as room depth rather than a flat picture frame.
-    box(rib,w,.18,.18,echoMaterial,0,h/2,-3.8);
-    for(const side of [-1,1])box(rib,.18,.18,3.8,echoMaterial,side*w/2,h/2,-1.9);
-    ribs.push({object:rib,y,angle,tilt});
-  }
-  let childHinge,leafFrame,parentEnclosure,fadeEnclosure,body,childBody,fadeChildBody,parentFloor,fadeFloor;
-  function buildRoom(parent,depth,position) {
-    const room=new THREE.Group();room.name=`nested-gallery-${depth}`;room.position.set(...position);parent.add(room);rooms[depth]=room;
-    if(depth<MAX_DEPTH){
-      parentFloor=box(room,14,.18,14,floorShell,0,-.09,0);
-      fadeFloor=createExhibitFade(parentFloor,{lift:0,shrink:0});
-    }
-    else {
-      // The final floor is an open outline too. Folded upright, it must not
-      // obscure the empty frame with a solid wall; the parent floor stays below.
-      for(const side of [-1,1])box(room,.22,.18,14,shell,side*6.89,-.09,0);
-      for(const side of [-1,1])box(room,13.56,.18,.22,shell,0,-.09,side*6.89);
-    }
-    if(depth<MAX_DEPTH){
-      parentEnclosure=new THREE.Group();parentEnclosure.name='parent-room-enclosure';room.add(parentEnclosure);
-      body=createMengerArchitecture({depth:2,size:14,material:enclosureShell,name:'menger-parent'});
-      body.group.rotation.y=.64;parentEnclosure.add(body.group);
-      fadeEnclosure=createExhibitFade(parentEnclosure,{lift:0,shrink:0});
-      // The child's front edge is the hinge. Its entire floor stays above the parent floor.
-      childHinge=new THREE.Group();childHinge.name='folding-gallery-hinge';room.add(childHinge);
-      buildRoom(childHinge,depth+1,[0,0,-7]);
-    } else {
-      childBody=createMengerArchitecture({depth:1,size:3.2,material:childShell,name:'menger-child'});
-      childBody.group.position.set(-.8,4.5,-2.1);childBody.group.rotation.y=.64;room.add(childBody.group);
-      fadeChildBody=createExhibitFade(childBody.group,{lift:0,shrink:0});
-      // A real aperture, never a picture or an opaque white panel. Its concrete
-      // reveals frame the scene background; no smaller room exists behind it.
-      leafFrame=new THREE.Group();leafFrame.name='recursion-leaf';leafFrame.rotation.y=.64;room.add(leafFrame);
-      for(const side of [-1,1])box(leafFrame,.18,2.3,.85,shell,side*1.01,0,0);
-      for(const side of [-1,1])box(leafFrame,2.2,.18,.85,shell,0,side*1.06,0);
-    }
-    return room;
-  }
-  buildRoom(group,1,MODEL_ORIGIN);
-  const sun=new THREE.DirectionalLight(0xf3f3ee,1.05);sun.position.set(10,16,2);sun.target.position.set(2.8,-3.78,-10);
-  Object.assign(sun.shadow.camera,{left:-22,right:22,top:22,bottom:-22,near:1,far:65});
-  sun.shadow.mapSize.set(mobile()?1024:2048,mobile()?1024:2048);sun.shadow.normalBias=.008;sun.shadow.camera.name='floor-shadow';
+export function createLabyrinthScene(scene,reduced,invalidate,onTravel=()=>{}){
+  const group=new THREE.Group();group.name='harmonic-labyrinth';group.visible=false;scene.add(group);
+  const shell=createFairFacedConcrete({space:'local'});shell.shadowSide=THREE.DoubleSide;applySoftShadows(shell,mobile());
+  const parent=new THREE.Group();parent.name='fractal-cube';parent.position.set(...MODEL_ORIGIN);parent.scale.setScalar(MODEL_SCALE);parent.rotation.y=.64;group.add(parent);
+  const body=createMengerArchitecture({depth:2,size:14,material:shell,name:'menger-parent'});parent.add(body.group);
+  const space=createFractalSpace(parent);
+  const sun=new THREE.DirectionalLight(0xf3f3ee,1.45);
+  sun.position.set(MODEL_ORIGIN[0]+17,MODEL_ORIGIN[1]+7.5,MODEL_ORIGIN[2]+23.4);sun.target.position.set(...MODEL_ORIGIN);
+  Object.assign(sun.shadow.camera,{left:-18,right:18,top:18,bottom:-18,near:1,far:85});
+  sun.shadow.mapSize.set(mobile()?1024:2048,mobile()?1024:2048);sun.shadow.normalBias=.004;sun.shadow.bias=-.000015;sun.shadow.camera.name='floor-shadow';
   sun.shadow.autoUpdate=false;sun.castShadow=true;sun.visible=false;scene.add(sun,sun.target);
-  let visible=false,depth=0,level=0,anim=null,manual=0,passageProgress=0,drift=0,widthMode=mobile();
-  function applyLayout(value,bob=0){
-    drift=bob;widthMode=mobile();
-    level=value;const layout=foldLayout(value);
-    rooms[1].scale.setScalar(layout.roomScale);rooms[1].position.y=layout.roomY+bob;
-    fadeFloor(foldEase(layout.first));
-    parentFloor.castShadow=layout.first>.98;
-    childHinge.position.set(layout.childX,layout.childY,layout.childZ);
-    childHinge.scale.setScalar(layout.childScale);childHinge.rotation.x=layout.childAngle;
-    body.group.position.set(-.8,THREE.MathUtils.lerp(4.3,4.5,layout.first),-1.1);
-    body.group.rotation.y=THREE.MathUtils.lerp(.32,.64,foldEase(layout.first));
-    body.group.scale.setScalar(THREE.MathUtils.lerp(.6,1,foldEase(layout.first)));
-    body.update(foldEase(layout.first),times[1]);childBody.update(0);
-    for(const [index,rib] of ribs.entries()){
-      rib.object.position.y=rib.y+Math.sin(times[1]*.23+index)*.35;
-      rib.object.rotation.z=rib.angle+Math.sin(times[1]*.17+index)*.075;
-      rib.object.rotation.x=rib.tilt+Math.sin(times[1]*.13+index)*.04;
-    }
-    const quiet=foldEase(layout.second),presence=foldEase(layout.first)*(1-quiet);
-    echoes.visible=presence>.001;echoes.scale.setScalar(.85+.15*presence);echoes.position.y=(1-presence)*3;
-    echoMaterial.opacity=presence;
-    const translucent=presence<1;
-    if(echoMaterial.transparent!==translucent){echoMaterial.transparent=translucent;echoMaterial.needsUpdate=true;}
-    echoMaterial.depthWrite=!translucent;
-    echoes.traverse(object=>{if(object.isMesh)object.castShadow=presence>.98;});
-    // The enclosing walls dissolve only as the last room unfolds. Parent
-    // architecture stays in memory and returns on the same clock when folding back.
-    fadeEnclosure(1-quiet);
-    const childPresence=1-foldEase((layout.second-.35)/.65);
-    fadeChildBody(childPresence);
-    childBody.group.scale.setScalar(mobile()?.7:1);
-    childBody.group.position.set(-.8,4.5,mobile()?-3.6:-2.1);
-    childBody.group.traverse(object=>{if(object.isMesh)object.castShadow=childPresence>.98;});
-    parentEnclosure.traverse(object=>{if(object.isMesh)object.castShadow=layout.second<.02;});
-    const reveal=foldEase((layout.second-.3)/.7);
-    leafFrame.visible=reveal>0;
-    leafFrame.position.set(-.8,mobile()?4.95:4.5,-1.1);
-    leafFrame.scale.setScalar((mobile()?.56:1)*reveal);
-    group.updateMatrixWorld(true);refreshShadows();
-  }
-  function pose(value=depth){
-    if(value===0)return {position:new THREE.Vector3(7.6,.7,-3.4),look:new THREE.Vector3(MODEL_ORIGIN[0],mobile()?-1.3:-2.18,-10)};
-    const travel=value===1?2.4:4.5,yaw=Math.atan2(4.8,6.6),pitch=(mobile()?7:3)*Math.PI/180;
-    const position=new THREE.Vector3(7.6-Math.sin(yaw)*travel,.7,-3.4-Math.cos(yaw)*travel);
-    const direction=new THREE.Vector3(-Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch));
-    return {position,look:position.clone().addScaledVector(direction,10)};
-  }
-  function start(camera,look,end,duration,onDone,kind='passage'){
-    anim={age:0,from:camera.position.clone(),fromLook:look.clone(),end,duration,onDone,kind,fromLevel:level,fromDrift:drift};manual=0;
-  }
+  let visible=false,progress=0,anim=null,entry=null,cruise=null,playing=false,speed=0,yaw=0,pitch=0,outsideOffset=0,passageProgress=0,fade=0;
+  const normalized=new THREE.Vector3(),target=new THREE.Vector3();
   function refreshShadows(){sun.shadow.needsUpdate=true;invalidate();}
-  function layerGaze(a,p,camera,look){
-    const v=a.fromLook.clone().sub(a.from).normalize(),w=a.end.look.clone().sub(a.end.position).normalize();
-    const yaw=Math.atan2(v.x,v.z),delta=THREE.MathUtils.euclideanModulo(Math.atan2(w.x,w.z)-yaw+Math.PI,Math.PI*2)-Math.PI;
-    const pitch=THREE.MathUtils.lerp(Math.asin(v.y),Math.asin(w.y),p),angle=yaw+delta*p;
-    look.copy(camera.position).addScaledVector(new THREE.Vector3(Math.sin(angle)*Math.cos(pitch),Math.sin(pitch),Math.cos(angle)*Math.cos(pitch)),THREE.MathUtils.lerp(a.from.distanceTo(a.fromLook),10,p));
+  function pose(){return {position:new THREE.Vector3(MODEL_ORIGIN[0]+4.8,MODEL_ORIGIN[1]+2.1,MODEL_ORIGIN[2]+6.6),look:new THREE.Vector3(MODEL_ORIGIN[0],MODEL_ORIGIN[1]-.2,MODEL_ORIGIN[2])};}
+  function travelState(){return {moving:playing,entering:anim?.kind==='entry',returning:anim?.kind==='return',inside:space.pass.enabled,reduced:reduced.matches};}
+  function notify(){onTravel(travelState());}
+  function reset(camera,look){
+    progress=0;cruise=null;entry=null;playing=false;speed=0;yaw=0;pitch=0;outsideOffset=0;space.pass.enabled=false;
+    const end=pose();camera.position.copy(end.position);look.copy(end.look);camera.up.set(0,1,0);camera.lookAt(look);
+    camera.near=.1;camera.updateProjectionMatrix();
+    space.sync(camera,null);refreshShadows();
+  }
+  function entryPose(camera,look){
+    const align=smooth(0,.32,progress),z=THREE.MathUtils.lerp(entry.from.z,-6,progress);
+    normalized.set(entry.from.x*(1-align),THREE.MathUtils.lerp(entry.from.y,.12,align),z);
+    target.lerpVectors(entry.look,new THREE.Vector3(0,.08,z-5),align);
+    const inside=z<PORTAL_Z;
+    if(inside){
+      const worldZ=(z-PORTAL_Z)*INTERIOR_SCALE,frame=cruise||createTravelFrame(worldZ),at=cruiseCamera(frame),blend=smooth(0,12,-worldZ);
+      const direction=target.clone().sub(normalized).normalize().lerp(new THREE.Vector3(...at.forward),blend).normalize();
+      normalized.set(at.position[0]/INTERIOR_SCALE,at.position[1]/INTERIOR_SCALE,PORTAL_Z+frame.localZ/INTERIOR_SCALE);
+      target.copy(normalized).add(direction);
+      space.cameraAt(camera,look,normalized.toArray(),target.toArray());space.pass.enabled=visible;space.sync(camera,frame,yaw,pitch,true);
+    }else{
+      space.cameraAt(camera,look,normalized.toArray(),target.toArray());space.pass.enabled=false;space.sync(camera,null);
+    }
+  }
+  function cruisePose(camera,look){
+    const at=cruiseCamera(cruise);
+    normalized.set(at.position[0]/INTERIOR_SCALE,at.position[1]/INTERIOR_SCALE,PORTAL_Z+cruise.localZ/INTERIOR_SCALE);
+    target.copy(normalized).add(new THREE.Vector3(...at.forward));
+    space.cameraAt(camera,look,normalized.toArray(),target.toArray());space.pass.enabled=visible;space.sync(camera,cruise,yaw,pitch,true);
   }
   function setDepth(value,camera,look,onDone,{immediate=false}={}){
-    const previous=depth;manual=0;
-    if(immediate){
-      depth=value;anim=null;applyLayout(depth);const end=pose();
-      camera.position.copy(end.position);look.copy(end.look);camera.up.set(0,1,0);camera.lookAt(look);onDone?.();return;
+    anim=null;fade=0;
+    if(value===0){
+      playing=false;
+      if(immediate||reduced.matches){reset(camera,look);notify();onDone?.();return;}
+      anim={kind:'return',age:0,duration:.7,onDone,reset:false};notify();return;
     }
-    // A restored deep visit or a chapter exit still unfolds one room at a time.
-    // Each hinge settles before the next scale change starts, in either direction.
-    const next=Math.abs(value-level)>1.00001?(value>level?Math.floor(level)+1:Math.ceil(level)-1):value;
-    depth=next;
-    start(camera,look,pose(),FOLD_DURATION[Math.max(previous,next)]||3.8,
-      next===value?onDone:()=>setDepth(value,camera,look,onDone),'fold');
+    parent.updateWorldMatrix(true,false);
+    camera.near=.005;camera.updateProjectionMatrix();
+    entry={from:space.localPoint(camera.position),look:space.localPoint(look)};
+    yaw=0;pitch=0;cruise=null;progress=0;
+    if(immediate||reduced.matches){progress=1;cruise=createTravelFrame(END_INTERIOR_Z);playing=false;cruisePose(camera,look);notify();onDone?.();return;}
+    // A shorter approach avoids the long, almost stationary initial ramp.
+    // Its final derivative still hands off at six internal units per second.
+    const duration=8,slope=CRUISE_SPEED*duration/((entry.from.z+6)*INTERIOR_SCALE);
+    anim={kind:'entry',age:0,duration,slope,onDone};playing=true;entryPose(camera,look);notify();
   }
-  applyLayout(0);
   return {
-    setVisible(value){visible=value;group.visible=value;sun.visible=value;anim=null;manual=0;refreshShadows();},
+    fractalPass:space.pass,travelState,warm:space.warm,
+    companionsVisible:()=>visible&&!space.pass.enabled,
+    preparePortal(renderer){if(visible&&!space.pass.enabled)space.preparePortal(renderer);},
+    setVisible(value){visible=value;group.visible=value;sun.visible=value;anim=null;playing=false;space.pass.enabled=false;fade=0;refreshShadows();notify();},
     beginEntry(camera,look,onDone){
-      depth=0;applyLayout(0);const end=pose(0);start(camera,look,end,4.2,onDone);
-      anim.rail=passageRail(camera.position.clone(),end.position);passageProgress=0;
+      const start=camera.position.clone(),fromLook=look.clone();reset(camera,look);camera.position.copy(start);look.copy(fromLook);camera.lookAt(look);const end=pose();
+      anim={kind:'passage',age:0,fromLook:look.clone(),end,duration:4.2,onDone,rail:passageRail(camera.position.clone(),end.position)};
+      passageProgress=0;
     },
     beginExit(camera,look,end,onDone){
-      start(camera,look,end,4.2,onDone);anim.rail=passageRail(camera.position.clone(),end.position,true);passageProgress=0;
+      playing=false;space.pass.enabled=false;
+      anim={kind:'passage',age:0,fromLook:look.clone(),end,duration:4.2,onDone,rail:passageRail(camera.position.clone(),end.position,true)};passageProgress=0;
     },
-    setDepth,
-    outerPose:()=>pose(0),
-    envelopePresence:()=>1-foldEase(Math.min(1,level)),
+    setDepth,outerPose:pose,
+    envelopePresence:()=>space.pass.enabled?0:1,returnFade:()=>fade,
     passageProgress:()=>passageProgress,
-    cancel(){anim=null;},
-    refreshShadows,
+    toggleTravel(){if(anim?.kind==='return')return;playing=!playing&&!reduced.matches;notify();},
+    stepTravel(){if(!cruise)return;playing=false;advanceTravel(cruise,4);space.pass.dirty=true;notify();},
+    pause(){playing=false;notify();},
+    cancel(){anim=null;playing=false;fade=0;},refreshShadows,
     update(dt,camera,look){
       if(!visible)return false;
-      if(anim){
-        const a=anim;a.age+=dt;const t=reduced.matches?1:Math.min(1,a.age/a.duration),p=a.kind==='fold'?foldEase(t):ease(t);
-        if(a.rail){passageProgress=p;a.rail.getPointAt(p,camera.position);look.lerpVectors(a.fromLook,a.end.look,p);}
-        else {applyLayout(THREE.MathUtils.lerp(a.fromLevel,depth,p),a.fromDrift*(1-p));camera.position.lerpVectors(a.from,a.end.position,p);layerGaze(a,p,camera,look);}
-        camera.up.set(0,1,0);camera.lookAt(look);camera.near=.1;camera.updateProjectionMatrix();
+      if(reduced.matches&&playing){playing=false;notify();}
+      if(anim?.kind==='passage'){
+        const a=anim;a.age+=dt;const t=reduced.matches?1:Math.min(1,a.age/a.duration),p=ease(t);passageProgress=p;
+        a.rail.getPointAt(p,camera.position);look.lerpVectors(a.fromLook,a.end.look,p);camera.up.set(0,1,0);camera.lookAt(look);space.sync(camera,null);
         if(t===1){anim=null;a.onDone?.();}return true;
       }
-      const end=pose();end.position.x+=manual;camera.position.copy(end.position);look.copy(end.look);camera.up.set(0,1,0);camera.lookAt(look);camera.near=.1;
-      if(reduced.matches&&widthMode!==mobile())applyLayout(level,drift);
-      if(!reduced.matches){
-        times[depth]+=dt;
-        const target=depth===0?Math.sin(times[0]*.45)*.045:0;
-        applyLayout(level,THREE.MathUtils.lerp(drift,target,1-Math.exp(-dt*3)));
-        refreshShadows();
+      if(anim?.kind==='return'){
+        const a=anim;a.age+=dt;const t=reduced.matches?1:Math.min(1,a.age/a.duration);fade=Math.sin(Math.PI*t);
+        if(t>=.5&&!a.reset){reset(camera,look);a.reset=true;}
+        if(t===1){anim=null;fade=0;notify();a.onDone?.();}return true;
       }
+      if(anim?.kind==='entry'){
+        const a=anim,wasInside=space.pass.enabled;
+        if(reduced.matches){progress=1;entryPose(camera,look);}
+        else if(playing){a.age=Math.min(a.duration,a.age+dt);const t=a.duration-a.age<1e-6?1:a.age/a.duration;progress=entryEase(t,a.slope);entryPose(camera,look);}
+        else if(space.pass.dirty)entryPose(camera,look);
+        if(wasInside!==space.pass.enabled)notify();
+        if(progress===1){anim=null;cruise=createTravelFrame(END_INTERIOR_Z);speed=CRUISE_SPEED;notify();a.onDone?.();}
+        return true;
+      }
+      if(cruise){
+        if(playing){speed+=(CRUISE_SPEED-speed)*(1-Math.exp(-dt*2));advanceTravel(cruise,speed*dt);}
+        if(playing||space.pass.dirty)cruisePose(camera,look);
+      }else{const end=pose();end.position.x+=outsideOffset;camera.position.copy(end.position);look.copy(end.look);camera.lookAt(look);space.sync(camera,null);}
       return true;
     },
-    drag(delta){manual=THREE.MathUtils.clamp(manual+delta,-.7,.7);},
-    dispose(){scene.remove(group,sun,sun.target);sun.shadow.map?.dispose();for(const g of geometries)g.dispose();for(const m of materials)m.dispose();body.dispose();childBody.dispose();},
+    drag(delta,vertical=0){if(!cruise&&!anim){outsideOffset=THREE.MathUtils.clamp(outsideOffset+delta,-.5,.5);return;}yaw=THREE.MathUtils.clamp(yaw+delta,-.48,.48);pitch=THREE.MathUtils.clamp(pitch+vertical,-.3,.3);space.pass.dirty=true;},
+    move(distance){if(!cruise||anim)return;playing=false;speed=0;advanceTravel(cruise,distance);space.pass.dirty=true;notify();},
+    dispose(){scene.remove(group,sun,sun.target);sun.shadow.map?.dispose();space.dispose();body.dispose();shell.dispose();},
   };
 }

@@ -16,3 +16,5 @@ outputs/*
 # Generated, verified website release package.
 outputs/strange-loop/dist/
 outputs/strange-loop/dev/clip-preview.js
+
+outputs/strange-loop/dev/fractal-preview.js

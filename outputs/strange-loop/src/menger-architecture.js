@@ -64,13 +64,12 @@ export function createMengerArchitecture({depth=2,size=14,material,name='menger-
 }
 
 
-// Same finite visit when WebGL is unavailable: front projections of a sponge
-// and its child, followed by a genuinely empty outline at the stopping point.
+// A finite diagram of repeated structure; it does not claim to render infinity.
 export function mengerDiagram(depth){
-  if(depth===2)return '<svg viewBox="0 0 640 400" role="presentation" aria-hidden="true"><rect x="230" y="95" width="180" height="210" fill="none" stroke="currentColor" stroke-width="12"/></svg>';
-  function face(generation,size){
-    const divisions=3**generation,edge=(divisions-1)/2,cell=size/divisions;
-    return mengerCells(generation).filter(p=>p[2]===edge).map(([x,y])=>`<rect x="${320+(x-.5)*cell}" y="${200+(y-.5)*cell}" width="${cell}" height="${cell}"/>`).join('');
+  function face(size){
+    const divisions=9,edge=4,cell=size/divisions;
+    return mengerCells(2).filter(p=>p[2]===edge).map(([x,y])=>`<rect x="${320+(x-.5)*cell}" y="${200+(y-.5)*cell}" width="${cell}" height="${cell}"/>`).join('');
   }
-  return `<svg viewBox="0 0 640 400" role="presentation" aria-hidden="true"><g fill="currentColor" opacity="${depth===0?1:.25}">${face(2,depth===0?280:420)}</g><g fill="currentColor">${face(1,depth===0?58:100)}</g></svg>`;
+  const sizes=depth===0?[280,62,14]:[900,280,62,14];
+  return `<svg viewBox="0 0 640 400" role="presentation" aria-hidden="true">${sizes.map((size,i)=>`<g fill="currentColor" opacity="${1-i*.14}">${face(size)}</g>`).join('')}</svg>`;
 }

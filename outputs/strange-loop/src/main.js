@@ -14,6 +14,7 @@ import { figureStage } from './figure-ground-system.js';
 import { createFigureGround } from './figure-ground.js';
 import { createFigureGroundScene } from './figure-ground-scene.js';
 import { createLabyrinthScene } from './labyrinth-scene.js';
+import {previewResolution} from './fractal-journey.js';
 import { createLabyrinth } from './labyrinth.js';
 import { LABYRINTH_COPY } from './labyrinth-copy.js';
 import { within } from './startup-assets.js';
@@ -45,8 +46,8 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 const chapterCounter=createChapterCounter($('.location'),reduced);
 let paused=reduced.matches, inGarden=false, keepGardenPositions=false, currentChapter=0, transition=false, currentView='free';
 const lobbySurfaces=[];let figureScene,figureArea='',labyrinthScene;
-let scene,renderer,camera,sculpture,clock,raf,composer,ao,fxaa,elapsed=0;
-let companions,gardenScene,fadeSculpture;
+let scene,renderer,camera,sculpture,clock,raf,composer,worldPass,ao,fxaa,elapsed=0;
+let companions,gardenScene,fadeSculpture,budgetMode=false,lastCompanionShadow=0,lastActorVisibility=true;
 const projectionLights={};
 const gardenFill={G:0,E:0,B:0};
 let currentLetters=DEFAULT_LETTERS, sculptureBusy=false, graphiteMaterial=null;
@@ -86,6 +87,7 @@ const figure=createFigureGround($('#figure-ground'),{
 });
 const labyrinth=createLabyrinth($('#labyrinth'),{
  locale,navigation:$('#chapter-navigation'),onBack:()=>enterFigure(),onMeet:id=>companions?.observe(id),
+ onTravel:()=>labyrinthScene?.toggleTravel(),onStep:()=>labyrinthScene?.stepTravel(),
  onMove:(depth,done)=>{
   if(document.body.dataset.scene==='ready'&&labyrinthScene&&camera)labyrinthScene.setDepth(depth,camera,look,done);
   else done();
@@ -280,7 +282,7 @@ async function init(){
   sculpture=new THREE.Mesh(geometry,graphiteMaterial);sculpture.position.y=-.12;sculpture.castShadow=sculpture.receiveShadow=true;scene.add(sculpture);fadeSculpture=createExhibitFade(sculpture);
   gardenScene=createGardenScene(scene,reduced,{exitWall,shellMaterial:shell});
   figureScene=createFigureGroundScene(scene,reduced,refreshShadows);
-  labyrinthScene=createLabyrinthScene(scene,reduced,()=>{if(renderer)renderer.shadowMap.needsUpdate=true;});
+  labyrinthScene=createLabyrinthScene(scene,reduced,()=>{if(renderer)renderer.shadowMap.needsUpdate=true;},value=>labyrinth.setTravelState(value));
   garden.setLocale(locale);
   if(inGarden){sculpture.visible=false;gardenScene.setVisible(true);}
   currentLetters=DEFAULT_LETTERS;
@@ -296,12 +298,14 @@ async function init(){
   if(inGarden)setGardenLighting(true);
   renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;
   // PBR image-based lighting, then ground-truth ambient occlusion and a denoise pass.
-  composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));
+  composer=new EffectComposer(renderer);worldPass=new RenderPass(scene,camera);composer.addPass(worldPass);
   ao=new GTAOPass(scene,camera,innerWidth,innerHeight);ao.updateGtaoMaterial({radius:.42,distanceExponent:1.5,thickness:1.2,distanceFallOff:.7,scale:1.1,samples:16});ao.updatePdMaterial({radius:5,rings:2,samples:16});ao.blendIntensity=.65;composer.addPass(ao);
+  composer.addPass(labyrinthScene.fractalPass);
   composer.addPass(new OutputPass());fxaa=new ShaderPass(FXAAShader);composer.addPass(fxaa);
   if(!paused&&!inGarden)camPos.set(0,.1,16.5);
   if(inGarden){camera.position.copy(gardenCamera);camera.lookAt(gardenLook);}
   resize();
+  labyrinthScene.warm(renderer).catch(error=>console.warn('Fractal precompile unavailable',error));
   loading?.setStage('companions');
   const companionReady=loadCompanions(scene,reduced,(id,position)=>{
    const button=$(`#meet-${id}`);button.hidden=!position;
@@ -323,9 +327,9 @@ function updateCameraProjection(){
  if(stage==='to-labyrinth'||stage==='from-labyrinth'){
   const t=labyrinthScene?.passageProgress()||0;
   const offset=stage==='to-labyrinth'?THREE.MathUtils.lerp(.09,.12,t):THREE.MathUtils.lerp(.12,.09,t);
-  camera.aspect=innerWidth/innerHeight;camera.fov=mobile?48:36;camera.setViewOffset(innerWidth,innerHeight,-innerWidth*(mobile?0:offset),0,innerWidth,innerHeight);camera.updateProjectionMatrix();return;
+  camera.aspect=innerWidth/innerHeight;camera.fov=THREE.MathUtils.lerp(mobile?48:36,mobile?52:40,stage==='to-labyrinth'?t:1-t);camera.setViewOffset(innerWidth,innerHeight,-innerWidth*(mobile?0:offset),0,innerWidth,innerHeight);camera.updateProjectionMatrix();return;
  }
- if(currentChapter===3){camera.aspect=innerWidth/innerHeight;camera.fov=mobile?48:36;camera.setViewOffset(innerWidth,innerHeight,-innerWidth*(mobile?0:.12),0,innerWidth,innerHeight);camera.updateProjectionMatrix();return;}
+ if(currentChapter===3){camera.aspect=innerWidth/innerHeight;camera.fov=mobile?52:40;camera.setViewOffset(innerWidth,innerHeight,-innerWidth*(mobile?0:.12),0,innerWidth,innerHeight);camera.updateProjectionMatrix();return;}
  camera.near=.1;
  if(currentChapter===2){camera.aspect=innerWidth/innerHeight;camera.fov=mobile?48:36;camera.setViewOffset(innerWidth,innerHeight,-innerWidth*(mobile?0:.09),0,innerWidth,innerHeight);camera.updateProjectionMatrix();return;}
  const eased=THREE.MathUtils.smoothstep(cameraBlend,0,1);
@@ -344,11 +348,16 @@ function resize(){
  if(composer){
   // Size offscreen targets in physical pixels, with the same integer rounding as the canvas.
   composer.setPixelRatio(1);
-  composer.setSize(bufferWidth,bufferHeight);
-  fxaa.material.uniforms.resolution.value.set(1/bufferWidth,1/bufferHeight);
+  budgetMode=currentChapter===3;
+  const post=budgetMode?previewResolution(innerWidth,innerHeight,devicePixelRatio,1.25):{width:bufferWidth,height:bufferHeight};
+  composer.setSize(post.width,post.height);
+  fxaa.material.uniforms.resolution.value.set(1/post.width,1/post.height);
+  world.dataset.postResolution=`${post.width}×${post.height}`;
  }
 }
-function tick(){raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta(),.05);if(document.hidden)return;elapsed+=dt;
+let measuredFrame=0;
+function tick(){raf=requestAnimationFrame(tick);const frameStart=performance.now(),rawDelta=clock.getDelta(),dt=Math.min(rawDelta,.05);if(document.hidden)return;elapsed+=dt;
+ if(currentChapter===3&&++measuredFrame%12===0){world.dataset.frameMs=(rawDelta*1000).toFixed(1);world.dataset.phase=labyrinthScene?.fractalPass.enabled?'inside':labyrinthScene?.travelState().entering?'entry':'outside';}
  const a=1-Math.exp(-dt*4.4);
  if(stage==='lobby'){
   if(currentView==='free'){
@@ -358,7 +367,7 @@ function tick(){raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta
   }
   camPos.lerp(camGoal,a);camera.position.copy(camPos);look.lerp(new THREE.Vector3(0,.1,0),a);
   up.lerp(currentView==='B'?UPTOP:Y,a).normalize();camera.up.copy(up);camera.lookAt(look);
- }else if(stage==='labyrinth'||stage==='to-labyrinth'||stage==='from-labyrinth'||stage==='labyrinth-unfold'){labyrinthScene?.update(dt,camera,look);figureScene?.setPresence(labyrinthScene?.envelopePresence()??1);if(stage==='to-labyrinth'||stage==='from-labyrinth')updateCameraProjection();
+ }else if(stage==='labyrinth'||stage==='to-labyrinth'||stage==='from-labyrinth'||stage==='labyrinth-unfold'){labyrinthScene?.update(dt,camera,look);figureScene?.setPresence(labyrinthScene?.envelopePresence()??1);document.body.style.setProperty('--labyrinth-presence',String(1-(labyrinthScene?.returnFade()||0)));if(stage==='to-labyrinth'||stage==='from-labyrinth')updateCameraProjection();
  }else if(stage==='figure'){figureScene?.update(dt,camera,look);updatePassage(dt);
  }else if(stage==='exiting-garden'||stage==='passage-cut'){updatePassage(dt);
  }else if(stage==='entering'||stage==='returning'){
@@ -382,10 +391,20 @@ function tick(){raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta
   updateCameraProjection();refreshShadows();
   if(cameraBlend>=1){if(entering)showGarden();else finishLobby();}
  }
- const actorsVisible=stage==='lobby'||stage==='entering'||stage==='returning'||stage==='garden'||stage==='figure'||stage==='exiting-garden'||stage==='passage-cut'||stage==='to-labyrinth'||stage==='from-labyrinth'||stage==='labyrinth'&&labyrinth.getState().depth===0;
- if(companions?.update(dt,camera,actorsVisible)){projectionLights.B.shadow.needsUpdate=true;gardenScene?.refreshShadows();figureScene?.refreshShadows();labyrinthScene?.refreshShadows();renderer.shadowMap.needsUpdate=true;}
+ const actorsVisible=stage==='lobby'||stage==='entering'||stage==='returning'||stage==='garden'||stage==='figure'||stage==='exiting-garden'||stage==='passage-cut'||stage==='to-labyrinth'||stage==='from-labyrinth'||stage==='labyrinth'&&labyrinthScene?.companionsVisible();
+ if(companions?.update(dt,camera,actorsVisible)&&(currentChapter!==3||actorsVisible!==lastActorVisibility||elapsed-lastCompanionShadow>1/15)){lastCompanionShadow=elapsed;projectionLights.B.shadow.needsUpdate=true;gardenScene?.refreshShadows();figureScene?.refreshShadows();labyrinthScene?.refreshShadows();renderer.shadowMap.needsUpdate=true;}
+ lastActorVisibility=actorsVisible;
  if(gardenScene?.update(dt))refreshShadows();
+ const fractal=labyrinthScene?.fractalPass;
+ const needsBudget=currentChapter===3;
+ if(needsBudget!==budgetMode)resize();
+ if(currentChapter===3||stage==='to-labyrinth'||stage==='from-labyrinth')labyrinthScene?.preparePortal(renderer);
+ if(currentChapter===3){world.dataset.actorsVisible=String(actorsVisible);world.dataset.fractalResolution=`${fractal.target.width}×${fractal.target.height}`;world.dataset.fractalFrames=String(fractal.renderCount);world.dataset.fractalReady=String(fractal.ready);}
+ worldPass.enabled=ao.enabled=!fractal?.enabled;
+ if(fractal?.enabled){world.dataset.fractal='inside';world.dataset.fractalResolution=`${fractal.target.width}×${fractal.target.height}`;}else delete world.dataset.fractal;
  composer.render(dt);
+ if(currentChapter===3&&measuredFrame%12===0)world.dataset.submitMs=(performance.now()-frameStart).toFixed(1);
+ if(fractal?.enabled){world.dataset.fractalFrames=String(fractal.renderCount);world.dataset.fractalFps=(1000/fractal.frameMs).toFixed(1);world.dataset.fractalResources=`${renderer.info.memory.geometries}/${renderer.info.memory.textures}/${renderer.info.programs.length}`;}
 }
 
 function setView(view){if(currentChapter!==0||transition)return;currentView=view;manualAngle=null;autoAngle=0;
@@ -396,8 +415,10 @@ function setView(view){if(currentChapter!==0||transition)return;currentView=view
 }
 for(const button of document.querySelectorAll('[data-view]'))button.addEventListener('click',()=>setView(button.dataset.view));
 $('#reset-view').addEventListener('click',()=>setView('free'));
-world.addEventListener('pointerdown',e=>{if(transition)return;if(currentChapter===2||currentChapter===3){drag={x:e.clientX,y:e.clientY,figure:true,labyrinth:currentChapter===3,distance:0};world.setPointerCapture(e.pointerId);return;}if(inGarden||transition||!camera)return;const sphere=new THREE.Spherical().setFromVector3(camPos);drag={x:e.clientX,y:e.clientY,theta:sphere.theta,phi:sphere.phi,radius:sphere.radius};world.setPointerCapture(e.pointerId);world.classList.add('dragging');});
-world.addEventListener('pointermove',e=>{if(!drag)return;if(drag.figure){(drag.labyrinth?labyrinthScene:figureScene)?.drag((e.clientX-drag.x)*.002);drag.distance+=Math.abs(e.clientX-drag.x);drag.x=e.clientX;return;}manualAngle={radius:drag.radius,theta:drag.theta-(e.clientX-drag.x)*.006,phi:THREE.MathUtils.clamp(drag.phi+(e.clientY-drag.y)*.006,.12,Math.PI-.2)};currentView='free';for(const b of document.querySelectorAll('[data-view]'))b.setAttribute('aria-pressed','false');});
+world.addEventListener('pointerdown',e=>{if(transition)return;if(currentChapter===3)world.focus({preventScroll:true});if(currentChapter===2||currentChapter===3){drag={x:e.clientX,y:e.clientY,figure:true,labyrinth:currentChapter===3,distance:0};world.setPointerCapture(e.pointerId);return;}if(inGarden||transition||!camera)return;const sphere=new THREE.Spherical().setFromVector3(camPos);drag={x:e.clientX,y:e.clientY,theta:sphere.theta,phi:sphere.phi,radius:sphere.radius};world.setPointerCapture(e.pointerId);world.classList.add('dragging');});
+world.addEventListener('pointermove',e=>{if(!drag)return;if(drag.figure){(drag.labyrinth?labyrinthScene:figureScene)?.drag((e.clientX-drag.x)*.002,(e.clientY-drag.y)*.002);drag.distance+=Math.abs(e.clientX-drag.x);drag.x=e.clientX;drag.y=e.clientY;return;}manualAngle={radius:drag.radius,theta:drag.theta-(e.clientX-drag.x)*.006,phi:THREE.MathUtils.clamp(drag.phi+(e.clientY-drag.y)*.006,.12,Math.PI-.2)};currentView='free';for(const b of document.querySelectorAll('[data-view]'))b.setAttribute('aria-pressed','false');});
+world.addEventListener('wheel',event=>{if(currentChapter!==3||transition||!labyrinthScene?.fractalPass.enabled)return;event.preventDefault();labyrinthScene.move(event.deltaY*.04);},{passive:false});
+world.addEventListener('keydown',event=>{if(currentChapter!==3||transition||event.target!==world)return;if(event.code==='Space'){event.preventDefault();$('#labyrinth-primary')?.click();}else if(event.key==='ArrowUp'||event.key==='ArrowDown'){event.preventDefault();labyrinthScene?.move(event.key==='ArrowUp'?2.4:-2.4);}});
 function endDrag(e){if(drag?.figure){const pointer={x:e.clientX/innerWidth*2-1,y:1-e.clientY/innerHeight*2};if(!drag.labyrinth&&e?.type==='pointerup'&&drag.distance<6){if(figureScene?.pickPoster(pointer,camera))figure.showPoster();else figure.pickCoEdge(pointer,camera,figureScene);}drag=null;return;}if(drag){drag=null;world.classList.remove('dragging');updateDialogue('drag');}}
 world.addEventListener('pointerup',endDrag);world.addEventListener('pointercancel',endDrag);
 bindPileInteraction(document,{
@@ -563,6 +584,7 @@ function showLabyrinth(arriving=false){
 }
 function leaveLabyrinth(){
  labyrinth.hide();labyrinthScene?.setVisible(false);figureScene?.setVisible(false);figureArea='';
+ document.body.style.removeProperty('--labyrinth-presence');
  document.body.classList.remove('in-labyrinth');currentChapter=0;stage='lobby';
  for(const surface of lobbySurfaces)surface.visible=true;
  for(const light of Object.values(projectionLights))light.visible=true;
@@ -571,7 +593,7 @@ function returnToFigure(){
  labyrinth.stopMusic();
  if(document.body.dataset.scene!=='ready'||!camera||!labyrinthScene||!figureScene){leaveLabyrinth();showFigure();figure.showContour();return;}
  lockLabyrinthPassage();
- const walk=()=>{stage='from-labyrinth';companions?.crossContour(true);
+ const walk=()=>{labyrinth.arriveOutside();stage='from-labyrinth';companions?.crossContour(true);
  labyrinthScene.beginExit(camera,look,figureScene.contourPose(),()=>{
   labyrinth.hide();labyrinthScene.cancel();currentChapter=2;stage='figure';figureArea='contour';
   document.body.classList.remove('in-labyrinth');document.body.classList.add('in-figure');

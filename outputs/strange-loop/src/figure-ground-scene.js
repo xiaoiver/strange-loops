@@ -86,7 +86,9 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
     }
     return {position:new THREE.Vector3(mobile?.2:3,mobile?1.8:1.9,mobile?20:17.8),look:new THREE.Vector3(mobile?-.4:-.6,-.7,0)};
   }
+  let lastPresence=null;
   function setPresence(value){
+    if(value===lastPresence)return;lastPresence=value;
     fade(value);sun.visible=value>0;sun.intensity=2.7*value;
     sun.shadow.needsUpdate=true;invalidate();
   }

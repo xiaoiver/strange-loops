@@ -104,14 +104,14 @@ test('exhibition shells use the concrete and exhibit objects do not', t => {
   assert.ok(other >= 4, 'co-edge walls and posters keep their own materials');
 
   const labyrinth = createLabyrinthScene(scene, { matches: true }, () => {});
-  const model = scene.getObjectByName('nested-gallery-1');
+  const model = scene.getObjectByName('fractal-cube');
   let modelShell = 0, modelOther = 0;
   model.traverse(object => {
-    if (!object.isMesh || object.parent?.name?.startsWith('nested-gallery-2')) return;
+    if (!object.isMesh || object.name==='fractal-opening') return;
     if (object.material.userData.fairFaced) modelShell += 1;
     else modelOther += 1;
   });
-  assert.ok(modelShell >= 20, 'Menger branches and the empty frame use the concrete');
+  assert.ok(modelShell >= 20, 'the mesh Menger branches use the concrete');
   assert.equal(modelOther, 0, 'the Menger architecture does not duplicate the earlier artworks');
   labyrinth.dispose();
 });
