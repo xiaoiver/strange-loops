@@ -1,25 +1,19 @@
 import { createLabyrinthMusic } from './labyrinth-music.js';
 import { COPY } from './copy.js';
+import { mengerDiagram } from './menger-architecture.js';
 import { LABYRINTH_COPY } from './labyrinth-copy.js';
-import { LABYRINTH_STORAGE, MAX_DEPTH, initialLabyrinthState, restoreLabyrinthState, advanceLabyrinth, labyrinthReading } from './labyrinth-system.js';
+import { LABYRINTH_STORAGE, initialLabyrinthState, restoreLabyrinthState, advanceLabyrinth, labyrinthReading } from './labyrinth-system.js';
 
 const MUSIC_PROMPT_STORAGE = 'geb.labyrinth.musicPrompt.v1';
 
-function fallbackRooms(depth){
-  // A diagram of the same three levels, available without WebGL or image downloads.
-  return `<svg viewBox="0 0 640 400" role="presentation" aria-hidden="true"><g fill="none" stroke="currentColor">${[0,1,2].map(i=>{
-    const width=510-i*130,height=300-i*78,x=60+i*65,y=45+i*39;
-    return `<rect x="${x}" y="${y}" width="${width}" height="${height}" stroke-width="${i===depth?3:1}" opacity="${i===depth?1:.28}"/><path d="M${x+width*.35} ${y+height}v-30h${width*.3}v30" stroke-width="1"/>`;
-  }).join('')}<circle cx="315" cy="195" r="18" stroke-width="2"/></g></svg>`;
-}
 function readMusicPromptState(){
   try{return sessionStorage.getItem(MUSIC_PROMPT_STORAGE);}catch{return 'dismissed';}
 }
 function writeMusicPromptState(value){
   try{sessionStorage.setItem(MUSIC_PROMPT_STORAGE,value);}catch{}
 }
-export function createLabyrinth(root,{locale:initialLocale,navigation,onMove,onBack,onMeet,onAnnounce}){
-  let locale=initialLocale,state=initialLabyrinthState(),active=false,busy=false,revision=0,musicPromptOpen=false;
+export function createLabyrinth(root,{locale:initialLocale,navigation,onMove,onTravel=()=>{},onStep=()=>{},onBack,onMeet,onAnnounce}){
+  let locale=initialLocale,state=initialLabyrinthState(),active=false,busy=false,revision=0,musicPromptOpen=false,travel={moving:false,entering:false,returning:false,reduced:false};
   try{state=restoreLabyrinthState(JSON.parse(localStorage.getItem(LABYRINTH_STORAGE)));}catch{}
   const c=()=>LABYRINTH_COPY[locale];
   const music=createLabyrinthMusic({onChange:()=>syncMusic()});
@@ -48,14 +42,15 @@ export function createLabyrinth(root,{locale:initialLocale,navigation,onMove,onB
   window.addEventListener('pagehide',()=>music.stop());
   function render(focus){
     const previewOpen=root.querySelector('dialog')?.open;
-    const t=c(),reading=labyrinthReading(state),actor=reading==='inside'||reading==='leaf'?'tortoise':'achilles';
-    const action=state.depth===MAX_DEPTH||state.leafSeen&&state.depth>0?'return':state.complete?'again':'enter';
+    const t=c(),reading=labyrinthReading(state),actor=state.depth?'tortoise':'achilles';
+    const fallback=document.body.dataset.scene==='fallback';
+    const action=state.depth?(fallback?'return':'travel'):'enter';
     const retained=root.contains(document.activeElement)?document.activeElement.id:null;
     const showMusicPrompt=musicPromptOpen&&!musicPromptBlocked();
     root.setAttribute('aria-busy',String(busy));root.dataset.depth=state.depth;
     root.innerHTML=`<header class="labyrinth-heading"><p>${t.eyebrow}</p><h2 id="labyrinth-title" tabindex="-1">${t.title}</h2></header>
       <div class="labyrinth-reading"><p class="labyrinth-level">${t.location}<span>${t.levels[state.depth]}<small class="labyrinth-key"> · ${t.keys[state.depth]}</small></span></p>
-      <p class="labyrinth-note">${state.depth===MAX_DEPTH?t.leafNote:state.leafSeen?t.returnNote:t.note}</p>
+      <p class="labyrinth-note">${state.depth?t.foldNote:state.complete?t.returnNote:t.note}</p>
       <div class="labyrinth-music-wrap">
         <button id="labyrinth-music" class="labyrinth-music" data-labyrinth="music" aria-pressed="false"></button>
         <aside id="labyrinth-music-prompt" class="labyrinth-music-prompt" ${showMusicPrompt?'':'hidden'}>
@@ -66,17 +61,27 @@ export function createLabyrinth(root,{locale:initialLocale,navigation,onMove,onB
           </div>
         </aside>
       </div></div>
-      <div class="labyrinth-fallback" aria-label="${t.fallback}">${fallbackRooms(state.depth)}</div>
+      <div class="labyrinth-fallback" aria-label="${t.fallback}">${mengerDiagram(state.depth)}</div>
       <div class="labyrinth-dialogue dialogue"><span class="speaker">${COPY[locale].actors[actor]}</span><p>${t[reading]}</p></div>
-      <div class="labyrinth-action"><button id="labyrinth-primary" class="figure-primary" data-labyrinth="${action}" ${busy?'disabled':''}>${t[action]} <span aria-hidden="true">${action==='return'?'←':'→'}</span></button>
-      ${state.depth===1&&!state.leafSeen?`<button id="labyrinth-return" class="figure-link" data-labyrinth="return" ${busy?'disabled':''}>← ${t.return}</button>`:''}</div>
+      <div class="labyrinth-action"><button id="labyrinth-primary" class="figure-primary" data-labyrinth="${action}"></button>
+      ${state.depth&&!fallback?`<button id="labyrinth-return" class="figure-link" data-labyrinth="return">← ${t.returnOuter}</button>`:''}</div>
       <dialog class="garden-dialog" id="labyrinth-preview"><h3>${t.preview}</h3><button data-labyrinth="close">${t.close}</button></dialog>`;
-    syncMusic();
+    syncMusic();syncTravel();
     if(active){
       navigation.innerHTML=`<button id="labyrinth-back" data-labyrinth="back">${t.back}</button><button id="labyrinth-next" data-labyrinth="next">${t.next}</button>`;
       if(focus||retained)root.querySelector(`#${focus||retained}`)?.focus({preventScroll:true});
       if(previewOpen)root.querySelector('dialog').showModal();
     }
+  }
+  function syncTravel(){
+    const button=root.querySelector('#labyrinth-primary');if(!button)return;
+    const t=c(),fallback=document.body.dataset.scene==='fallback';
+    button.disabled=travel.returning;
+    const label=state.depth?(fallback?t.returnOuter:travel.reduced?t.step:travel.moving?t.pause:t.roam):state.complete?t.again:t.enter;
+    button.innerHTML=label+' <span aria-hidden="true">'+(state.depth&&travel.moving?'Ⅱ':'→')+'</span>';
+    const back=root.querySelector('#labyrinth-return');if(back)back.disabled=travel.returning;
+    const place=root.querySelector('.labyrinth-level span');if(place){const label=travel.returning?t.returning:state.depth&&travel.entering&&!travel.inside?t.entering:t.levels[state.depth];place.innerHTML=label+'<small class="labyrinth-key"> · '+t.keys[state.depth]+'</small>';}
+    root.dataset.moving=String(travel.moving);root.dataset.interior=String(travel.inside===true);
   }
   function save(){try{localStorage.setItem(LABYRINTH_STORAGE,JSON.stringify(state));}catch{}}
   function handle(event){
@@ -93,14 +98,14 @@ export function createLabyrinth(root,{locale:initialLocale,navigation,onMove,onB
     }
     if(action==='next'){root.querySelector('dialog').showModal();return;}
     if(action==='close'){root.querySelector('dialog').close();navigation.querySelector('#labyrinth-next')?.focus();return;}
-    if(busy)return;
+    if(action==='travel'){if(travel.reduced)onStep();else onTravel();return;}
+    if(busy&&action!=='return')return;
     const beforeDepth=state.depth;
     const next=advanceLabyrinth(state,action);if(JSON.stringify(state)===JSON.stringify(next))return;
     music.gesture();
     if(action==='again')music.reset(0);else music.move(next.depth);
     state=next;save();
-    if(action==='again'){render('labyrinth-primary');onAnnounce(c()[labyrinthReading(state)]);return;}
-    busy=true;const token=++revision;render();
+    busy=true;const token=++revision;render();onAnnounce(action==='return'?c().returning:c().entering);
     onMove(state.depth,()=>{if(!active||revision!==token)return;music.arrive();busy=false;maybeOpenMusicPrompt(beforeDepth);render('labyrinth-primary');onAnnounce(c()[labyrinthReading(state)]);});
   }
   root.addEventListener('click',handle);navigation.addEventListener('click',handle);
@@ -113,7 +118,9 @@ export function createLabyrinth(root,{locale:initialLocale,navigation,onMove,onB
     hide(){music.stop();active=false;revision++;busy=false;musicPromptOpen=false;root.querySelector('dialog')?.close();root.hidden=true;},
     setLocale(value){locale=value;if(active)render();},
     getState:()=>state,
+    arriveOutside(){state=advanceLabyrinth(state,'return');save();},
+    setTravelState(value){travel=value;if(active)syncTravel();},
     talk(id){onMeet(id);onAnnounce(c()[labyrinthReading(state)]);},
-    retreat(){if(busy)return true;if(state.depth===0)return false;handle({target:{closest:()=>({dataset:{labyrinth:'return'}})}});return true;},
+    retreat(){if(travel.returning)return true;if(state.depth===0)return false;handle({target:{closest:()=>({dataset:{labyrinth:'return'}})}});return true;},
   };
 }

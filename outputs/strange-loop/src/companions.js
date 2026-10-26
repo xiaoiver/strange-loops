@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { loadCompanionAssets, createCompanionActor, updateCompanionPose } from './companion-rig.js';
 import { companionBodyYaw } from './companion-gaze.js';
 import { exitRoute, entryRoute, routeSample, contourRoute, labyrinthStop } from './chapter-passage.js';
+import { MODEL_ORIGIN } from './labyrinth-fold.js';
 import { playCompanionAnimation as play } from './companion-animation.js';
 import { walkProgress, syncLocomotionToDistance } from './companion-locomotion.js';
 
@@ -66,7 +67,7 @@ export async function loadCompanions(scene, reduced, onProject) {
         actor.from.copy(actor.root.position);actor.to.set(actor.route.at(-1)[0],-3.8,actor.route.at(-1)[1]);
         actor.locomotion='Walk';actor.gaitRate=1;actor.age=0;actor.delay=index*.6;
         actor.duration=routeSample(actor.route,0).length/(index===0?1.55:1.25);actor.walking=!reduced.matches;
-        actor.target.set(0,returning?-.6:-2.7,returning?0:-10);
+        if(returning)actor.target.set(0,-.6,0);else actor.target.set(...MODEL_ORIGIN);
         actor.root.traverse(mesh=>{if(mesh.isMesh)mesh.receiveShadow=true;});
         if(reduced.matches)actor.root.position.copy(actor.to);
         play(actor,actor.walking?'Walk':'Idle');
@@ -87,7 +88,7 @@ export async function loadCompanions(scene, reduced, onProject) {
         // projections off their surfaces when returning to the vestibule.
         actor.root.traverse(mesh=>{if(mesh.isMesh)mesh.receiveShadow=space!=='lobby';});
         actor.age=0;actor.walking=!reduced.matches&&!immediate&&!keepPosition&&actor.from.distanceToSquared(actor.to)>1e-8;
-        if(space==='labyrinth')actor.target.set(0,-2.7,-10);
+        if(space==='labyrinth')actor.target.set(...MODEL_ORIGIN);
         else if(space==='figure-poster')actor.target.set(-6.69,-.4,3.6);
         else if(space.startsWith('figure-'))actor.target.set(0,-.6,0);
         else actor.target.set(space==='garden'?1.9:0,space==='garden'?-3:.1,0);

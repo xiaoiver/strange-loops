@@ -38,11 +38,13 @@ Achilles jogs through the chapter doorway and uses the Formal walk between exhib
 
 ## Chapter three: Little Harmonic Labyrinth
 
-Walk through the actual gap between the Rubin walls to an architectural model of the gallery. Enter the gallery inside it, then enter the next model. A ring and a small sphere mark the innermost stopping point. Return one level at a time to resume at the same model, with continuous camera movement and recognizable poster and contour walls.
+Walk through the actual gap between the Rubin walls to a Menger cube. Its central opening reveals a larger interior. Step through to roam continuously among repeating structures, with gradually changing scale, angles, and curvature. Pause to look around, scroll to explore, or return to the gallery; the companions remain outside.
 
-An original Web Audio miniature modulates from C to G to D as you enter. Returning resumes the suspended phrases and finally resolves in C. Music is off by default and starts only after selecting Enable music; no external recording is used.
+![Chapter three: a continuous fractal interior on mobile](outputs/strange-loop/docs/screenshots/labyrinth-fractal-mobile-en.jpg)
 
-Early returns, Escape navigation, independent progress, all seven languages, and a non-WebGL diagram are supported. See the [chapter-three plan (Chinese)](outputs/strange-loop/docs/chapter-03-plan.md).
+The opening and interior share one precompiled field with a bounded pixel and ray-marching budget. Entry takes about eight seconds; companions remain outside, and a stationary view reuses its rendered image. Travel does not accumulate meshes or an unbounded saved distance. Optional original Web Audio music shifts from C to G on entry and resumes C on return; it is off by default.
+
+Seven languages, independent progress, Escape navigation, explicit steps under reduced motion, and a non-WebGL diagram are supported. Earlier two-level saves migrate to outside/inside states; restored interiors stay still. See the [chapter-three plan (Chinese)](outputs/strange-loop/docs/chapter-03-plan.md).
 
 ## Rendering and interaction
 

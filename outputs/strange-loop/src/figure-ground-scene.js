@@ -5,6 +5,7 @@ import { figureStage } from './figure-ground-system.js';
 import { LOBSTER_POSTERS } from './gallery-art.js';
 import { applySoftShadows } from './soft-shadows.js';
 import { createFairFacedConcrete } from './fair-faced-concrete.js';
+import { createExhibitFade } from './exhibit-fade.js';
 
 export function createFigureGroundScene(scene, reduced, invalidate) {
   const group = new THREE.Group(); group.name = 'figure-ground-gallery'; group.visible = false; scene.add(group);
@@ -63,6 +64,7 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
     },undefined,()=>{surface.visible=false;invalidate();});
   });
   const raycaster=new THREE.Raycaster();
+  const fade=createExhibitFade(group,{lift:0,shrink:0});
   const gapPlane=new THREE.Plane(new THREE.Vector3(0,0,1),0);
   const hitPoint=new THREE.Vector3();
   let visible=false, targetMode='contour', coEdgeFocus=null;
@@ -84,10 +86,17 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
     }
     return {position:new THREE.Vector3(mobile?.2:3,mobile?1.8:1.9,mobile?20:17.8),look:new THREE.Vector3(mobile?-.4:-.6,-.7,0)};
   }
+  let lastPresence=null;
+  function setPresence(value){
+    if(value===lastPresence)return;lastPresence=value;
+    fade(value);sun.visible=value>0;sun.intensity=2.7*value;
+    sun.shadow.needsUpdate=true;invalidate();
+  }
   return {
     contourPose(){return {position:new THREE.Vector3(innerWidth<=760?.2:3,innerWidth<=760?1.8:1.9,innerWidth<=760?20:17.8),look:new THREE.Vector3(innerWidth<=760?-.4:-.6,-.7,0)};},
     beginEntry(onComplete){entryTime=reduced.matches?0:.25;entryPending=true;entryDone=onComplete;poseKey='';},
-    setVisible(value){visible=value;group.visible=value;sun.visible=value;sun.shadow.needsUpdate=true;blend=0;poseKey='';manualOffset=0;entryTime=0;entryPending=false;entryDone=null;coEdgeFocus=null;applyCoEdgeFocus();},
+    setVisible(value){visible=value;setPresence(value?1:0);blend=0;poseKey='';manualOffset=0;entryTime=0;entryPending=false;entryDone=null;coEdgeFocus=null;applyCoEdgeFocus();},
+    setPresence,
     setCoEdgeFocus(value){coEdgeFocus=value;applyCoEdgeFocus();},
     setState(value,locale,{poster=false}={}) {
       targetMode=poster||figureStage(value)==='posters'?'poster':'contour';

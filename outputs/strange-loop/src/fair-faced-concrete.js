@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 // Cast concrete: cloudy cement, faint formwork ghosts and small recessed ties.
 // The construction grid is secondary to the continuous poured surface.
-const CONCRETE_CACHE_KEY = 'geb-ando-concrete-v5';
+const CONCRETE_CACHE_KEY = 'geb-ando-concrete-v6';
 
 // Preserve a thin seam's coverage as it recedes, rather than drawing a fixed
 // dark screen-space grid. Derivatives come from the unfolded coordinate.
@@ -27,10 +27,11 @@ varying vec3 vConcreteLocal;
 varying vec3 vConcreteWorld;
 varying vec3 vConcreteObjectNormal;
 varying vec3 vConcreteWorldNormal;
-varying float vConcreteScale;
+varying mat3 vConcreteBasis;
 `;
 
 const CONCRETE_FUNCTIONS = /* glsl */`
+uniform float uConcreteLocalSpace;
 float concreteHash(vec2 p) {
   vec3 p3 = fract(vec3(p.xyx) * 0.1031);
   p3 += dot(p3, p3.yzx + 33.33);
@@ -76,10 +77,9 @@ void concreteSurface(out vec3 albedo, out float rough, out vec3 grooveGrad) {
   const float JOINT = ${JOINT_WIDTH.toFixed(4)};
   const float GROOVE = 0.00015;
   const vec3 ORIGIN = vec3(-3.8, -3.8, -3.8);
-  bool miniature = vConcreteScale < 0.5;
-  vec3 p = miniature ? vConcreteLocal : (vConcreteWorld - ORIGIN);
-  vec3 nFace = normalize(miniature ? vConcreteObjectNormal : vConcreteWorldNormal);
-  vec3 nWorld = normalize(vConcreteWorldNormal);
+  bool localSpace = uConcreteLocalSpace > 0.5;
+  vec3 p = localSpace ? vConcreteLocal : (vConcreteWorld - ORIGIN);
+  vec3 nFace = normalize(localSpace ? vConcreteObjectNormal : vConcreteWorldNormal);
   vec3 axisU;
   vec3 axisV;
   vec2 uv;
@@ -90,7 +90,7 @@ void concreteSurface(out vec3 albedo, out float rough, out vec3 grooveGrad) {
   } else {
     uv = p.xy; axisU = vec3(1.0, 0.0, 0.0); axisV = vec3(0.0, 1.0, 0.0);
   }
-  bool floorFace = nWorld.y > 0.65;
+  bool floorFace = nFace.y > 0.65;
 
   float pixel = max(max(fwidth(uv.x), fwidth(uv.y)), 0.0001);
   // Domain-warped low frequencies avoid a recognizable noise lattice or veins.
@@ -159,7 +159,7 @@ vConcreteLocal = transformed;
 vConcreteWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;
 vConcreteObjectNormal = normalize(objectNormal);
 vConcreteWorldNormal = normalize(mat3(modelMatrix) * objectNormal);
-vConcreteScale = length((modelMatrix * vec4(0.0, 1.0, 0.0, 0.0)).xyz);
+vConcreteBasis = mat3(normalize(modelMatrix[0].xyz), normalize(modelMatrix[1].xyz), normalize(modelMatrix[2].xyz));
 `);
   shader.fragmentShader = replaceInclude(shader.fragmentShader, 'common', CONCRETE_VARYINGS + CONCRETE_FUNCTIONS);
   shader.fragmentShader = replaceInclude(shader.fragmentShader, 'color_fragment', /* glsl */`
@@ -180,7 +180,8 @@ vec3 concreteFace = cross(concreteDx, concreteDy);
 if (dot(concreteFace, concreteFace) < 1e-12) concreteFace = concreteWorldNormal;
 else concreteFace = normalize(concreteFace);
 if (dot(concreteFace, concreteWorldNormal) < 0.0) concreteFace = -concreteFace;
-vec3 concretePerturbed = normalize(concreteFace - concreteGroove);
+vec3 concreteGradient = uConcreteLocalSpace > 0.5 ? vConcreteBasis * concreteGroove : concreteGroove;
+vec3 concretePerturbed = normalize(concreteFace - concreteGradient);
 normal = normalize(mat3(viewMatrix) * concretePerturbed);
 #ifdef DOUBLE_SIDED
 normal *= gl_FrontFacing ? 1.0 : -1.0;
@@ -188,7 +189,7 @@ normal *= gl_FrontFacing ? 1.0 : -1.0;
 `);
 }
 
-export function createFairFacedConcrete() {
+export function createFairFacedConcrete({space='world'}={}) {
   const material = new THREE.MeshStandardMaterial({
     name: 'fair-faced-concrete',
     color: 0x8e918d,
@@ -197,9 +198,12 @@ export function createFairFacedConcrete() {
     envMapIntensity: 0.42,
   });
   material.userData.fairFaced = true;
+  material.userData.concreteSpace = space;
   material.onBeforeCompile = function (shader) {
+    // Moving architecture keeps its cast surface through every scale and rotation.
+    shader.uniforms.uConcreteLocalSpace = {value:space==='local'?1:0};
     installFairFacedConcrete(shader);
   };
-  material.customProgramCacheKey = () => CONCRETE_CACHE_KEY;
+  material.customProgramCacheKey = () => `${CONCRETE_CACHE_KEY}-${space}`;
   return material;
 }

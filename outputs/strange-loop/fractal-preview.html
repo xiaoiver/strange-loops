@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#e6e7e3">
+  <title>Strange Loops · 分形空间试验</title>
+  <link rel="stylesheet" href="dev/fractal-preview.css?v=8f973bb5232e">
+</head>
+<body>
+  <canvas id="space" aria-label="可穿入的分形立方体" tabindex="0"></canvas>
+  <div class="reading-wash" aria-hidden="true"></div>
+  <header>
+    <a class="brand" href="./" aria-label="返回怪圈展厅"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 9h20v20H4zM10 3h20v20H10zM4 9l6-6M24 9l6-6M24 29l6-6"/></svg><span>STRANGE LOOPS</span></a>
+    <span class="study" data-copy="study">空间试验 / 01</span>
+    <button type="button" id="language">EN</button>
+  </header>
+  <main>
+    <section class="intro" aria-labelledby="title">
+      <p class="eyebrow" data-copy="eyebrow">另一种尺度</p>
+      <h1 id="title"><span data-copy="title1">里面，</span><span data-copy="title2">比外面更大。</span></h1>
+      <p class="subtitle" data-copy="subtitle">穿过孔洞，继续向内。</p>
+    </section>
+    <div class="transport">
+      <p id="location" aria-live="polite">立方体外</p>
+      <button type="button" class="primary" id="travel" disabled><span id="travel-label">走进孔洞</span><span id="travel-arrow" aria-hidden="true">→</span></button>
+      <button type="button" class="return" id="return" hidden data-copy="restart">回到入口</button>
+      <div class="scrub">
+        <label for="journey" class="sr-only" data-copy="journey">查看入口过渡，进入内部后可继续漫游</label>
+        <span data-copy="outside">外部</span><input id="journey" type="range" min="0" max="1" step="0.001" value="0" disabled><span data-copy="inside">内部</span>
+      </div>
+    </div>
+  </main>
+  <footer><span id="hint" data-copy="hint">拖动环视 · 滚动探索</span><span data-copy="prototype">本地空间原型</span></footer>
+  <p id="status" role="status">正在构建空间…</p>
+  <script src="dev/fractal-preview.js?v=6f87ecfa756e" defer></script>
+</body>
+</html>

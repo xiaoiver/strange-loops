@@ -1,19 +1,15 @@
 import * as THREE from 'three';
-import { traceProfile } from './rubin-contour.js';
-import { LOBSTER_POSTERS } from './gallery-art.js';
-import { applySoftShadows } from './soft-shadows.js';
-import { createFairFacedConcrete } from './fair-faced-concrete.js';
-import { MAX_DEPTH } from './labyrinth-system.js';
+import {applySoftShadows} from './soft-shadows.js';
+import {createFairFacedConcrete} from './fair-faced-concrete.js';
+import {createMengerArchitecture} from './menger-architecture.js';
+import {MODEL_ORIGIN,MODEL_SCALE} from './labyrinth-fold.js';
+import {createFractalSpace} from './fractal-space.js';
+import {PORTAL_Z,INTERIOR_SCALE,END_INTERIOR_Z,CRUISE_SPEED,createTravelFrame,advanceTravel,cruiseCamera,entryEase,smooth} from './fractal-journey.js';
+export {MODEL_ORIGIN,MODEL_SCALE} from './labyrinth-fold.js';
+const ease=t=>t*t*(3-2*t);
+const mobile=()=>innerWidth<=760;
+export const CONTOUR_CROSSING=[[0,1.15,4.2],[0,1.05,1.2],[0,1.0,-.6],[0,.95,-1.8]];
 
-export const MODEL_ORIGIN = [0, -2.7, -10];
-export const MODEL_SCALE = .24;
-const ease = t => t*t*(3-2*t);
-const mobile = () => innerWidth <= 760;
-// The eye crosses the actual opening at x=0 without dipping toward the floor.
-export const CONTOUR_CROSSING = [[0,1.15,4.2], [0,1.05,1.2], [0,1.0,-.6], [0,.95,-1.8]];
-
-// Arc-length sampling keeps speed independent of the distance between control points.
-// Four centered points leave a straight, safe stretch through the narrow profile opening.
 export function passageRail(start,end,returning=false) {
   const portal=CONTOUR_CROSSING.map(p=>{
     const point=new THREE.Vector3(...p);
@@ -28,126 +24,118 @@ export function passageRail(start,end,returning=false) {
   return curve;
 }
 
-export function createLabyrinthScene(scene, reduced, invalidate) {
-  const group = new THREE.Group(); group.name = 'harmonic-labyrinth'; group.visible = false; scene.add(group);
-  const paper = new THREE.MeshStandardMaterial({ color: 0xe2e3de, roughness:.9 });
-  const pale = new THREE.MeshStandardMaterial({ color: 0xb9bcb6, roughness:.9 });
-  const ink = new THREE.MeshStandardMaterial({ color: 0x41463f, roughness:.84 });
-  const shell = createFairFacedConcrete();
-  for (const material of [paper,pale,ink,shell]) { material.shadowSide=THREE.DoubleSide; applySoftShadows(material, mobile()); }
-  const geometries=[], materials=[paper,pale,ink,shell], textures=[];
-  function mesh(parent,geometry,material,position) {
-    geometries.push(geometry);
-    const object=new THREE.Mesh(geometry,material); object.position.set(...position);
-    object.castShadow=object.receiveShadow=true; parent.add(object); return object;
+export function createLabyrinthScene(scene,reduced,invalidate,onTravel=()=>{}){
+  const group=new THREE.Group();group.name='harmonic-labyrinth';group.visible=false;scene.add(group);
+  const shell=createFairFacedConcrete({space:'local'});shell.shadowSide=THREE.DoubleSide;applySoftShadows(shell,mobile());
+  const parent=new THREE.Group();parent.name='fractal-cube';parent.position.set(...MODEL_ORIGIN);parent.scale.setScalar(MODEL_SCALE);parent.rotation.y=.64;group.add(parent);
+  const body=createMengerArchitecture({depth:2,size:14,material:shell,name:'menger-parent'});parent.add(body.group);
+  const space=createFractalSpace(parent);
+  const sun=new THREE.DirectionalLight(0xf3f3ee,1.45);
+  sun.position.set(MODEL_ORIGIN[0]+17,MODEL_ORIGIN[1]+7.5,MODEL_ORIGIN[2]+23.4);sun.target.position.set(...MODEL_ORIGIN);
+  Object.assign(sun.shadow.camera,{left:-18,right:18,top:18,bottom:-18,near:1,far:85});
+  sun.shadow.mapSize.set(mobile()?1024:2048,mobile()?1024:2048);sun.shadow.normalBias=.004;sun.shadow.bias=-.000015;sun.shadow.camera.name='floor-shadow';
+  sun.shadow.autoUpdate=false;sun.castShadow=true;sun.visible=false;scene.add(sun,sun.target);
+  let visible=false,progress=0,anim=null,entry=null,cruise=null,playing=false,speed=0,yaw=0,pitch=0,outsideOffset=0,passageProgress=0,fade=0;
+  const normalized=new THREE.Vector3(),target=new THREE.Vector3();
+  function refreshShadows(){sun.shadow.needsUpdate=true;invalidate();}
+  function pose(){return {position:new THREE.Vector3(MODEL_ORIGIN[0]+4.8,MODEL_ORIGIN[1]+2.1,MODEL_ORIGIN[2]+6.6),look:new THREE.Vector3(MODEL_ORIGIN[0],MODEL_ORIGIN[1]-.2,MODEL_ORIGIN[2])};}
+  function travelState(){return {moving:playing,entering:anim?.kind==='entry',returning:anim?.kind==='return',inside:space.pass.enabled,reduced:reduced.matches};}
+  function notify(){onTravel(travelState());}
+  function reset(camera,look){
+    progress=0;cruise=null;entry=null;playing=false;speed=0;yaw=0;pitch=0;outsideOffset=0;space.pass.enabled=false;
+    const end=pose();camera.position.copy(end.position);look.copy(end.look);camera.up.set(0,1,0);camera.lookAt(look);
+    camera.near=.1;camera.updateProjectionMatrix();
+    space.sync(camera,null);refreshShadows();
   }
-  const box=(parent,w,h,d,mat,x,y,z)=>mesh(parent,new THREE.BoxGeometry(w,h,d),mat,[x,y,z]);
-  function table(parent,scale=1) {
-    const table=new THREE.Group();table.scale.setScalar(scale);parent.add(table);
-    box(table,4.3,.14,4.1,paper,0,.96,0);
-    for(const x of [-1.8,1.8])for(const z of [-1.7,1.7])box(table,.09,.9,.09,ink,x,.45,z);
-    return table;
-  }
-  // An architectural model sits on a light table, behind the shared contour.
-  const outerTable=table(group);outerTable.position.set(0,-3.8,-10);
-  const rooms=[null];
-  const posterMaterials=LOBSTER_POSTERS.map(art=>{
-    const material=new THREE.MeshStandardMaterial({color:0xf4f4ed,roughness:1});materials.push(material);
-    new THREE.TextureLoader().load(art.file,texture=>{
-      texture.colorSpace=THREE.SRGBColorSpace;textures.push(texture);material.map=texture;material.needsUpdate=true;invalidate();
-    },undefined,()=>{});
-    return material;
-  });
-  function buildRoom(parent,depth,position) {
-    const room=new THREE.Group();room.name=`nested-gallery-${depth}`;room.position.set(...position);room.scale.setScalar(MODEL_SCALE);parent.add(room);rooms[depth]=room;
-    box(room,14,.18,14,shell,0,-.09,0);
-    box(room,14,5.7,.16,shell,0,2.85,-6.8);
-    box(room,.16,5.7,14,shell,-7,2.85,0);
-    // Open front and low right wall let visitors read the model before entering it.
-    box(room,.16,1.1,14,shell,7,.55,0);
-    const contour=new THREE.Group();contour.position.set(0,0,-3.7);contour.scale.setScalar(.68);room.add(contour);
-    for(const sign of [-1,1]){
-      const shape=traceProfile(new THREE.Shape(),sign);shape.lineTo(sign*5.2,0);shape.lineTo(sign*5.2,6);shape.closePath();
-      mesh(contour,new THREE.ExtrudeGeometry(shape,{depth:.25,bevelEnabled:false,curveSegments:14}),ink,[0,0,0]);
+  function entryPose(camera,look){
+    const align=smooth(0,.32,progress),z=THREE.MathUtils.lerp(entry.from.z,-6,progress);
+    normalized.set(entry.from.x*(1-align),THREE.MathUtils.lerp(entry.from.y,.12,align),z);
+    target.lerpVectors(entry.look,new THREE.Vector3(0,.08,z-5),align);
+    const inside=z<PORTAL_Z;
+    if(inside){
+      const worldZ=(z-PORTAL_Z)*INTERIOR_SCALE,frame=cruise||createTravelFrame(worldZ),at=cruiseCamera(frame),blend=smooth(0,12,-worldZ);
+      const direction=target.clone().sub(normalized).normalize().lerp(new THREE.Vector3(...at.forward),blend).normalize();
+      normalized.set(at.position[0]/INTERIOR_SCALE,at.position[1]/INTERIOR_SCALE,PORTAL_Z+frame.localZ/INTERIOR_SCALE);
+      target.copy(normalized).add(direction);
+      space.cameraAt(camera,look,normalized.toArray(),target.toArray());space.pass.enabled=visible;space.sync(camera,frame,yaw,pitch,true);
+    }else{
+      space.cameraAt(camera,look,normalized.toArray(),target.toArray());space.pass.enabled=false;space.sync(camera,null);
     }
-    for(const [index,art] of LOBSTER_POSTERS.entries()){
-      const height=2.45,width=height*art.width/art.height;
-      const poster=mesh(room,new THREE.PlaneGeometry(width,height),posterMaterials[index],[-6.89,2.8,1.1+index*2.25]);
-      poster.rotation.y=Math.PI/2;
+  }
+  function cruisePose(camera,look){
+    const at=cruiseCamera(cruise);
+    normalized.set(at.position[0]/INTERIOR_SCALE,at.position[1]/INTERIOR_SCALE,PORTAL_Z+cruise.localZ/INTERIOR_SCALE);
+    target.copy(normalized).add(new THREE.Vector3(...at.forward));
+    space.cameraAt(camera,look,normalized.toArray(),target.toArray());space.pass.enabled=visible;space.sync(camera,cruise,yaw,pitch,true);
+  }
+  function setDepth(value,camera,look,onDone,{immediate=false}={}){
+    anim=null;fade=0;
+    if(value===0){
+      playing=false;
+      if(immediate||reduced.matches){reset(camera,look);notify();onDone?.();return;}
+      anim={kind:'return',age:0,duration:.7,onDone,reset:false};notify();return;
     }
-    const stand=table(room,.72);stand.position.set(0,0,1);
-    if(depth<MAX_DEPTH)buildRoom(room,depth+1,[0,.8,1]);
-    else {
-      const circle=mesh(room,new THREE.TorusGeometry(.72,.045,10,64),ink,[0,.84,1]);circle.rotation.x=-Math.PI/2;
-      const center=mesh(room,new THREE.SphereGeometry(.12,12,8),pale,[0,.88,1]);center.name='recursion-leaf';
-    }
-    return room;
+    parent.updateWorldMatrix(true,false);
+    camera.near=.005;camera.updateProjectionMatrix();
+    entry={from:space.localPoint(camera.position),look:space.localPoint(look)};
+    yaw=0;pitch=0;cruise=null;progress=0;
+    if(immediate||reduced.matches){progress=1;cruise=createTravelFrame(END_INTERIOR_Z);playing=false;cruisePose(camera,look);notify();onDone?.();return;}
+    // A shorter approach avoids the long, almost stationary initial ramp.
+    // Its final derivative still hands off at six internal units per second.
+    const duration=8,slope=CRUISE_SPEED*duration/((entry.from.z+6)*INTERIOR_SCALE);
+    anim={kind:'entry',age:0,duration,slope,onDone};playing=true;entryPose(camera,look);notify();
   }
-  buildRoom(group,1,MODEL_ORIGIN);
-  group.updateMatrixWorld(true);
-  // Smaller rooms have their own light; its shadow volume scales with the room.
-  const lights=[];
-  for(let depth=1;depth<=MAX_DEPTH;depth++){
-    const room=rooms[depth],light=new THREE.DirectionalLight(0xf3f3ee,1.6);
-    room.updateWorldMatrix(true,false);
-    light.position.copy(room.localToWorld(new THREE.Vector3(3,12,7)));
-    light.target.position.copy(room.localToWorld(new THREE.Vector3(0,0,-1)));
-    const scale=room.getWorldScale(new THREE.Vector3()).x;
-    Object.assign(light.shadow.camera,{left:-10*scale,right:10*scale,top:10*scale,bottom:-10*scale,near:.1*scale,far:35*scale});
-    light.shadow.mapSize.set(1024,1024);light.shadow.normalBias=.003*scale;light.shadow.bias=-.00001;
-    light.shadow.camera.name='floor-shadow';light.shadow.autoUpdate=false;light.castShadow=true;light.visible=false;
-    scene.add(light,light.target);lights.push(light);
-  }
-  let visible=false,depth=0,anim=null,manual=0,passageProgress=0;
-  function pose(level=depth) {
-    if(level===0)return {position:new THREE.Vector3(7.6,mobile()?1.8:.7,-3.4),look:new THREE.Vector3(0,-2.18,-10)};
-    const room=rooms[level];room.updateWorldMatrix(true,false);
-    return {position:room.localToWorld(new THREE.Vector3(mobile()?2.4:5.5,mobile()?9.4:7.2,mobile()?17.5:12)),look:room.localToWorld(new THREE.Vector3(0,1,0))};
-  }
-  function start(camera,look,points,looks,duration,onDone) {
-    anim={age:0,positions:[camera.position.clone(),...points],looks:[look.clone(),...looks],duration,onDone};manual=0;
-  }
-  function refreshShadows(){for(const light of lights)light.shadow.needsUpdate=true;invalidate();}
   return {
-    setVisible(value){visible=value;group.visible=value;for(const light of lights)light.visible=value;anim=null;manual=0;refreshShadows();},
+    fractalPass:space.pass,travelState,warm:space.warm,
+    companionsVisible:()=>visible&&!space.pass.enabled,
+    preparePortal(renderer){if(visible&&!space.pass.enabled)space.preparePortal(renderer);},
+    setVisible(value){visible=value;group.visible=value;sun.visible=value;anim=null;playing=false;space.pass.enabled=false;fade=0;refreshShadows();notify();},
     beginEntry(camera,look,onDone){
-      depth=0;const end=pose(0);
-      start(camera,look,[end.position],[end.look],4.2,onDone);
-      anim.rail=passageRail(camera.position.clone(),end.position);passageProgress=0;
+      const start=camera.position.clone(),fromLook=look.clone();reset(camera,look);camera.position.copy(start);look.copy(fromLook);camera.lookAt(look);const end=pose();
+      anim={kind:'passage',age:0,fromLook:look.clone(),end,duration:4.2,onDone,rail:passageRail(camera.position.clone(),end.position)};
+      passageProgress=0;
     },
     beginExit(camera,look,end,onDone){
-      start(camera,look,[end.position],[end.look],4.2,onDone);
-      anim.rail=passageRail(camera.position.clone(),end.position,true);passageProgress=0;
+      playing=false;space.pass.enabled=false;
+      anim={kind:'passage',age:0,fromLook:look.clone(),end,duration:4.2,onDone,rail:passageRail(camera.position.clone(),end.position,true)};passageProgress=0;
     },
-    setDepth(value,camera,look,onDone,{immediate=false}={}){
-      depth=value;manual=0;const end=pose();
-      if(immediate){anim=null;camera.position.copy(end.position);look.copy(end.look);camera.lookAt(look);onDone?.();return;}
-      start(camera,look,[end.position],[end.look],1.8,onDone);
-    },
+    setDepth,outerPose:pose,
+    envelopePresence:()=>space.pass.enabled?0:1,returnFade:()=>fade,
     passageProgress:()=>passageProgress,
-    cancel(){anim=null;},
-    refreshShadows,
+    toggleTravel(){if(anim?.kind==='return')return;playing=!playing&&!reduced.matches;notify();},
+    stepTravel(){if(!cruise)return;playing=false;advanceTravel(cruise,4);space.pass.dirty=true;notify();},
+    pause(){playing=false;notify();},
+    cancel(){anim=null;playing=false;fade=0;},refreshShadows,
     update(dt,camera,look){
       if(!visible)return false;
-      if(anim){
-        const a=anim;a.age+=dt;const t=reduced.matches?1:Math.min(1,a.age/a.duration);
-        passageProgress=ease(t);
-        const segment=Math.min(a.positions.length-2,Math.floor(t*(a.positions.length-1)));
-        const u=ease(t===1?1:t*(a.positions.length-1)-segment);
-        if(a.rail)a.rail.getPointAt(passageProgress,camera.position);
-        else camera.position.lerpVectors(a.positions[segment],a.positions[segment+1],u);
-        look.lerpVectors(a.looks[segment],a.looks[segment+1],u);
-        camera.up.set(0,1,0);camera.lookAt(look);
-        camera.near=Math.max(.001,Math.min(.1,camera.position.distanceTo(look)*.008));camera.updateProjectionMatrix();
+      if(reduced.matches&&playing){playing=false;notify();}
+      if(anim?.kind==='passage'){
+        const a=anim;a.age+=dt;const t=reduced.matches?1:Math.min(1,a.age/a.duration),p=ease(t);passageProgress=p;
+        a.rail.getPointAt(p,camera.position);look.lerpVectors(a.fromLook,a.end.look,p);camera.up.set(0,1,0);camera.lookAt(look);space.sync(camera,null);
         if(t===1){anim=null;a.onDone?.();}return true;
       }
-      const end=pose();
-      const scale=depth===0?1:MODEL_SCALE**depth;end.position.x+=manual*scale;
-      camera.position.copy(end.position);look.copy(end.look);camera.up.set(0,1,0);camera.lookAt(look);
-      const near=Math.max(.001,Math.min(.1,camera.position.distanceTo(look)*.008));
-      if(camera.near!==near){camera.near=near;camera.updateProjectionMatrix();}return false;
+      if(anim?.kind==='return'){
+        const a=anim;a.age+=dt;const t=reduced.matches?1:Math.min(1,a.age/a.duration);fade=Math.sin(Math.PI*t);
+        if(t>=.5&&!a.reset){reset(camera,look);a.reset=true;}
+        if(t===1){anim=null;fade=0;notify();a.onDone?.();}return true;
+      }
+      if(anim?.kind==='entry'){
+        const a=anim,wasInside=space.pass.enabled;
+        if(reduced.matches){progress=1;entryPose(camera,look);}
+        else if(playing){a.age=Math.min(a.duration,a.age+dt);const t=a.duration-a.age<1e-6?1:a.age/a.duration;progress=entryEase(t,a.slope);entryPose(camera,look);}
+        else if(space.pass.dirty)entryPose(camera,look);
+        if(wasInside!==space.pass.enabled)notify();
+        if(progress===1){anim=null;cruise=createTravelFrame(END_INTERIOR_Z);speed=CRUISE_SPEED;notify();a.onDone?.();}
+        return true;
+      }
+      if(cruise){
+        if(playing){speed+=(CRUISE_SPEED-speed)*(1-Math.exp(-dt*2));advanceTravel(cruise,speed*dt);}
+        if(playing||space.pass.dirty)cruisePose(camera,look);
+      }else{const end=pose();end.position.x+=outsideOffset;camera.position.copy(end.position);look.copy(end.look);camera.lookAt(look);space.sync(camera,null);}
+      return true;
     },
-    drag(delta){manual=THREE.MathUtils.clamp(manual+delta,-.7,.7);},
-    dispose(){scene.remove(group);for(const light of lights){scene.remove(light,light.target);light.shadow.map?.dispose();}for(const g of geometries)g.dispose();for(const m of materials)m.dispose();for(const t of textures)t.dispose();},
+    drag(delta,vertical=0){if(!cruise&&!anim){outsideOffset=THREE.MathUtils.clamp(outsideOffset+delta,-.5,.5);return;}yaw=THREE.MathUtils.clamp(yaw+delta,-.48,.48);pitch=THREE.MathUtils.clamp(pitch+vertical,-.3,.3);space.pass.dirty=true;},
+    move(distance){if(!cruise||anim)return;playing=false;speed=0;advanceTravel(cruise,distance);space.pass.dirty=true;notify();},
+    dispose(){scene.remove(group,sun,sun.target);sun.shadow.map?.dispose();space.dispose();body.dispose();shell.dispose();},
   };
 }
