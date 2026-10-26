@@ -7,7 +7,7 @@
   "optimized_triangles": 5000,
   "vertices": 3704,
   "bones": 73,
-  "glb_bytes": 340204,
+  "glb_bytes": 353948,
   "height": 2.5,
   "scale_in_web": 0.6,
   "animations": [
@@ -18,6 +18,7 @@
   ],
   "walk_cycle_distance": 1.9305285807730914,
   "walk_cycle_seconds": 1.3333333333333333,
-  "jog_cycle_distance": 2.8722424432635307,
-  "jog_cycle_seconds": 0.9333333333333333
+  "jog_cycle_distance": 2.8722444772720337,
+  "jog_cycle_seconds": 0.9333333333333333,
+  "walk_upper_body_source_clip": "Walk_Loop"
 }

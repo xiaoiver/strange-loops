@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { loadCompanionAssets, createCompanionActor, updateCompanionPose } from './companion-rig.js';
+import { companionBodyYaw } from './companion-gaze.js';
 import { exitRoute, entryRoute, routeSample, contourRoute, labyrinthStop } from './chapter-passage.js';
 import { MODEL_ORIGIN } from './labyrinth-fold.js';
 import { playCompanionAnimation as play } from './companion-animation.js';
@@ -13,15 +13,11 @@ const specifications = [
 ];
 
 export async function loadCompanions(scene, reduced, onProject) {
-  const loader=new GLTFLoader(),draco=new DRACOLoader(),actors=[];
-  draco.setDecoderPath('assets/draco/');
-  loader.setDRACOLoader(draco);
-  const loaded=await Promise.all(specifications.map(spec=>loader.loadAsync(`assets/characters/${spec.id}.glb?v=${spec.id==='tortoise'?'tripo2':'quaternius-jog-feet2'}`)));
-  draco.dispose();
+  const actors=[];
+  const loaded=await loadCompanionAssets(specifications.map(spec=>spec.id));
   for(const [index,spec] of specifications.entries()){
-    const gltf=loaded[index];
-    const root=new THREE.Group();root.name=`companion-${spec.id}`;
-    root.add(gltf.scene);root.scale.setScalar(spec.scale);scene.add(root);
+    const actor=createCompanionActor(loaded[index],spec),{root}=actor;
+    scene.add(root);
     const depth=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking});
     const floorOnly={value:0};
     depth.onBeforeCompile=shader=>{
@@ -37,17 +33,7 @@ export async function loadCompanions(scene, reduced, onProject) {
       mesh.onBeforeShadow=(_renderer,_object,_camera,shadowCamera)=>{floorOnly.value=shadowCamera.name==='floor-shadow'?1:0;};
       for(const material of Array.isArray(mesh.material)?mesh.material:[mesh.material])material.color.multiplyScalar(.58);
     });
-    const mixer=new THREE.AnimationMixer(gltf.scene),actions={};
-    for(const clip of gltf.animations){
-      const name=clip.name.split('_').at(-1);
-      actions[name]=mixer.clipAction(clip);
-    }
-    let walkCycleDistance,jogCycleDistance;
-    gltf.scene.traverse(node=>{
-      if(Number.isFinite(node.userData.walk_cycle_distance))walkCycleDistance=node.userData.walk_cycle_distance*spec.scale;
-      if(Number.isFinite(node.userData.jog_cycle_distance))jogCycleDistance=node.userData.jog_cycle_distance*spec.scale;
-    });
-    actors.push({...spec,root,mixer,actions,walkCycleDistance,jogCycleDistance,locomotion:'Walk',gaitRate:1,age:0,clipAge:0,current:null,walking:!reduced.matches,
+    actors.push({...spec,...actor,locomotion:'Walk',age:0,walking:!reduced.matches,
       target:new THREE.Vector3(0,.1,0),from:new THREE.Vector3(spec.from[0],-3.8,spec.from[1]),to:new THREE.Vector3(spec.to[0],-3.8,spec.to[1])});
   }
   for(const actor of actors){
@@ -117,7 +103,7 @@ export async function loadCompanions(scene, reduced, onProject) {
         if(actor.root.visible!==visible)changed=true;
         actor.root.visible=visible;
         if(!visible){onProject(actor.id,null);continue;}
-        actor.age+=dt;actor.clipAge+=dt;
+        actor.age+=dt;
         if(reduced.matches){
           if(actor.walking){actor.root.position.copy(actor.to);actor.walking=false;play(actor,'Idle');changed=true;}
         }else if(actor.walking){
@@ -136,12 +122,12 @@ export async function loadCompanions(scene, reduced, onProject) {
           if(t>=1){actor.walking=false;play(actor,'Idle');}
         }
         if(!actor.walking)aim.subVectors(actor.target,actor.root.position);
-        rotation.setFromAxisAngle(yAxis,Math.atan2(aim.x,aim.z));
+        const targetYaw=Math.atan2(aim.x,aim.z),currentYaw=Math.atan2(2*(actor.root.quaternion.w*actor.root.quaternion.y),1-2*actor.root.quaternion.y**2);
+        rotation.setFromAxisAngle(yAxis,actor.walking||reduced.matches?targetYaw:companionBodyYaw(currentYaw,targetYaw,Boolean(actor.gaze)));
         actor.root.quaternion.slerp(rotation,reduced.matches?1:1-Math.exp(-dt*(actor.walking?8:3)));
+        updateCompanionPose(actor,dt,{target:actor.target,gaze:!actor.walking,reduced:reduced.matches});
         if(!reduced.matches){
-          actor.mixer.update(dt);
           if(actor.current==='Idle'||actor.clipAge<(actor.actions[actor.current]?.getClip().duration??0))changed=true;
-          if(actor.current==='Look'&&actor.clipAge>=(actor.actions.Look?.getClip().duration??2))play(actor,'Idle');
         }
         projected.copy(actor.root.position);projected.y+=actor.height*.55;projected.project(camera);
         const inFrame=Math.abs(projected.x)<.94&&Math.abs(projected.y)<.92&&projected.z<1;

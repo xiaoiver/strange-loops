@@ -1,0 +1,100 @@
+{
+  "sample_intervals": 640,
+  "baseline": "9efe897 / original Formal lower body",
+  "before": {
+    "max": [
+      {
+        "name": "thigh_l_71",
+        "angle": 0.009451298052499712,
+        "phase": 0.7015625,
+        "degreesPerBakedFrame": 8.664311829255166
+      },
+      {
+        "name": "calf_l_69",
+        "angle": 0.007933432955638411,
+        "phase": 0.825,
+        "degreesPerBakedFrame": 7.272835606529271
+      },
+      {
+        "name": "foot_l_68",
+        "angle": 0.020056575672860094,
+        "phase": 0.85,
+        "degreesPerBakedFrame": 18.386514200634284
+      },
+      {
+        "name": "thigh_r_78",
+        "angle": 0.01499609089076647,
+        "phase": 0.9765625,
+        "degreesPerBakedFrame": 13.747403475767966
+      },
+      {
+        "name": "calf_r_76",
+        "angle": 0.009689152611226293,
+        "phase": 0.9765625,
+        "degreesPerBakedFrame": 8.88236082690284
+      },
+      {
+        "name": "foot_r_75",
+        "angle": 0.020058062676785046,
+        "phase": 0.35,
+        "degreesPerBakedFrame": 18.38787738541859
+      }
+    ],
+    "minBend": [
+      0.10109120154830079,
+      0.006559109168454036
+    ],
+    "minAt": [
+      0,
+      0
+    ]
+  },
+  "after": {
+    "max": [
+      {
+        "name": "thigh_l_71",
+        "angle": 0.009451837934362623,
+        "phase": 0.7015625,
+        "degreesPerBakedFrame": 8.664806756490053
+      },
+      {
+        "name": "calf_l_69",
+        "angle": 0.008092100428542182,
+        "phase": 0.825,
+        "degreesPerBakedFrame": 7.4182912312235505
+      },
+      {
+        "name": "foot_l_68",
+        "angle": 0.019330606612688296,
+        "phase": 0.85,
+        "degreesPerBakedFrame": 17.720994789355515
+      },
+      {
+        "name": "thigh_r_78",
+        "angle": 0.009437430050006697,
+        "phase": 0.2015625,
+        "degreesPerBakedFrame": 8.651598581045139
+      },
+      {
+        "name": "calf_r_76",
+        "angle": 0.008039442913671401,
+        "phase": 0.3015625,
+        "degreesPerBakedFrame": 7.3700183774356605
+      },
+      {
+        "name": "foot_r_75",
+        "angle": 0.019337630330249617,
+        "phase": 0.35,
+        "degreesPerBakedFrame": 17.727433659319605
+      }
+    ],
+    "minBend": [
+      0.163380592218692,
+      0.12642979579554173
+    ],
+    "minAt": [
+      0,
+      0
+    ]
+  }
+}

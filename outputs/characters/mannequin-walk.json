@@ -4,11 +4,14 @@
   "license": "CC0-1.0",
   "source_cycle_distance": 1.2999994718110406,
   "leg_scale": 1.4850225885735593,
+  "stride_gain": 1,
+  "lift_gain": 1,
+  "root_based_cycle_distance": 1.9305285807730914,
   "model_cycle_distance": 1.9305285807730914,
   "web_cycle_distance": 1.1583171484638548,
   "seconds": 1.3333333333333333,
   "frames": 41,
-  "glb_bytes": 258868,
-  "minimum_clearance": 0.0009998604655265808,
+  "glb_bytes": 341384,
+  "minimum_clearance": 0.0009998232126235962,
   "maximum_reach_correction": 0
 }

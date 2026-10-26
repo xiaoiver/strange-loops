@@ -29,6 +29,7 @@ test('release is self-contained under the website subpath, with seven language p
   assert.ok(manifest.files.some(file => file.path === 'assets/art/rubin-contour.svg'));
   for (const file of ['assets/art/the-lobster.jpg','assets/art/the-lobster-weisz.jpg']) assert.ok(manifest.files.some(entry => entry.path === file));
   assert.ok(manifest.files.every(file => !file.path.includes('node_modules') && !file.path.startsWith('src/')));
+  assert.ok(manifest.files.every(file => !file.path.includes('clip-preview') && !file.path.startsWith('dev/')));
   for (const file of ['LICENSE', 'LICENSING.md', 'THIRD_PARTY_NOTICES.md']) {
     assert.equal(await readFile(path.join(release, file), 'utf8'), await readFile(new URL(`../../../${file}`, import.meta.url), 'utf8'));
   }
