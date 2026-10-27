@@ -16,7 +16,8 @@ root = Path(__file__).resolve().parent.parent
 source = Path(sys.argv[1])
 expected = '050080d9255a86808f2945bffac582b31ef32bc36411ce29563b4961670c66f9'
 assert hashlib.sha256(source.read_bytes()).hexdigest() == expected, 'Unexpected source font'
-files = [root / 'index.html', root / 'style.css', root / 'garden.css', *sorted((root / 'src').glob('*.js'))]
+files = [root / 'index.html', root / 'style.css', root / 'garden.css', root / 'figure-ground.css']
+files.extend(path for path in sorted((root / 'src').rglob('*.js')) if 'locales' not in path.parts)
 # The inline loader also contains Japanese; those glyphs use system fonts.
 characters = set(''.join(re.sub(r'<script id="loading-bootstrap">[\s\S]*?</script>', '', path.read_text()) for path in files))
 characters.update(chr(code) for code in range(32, 127))

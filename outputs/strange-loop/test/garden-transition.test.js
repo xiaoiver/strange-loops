@@ -47,13 +47,14 @@ test('the gallery envelope can dissolve and return without fading other architec
   const scene=new Scene(),lobbyMaterial=createFairFacedConcrete();
   scene.add(new Mesh(new PlaneGeometry(42,42),lobbyMaterial));
   const view=createFigureGroundScene(scene,{matches:true},()=>{});
-  view.setVisible(true);const gallery=scene.getObjectByName('figure-ground-gallery');
+  view.setVisible(true);const gallery=scene.getObjectByName('figure-ground-gallery'),originals=new Map();
+  gallery.traverse(object=>{if(object.isMesh)originals.set(object.material,{opacity:object.material.opacity,transparent:object.material.transparent});});
   for(const presence of [1,.5,0,.5,1]){
     view.setPresence(presence);assert.equal(lobbyMaterial.opacity,1);
-    gallery.traverse(object=>{if(object.isMesh)assert.equal(object.material.opacity,presence);});
+    gallery.traverse(object=>{if(object.isMesh)assert.equal(object.material.opacity,originals.get(object.material).opacity*presence);});
     assert.deepEqual(gallery.scale.toArray(),[1,1,1]);
     assert.deepEqual(gallery.position.toArray(),[0,0,0]);
   }
   view.setVisible(false);view.setVisible(true);
-  gallery.traverse(object=>{if(object.isMesh){assert.equal(object.material.opacity,1);assert.equal(object.material.transparent,false);}});
+  gallery.traverse(object=>{if(object.isMesh){assert.equal(object.material.opacity,originals.get(object.material).opacity);assert.equal(object.material.transparent,originals.get(object.material).transparent);}});
 });

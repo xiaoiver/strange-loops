@@ -79,7 +79,7 @@ export async function loadCompanions(scene, reduced, onProject) {
       routeDone=null;
       for(const [index,actor] of actors.entries()){
         actor.route=null;actor.delay=0;actor.locomotion='Walk';actor.gaitRate=1;actor.from.copy(actor.root.position);
-        const destination=space==='labyrinth'?labyrinthStop(index):space==='figure-poster'?(index===0?[-4.9,5.2]:[-5.1,4.6]):space==='figure-contour'?(innerWidth<=760?(index===0?[-2.5,.9]:[-1.5,1.2]):(index===0?[-3,3.9]:[-1.9,4.3])):space==='garden' ? (index===0?[2.8,-1.95]:[3.6,-1.75]) : specifications[index].to;
+        const destination=space==='labyrinth'?labyrinthStop(index):space==='figure-poster'?(index===0?[-4.9,5.2]:[-5.1,4.6]):space==='figure-fedex'?(index===0?[14.7,5.2]:[14.5,4.6]):space==='figure-contour'?(innerWidth<=760?(index===0?[-2.5,.9]:[-1.5,1.2]):(index===0?[-3,3.9]:[-1.9,4.3])):space==='garden' ? (index===0?[2.8,-1.95]:[3.6,-1.75]) : specifications[index].to;
         if(keepPosition)actor.to.copy(actor.root.position);
         else actor.to.set(destination[0],-3.8,destination[1]);
         // Cross a visible stretch of the shaded floor, at each companion's pace.
@@ -90,6 +90,7 @@ export async function loadCompanions(scene, reduced, onProject) {
         actor.age=0;actor.walking=!reduced.matches&&!immediate&&!keepPosition&&actor.from.distanceToSquared(actor.to)>1e-8;
         if(space==='labyrinth')actor.target.set(...MODEL_ORIGIN);
         else if(space==='figure-poster')actor.target.set(-6.69,-.4,3.6);
+        else if(space==='figure-fedex')actor.target.set(16.79,-.4,3.6);
         else if(space.startsWith('figure-'))actor.target.set(0,-.6,0);
         else actor.target.set(space==='garden'?1.9:0,space==='garden'?-3:.1,0);
         if(reduced.matches||immediate)actor.root.position.copy(actor.to);

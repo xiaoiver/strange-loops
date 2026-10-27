@@ -20,11 +20,14 @@ Paths below are relative to `outputs/strange-loop/` unless another prefix is sho
 | Quaternius Formal/Jog source clips in `outputs/characters/source/quaternius-*.glb` and their adapted animation data | Source animation package: **CC0 1.0**. Keep provenance with the accompanying files; the mannequin mesh still has its separate terms. |
 | Tripo tortoise, `assets/characters/tortoise.glb`, `outputs/characters/source/tripo-tortoise.glb`, and adaptations of that model | The maintainer confirms generation on a **paid plan with the model set to private**. The project grants **no separate reuse license for this model** through MIT. Obtain permission from the maintainer before redistributing the tortoise; generation provenance alone is not an open-content license. [Tripo terms](https://www.tripo3d.ai/terms). |
 | `assets/art/the-lobster.jpg`, `assets/art/the-lobster-weisz.jpg` | Third-party film posters, **excluded from MIT**. Rights remain with their respective holders. Attribution, a source link and this repository's commentary do not grant permission to reproduce or sublicense the posters. |
+| `assets/art/fedex.svg` | Third-party FedEx wordmark used for design commentary, **excluded from the project MIT grant**. Source and monochrome adaptation are recorded in THIRD_PARTY_NOTICES. No trademark rights or endorsement are granted. |
+| Formula 1 cutout in `src/cutout-studies.js` | Third-party Formula 1 device (Carter Wong, 1994–2017) drawn as original monochrome commentary, **excluded from the project MIT grant**. Not an official logo file. No trademark rights or endorsement are granted. |
+| Toblerone cutout in `src/cutout-studies.js` | Third-party Toblerone mountain-and-bear device (Andrew Davidson, 1990) drawn as original monochrome commentary, **excluded from the project MIT grant**. Not an official logo file. No trademark rights or endorsement are granted. |
 | Noto Serif SC subset in `assets/fonts/` | **SIL Open Font License 1.1**, with the upstream notice in `assets/fonts/OFL.txt`. |
 | Helvetiker/Optimer font data and glyph geometry derived from those typefaces, including the bundled sculpture and letter meshes | Retain the **Magenta font license** and upstream notices recorded in THIRD_PARTY_NOTICES. MIT covers the project's generator code, not a replacement license for the source typefaces. |
 | Google Draco JS/WASM decoders in `assets/draco/` | **Apache-2.0**; the upstream license is preserved in `assets/draco/LICENSE`. |
 | Three.js, three-bvh-csg, three-mesh-bvh, cannon-es and PQINA Flip code in the generated bundles | Their upstream **MIT** notices remain applicable and are preserved in THIRD_PARTY_NOTICES. |
-| Screenshots, share images, Blender projects, animation previews and other files containing the assets above | **No blanket MIT asset license.** Underlying model, font and artwork rights remain applicable. Images containing the posters are excluded from the project MIT grant. The original code inside a mixed project remains MIT. |
+| Screenshots, share images, Blender projects, animation previews and other files containing the assets above | **No blanket MIT asset license.** Underlying model, font and artwork rights remain applicable. Images containing the posters, the FedEx wordmark, or the Formula 1 and Toblerone studies are excluded from the project MIT grant. The original code inside a mixed project remains MIT. |
 
 No other model, illustration or media file is granted an open-content license merely by being present in this repository. Check its recorded terms or contact the maintainer. This scope statement does not limit rights already granted by an upstream license, applicable law or the public domain.
 
@@ -48,9 +51,12 @@ MIT 允许商用、修改和再分发，包括闭源复用，要求保留版权�
 - **Quaternius 动画**：源包使用 CC0 1.0；模型网格仍遵循自己的许可。
 - **Tripo 乌龟**：维护者已确认使用付费方案并设为私有生成。MIT 不为该模型另行授予复用许可；再分发请联系维护者，生成来源记录不等于开放素材许可。
 - **《龙虾》海报**：排除在 MIT 授权之外，权利归各自权利人。标注作者与来源不等于获得复制或转授权许可。
+- **FedEx 字标**：用于设计评论的第三方商标，不在项目 MIT 授权范围内；矢量来源、单色改编及观察提示见素材声明，不授予商标权或暗示品牌认可。
+- **Formula 1 镂空**：Carter Wong 1994–2017 标志的单色评论几何，不是官方标志文件，不在项目 MIT 授权范围内，不授予商标权或暗示品牌认可。
+- **Toblerone 镂空**：Andrew Davidson 1990 年山中熊的单色评论几何，不是官方标志文件，不在项目 MIT 授权范围内，不授予商标权或暗示品牌认可。
 - **字体与字形网格**：Noto Serif SC 子集保留 OFL 1.1；Helvetiker、Optimer 及其衍生字形保留 Magenta 字体许可与来源说明。
 - **Draco 解码器**：保留 Apache-2.0；其他依赖保留各自 MIT 声明。
-- **截图、分享图、Blender 工程和动画预览**：包含的模型、字体和画作仍适用各自权利，不作为整件 MIT 素材授权；含海报的截图也排除在项目 MIT 授权之外。
+- **截图、分享图、Blender 工程和动画预览**：包含的模型、字体和画作仍适用各自权利，不作为整件 MIT 素材授权；含海报、FedEx 字标或 Formula 1、Toblerone 观察的截图也排除在项目 MIT 授权之外。
 
 完整路径与条款对应关系见上方表格，署名和上游许可正文见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。未另行说明的模型或媒体不会因进入仓库而自动获得开放素材许可；这也不限制上游许可、法律或公有领域已经允许的使用。
 

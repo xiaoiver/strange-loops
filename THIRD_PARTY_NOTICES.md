@@ -197,3 +197,30 @@ The chapter passage additionally uses Quaternius `Jog_Fwd_Loop` from the same CC
 ## Google Draco decoders
 
 Copyright 2016 The Draco Authors. The bundled `draco_decoder.js`, `draco_wasm_wrapper.js` and `draco_decoder.wasm` in `outputs/strange-loop/assets/draco/` come from the Three.js Draco distribution and retain the Apache License 2.0. The upstream license text is preserved in `assets/draco/LICENSE` within the website and release package. Source: https://github.com/google/draco ; license text source: https://github.com/google/draco/blob/1.5.7/LICENSE . The project MIT grant does not replace this license.
+
+
+## FedEx wordmark study (chapter two)
+
+- File: `outputs/strange-loop/assets/art/fedex.svg`.
+- Wordmark design: **Lindon Leader**, at **Landor Associates**, 1994. Primary designer interview: https://thesneeze.com/the-man-behind-the-fedex-logo/ . Designer portfolio: https://leadercreative.com/briefcase/federal-express/ .
+- Vector source: https://commons.wikimedia.org/wiki/File:FedEx_Corporation_-_2016_Logo.svg ; original file https://upload.wikimedia.org/wikipedia/commons/b/b9/FedEx_Corporation_-_2016_Logo.svg . Retrieved 2026-10-27. Commons credits FedEx and the original uploader Tkgd2007, and labels the simple text logo PD-textlogo with a trademark restriction notice. This project does not independently grant rights to the FedEx trademark.
+- Adaptation: the viewBox shows only the wordmark, omitting the lower corporate descriptor; both colors are rendered in monochrome for the exhibition. The year 1994 credits the original wordmark design, not the later corporate color rollout or this vector file.
+- The arrow is a through-hole in the commentary wall, filled by a removable concrete plug. It is this exhibition’s analytical annotation of the existing E/x gap, labeled as a negative-space study, and is not an official alternate FedEx logo. Display is for design commentary, with no affiliation or endorsement implied. The mark and screenshots containing it are excluded from the project’s MIT grant; original interaction code remains MIT.
+
+## Formula 1 cutout study (chapter two)
+
+- Vector reference: `outputs/strange-loop/assets/art/f1-classic.svg`, cropped and recolored from https://commons.wikimedia.org/wiki/File:F1_logo.svg (original https://upload.wikimedia.org/wikipedia/commons/4/45/F1_logo.svg), uploaded by Techtri and credited to Formula One Management. Retrieved 2026-10-27. Commons labels the source PD-textlogo and Trademarked; this project does not grant rights to the trademark. The lower caption is omitted; the F and both speed-line groups retain their source contours.
+- Device: the 1994–2017 Formula 1 mark, designed at **Carter Wong**. The numeral 1 is the gap between the F and the speed lines. The device was replaced after the 2017 season. Design report: https://www.creativebloq.com/news/formula-1-ditches-its-negative-space-logo . Retrieved 2026-10-27.
+- The study is fair-faced concrete and ink, with no official colors. The plug in the “1” withdraws so light shows through a hole. It is labeled as a negative-space study and is not an official Formula 1 logo. Display is for design commentary, with no affiliation or endorsement implied. The study and screenshots containing it are excluded from the project’s MIT grant; original interaction code remains MIT.
+
+## Toblerone cutout study (chapter two)
+
+- Vector reference: `outputs/strange-loop/assets/art/toblerone-mountain.svg`, the classic Matterhorn artwork cropped and recolored from https://worldvectorlogo.com/logo/toblerone (file https://cdn.worldvectorlogo.com/logos/toblerone.svg). Retrieved 2026-10-27. Only the mountain paths are retained, without the packaging background, wordmark, or original colors. Artwork and trademark rights remain with their respective owners; this reference is not covered by the project MIT license.
+- Device: the bear hidden in the mountain, drawn by illustrator **Andrew Davidson** in 1990 for the Toblerone Matterhorn emblem. The bear refers to Bern. The exhibition year **2000** follows the brand’s own timeline for the packaging redesign: https://www.toblerone.com/at/geschichte/ . The designer interview dates Davidson’s illustration work to 1990; that is distinct from the packaging date. Illustrator interview: https://www.raconteur.net/design-innovation/the-man-behind-toblerones-bear-in-the-mountain-logo-on-what-makes-an-iconic-image . Retrieved 2026-10-27.
+- The study is fair-faced concrete and ink, with no official colors. The plug in the bear withdraws so light shows through a hole. It is labeled as a negative-space study and is not an official Toblerone logo. Display is for design commentary, with no affiliation or endorsement implied. The study and screenshots containing it are excluded from the project’s MIT grant; original interaction code remains MIT.
+
+## Vector-to-wall adaptation
+
+- `outputs/strange-loop/scripts/generate-logo-contours.mjs` samples the attributed SVG paths into `src/logo-contours.js`. The same outlines and internal counters drive the thin-relief wall marks and the SVG fallback. Rebuild with `npm run logos:generate`; no XML parser or polygon boolean dependency is shipped to the browser.
+- FedEx’s aperture follows the E/x edges in the supplied vector. The F1 aperture follows the complete central gap between the F and both speed-line groups, bounded at the logo top and baseline. Toblerone’s bear joins the surrounding snow in the source, so the analytical aperture closes the open snow channels and is clipped against the original mountain paths. These apertures explain the negative space; they are exhibition adaptations, not official alternative brand artwork.
+- All three source marks, derived contours, and screenshots containing them remain outside the MIT grant. Original geometry-processing and interaction code are MIT.

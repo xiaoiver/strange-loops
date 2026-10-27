@@ -1,3 +1,5 @@
+import { CUTOUT_ANCHOR, studyById } from './cutout-studies.js';
+import { createNegativeSpaceWall } from './negative-space-wall.js';
 import * as THREE from 'three';
 import { GALLERY_ENTRY } from './chapter-passage.js';
 import { traceProfile } from './rubin-contour.js';
@@ -26,7 +28,6 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
   box(entry.depth,3.16,.12,shell,entry.x-entry.depth/2,-2.22,left-.06);
   box(entry.depth,3.16,.12,shell,entry.x-entry.depth/2,-2.22,right+.06);
   box(.08,3.16,right-left,ink,entry.x-entry.depth,-2.22,entry.z);
-  box(.35,12,41,shell,17,2.2,1.3);
   group.add(new THREE.HemisphereLight(0xf2f3f0,0x6e726e,.42));
   // Two architectural piers share the vase boundary. The middle remains empty space.
   const contour = new THREE.Group(); contour.position.set(0,-3.8,0); group.add(contour);
@@ -63,6 +64,15 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
       surface.material.map=texture;surface.material.needsUpdate=true;invalidate();
     },undefined,()=>{surface.visible=false;invalidate();});
   });
+  // The original east wall contains the apertures directly. There is no
+  // additional panel, perimeter seam, or opaque wall behind the openings.
+  const fedexMount=new THREE.Group();fedexMount.name='fedex-exhibit';
+  fedexMount.position.set(CUTOUT_ANCHOR.x,CUTOUT_ANCHOR.y,CUTOUT_ANCHOR.z);fedexMount.rotation.y=-Math.PI/2;group.add(fedexMount);
+  const concrete=shell;
+  const logoInk=ink.clone();logoInk.color.setHex(0x292c28);logoInk.roughness=.74;
+  const cutouts=createNegativeSpaceWall({concrete,ink:logoInk});
+  fedexMount.add(cutouts.root);
+  let revealTarget=0,revealAmount=0,focusStudy='fedex';
   const raycaster=new THREE.Raycaster();
   const fade=createExhibitFade(group,{lift:0,shrink:0});
   const gapPlane=new THREE.Plane(new THREE.Vector3(0,0,1),0);
@@ -80,6 +90,15 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
   function pose() {
     const mobile=innerWidth<=760;
     if(entryTime>0)return {position:new THREE.Vector3(mobile?-.5:3.5,1.3,mobile?19:18),look:new THREE.Vector3(-5.7,-1.8,9)};
+    if(targetMode==='fedex'){
+      const study=studyById(focusStudy),aspect=innerWidth/innerHeight;
+      // Chapter two uses a 48-degree vertical field on mobile. Fit the complete
+      // outline into the open space between the heading and the exhibit label.
+      const tangent=Math.tan(THREE.MathUtils.degToRad(48)/2);
+      const distance=mobile?Math.max(study.size.width/(2*tangent*aspect*.86),study.size.height/(2*tangent*.29)):Math.max(13.2,16.5/aspect);
+      const lookY=CUTOUT_ANCHOR.y+(mobile?study.centerY-distance*2*tangent*.12:0);
+      return {position:new THREE.Vector3(CUTOUT_ANCHOR.x-distance*(mobile?1:.98),mobile?lookY:.2,CUTOUT_ANCHOR.z+distance*(mobile?.02:.12)),look:new THREE.Vector3(CUTOUT_ANCHOR.x,mobile?lookY:CUTOUT_ANCHOR.y,CUTOUT_ANCHOR.z)};
+    }
     if(targetMode==='poster'){
       const distance=mobile?16.2:Math.max(12,15/(innerWidth/innerHeight));
       return {position:new THREE.Vector3(-6.69+distance*(mobile?1:.944),mobile?.5:1,3.6+distance*(mobile?.05:.33)),look:new THREE.Vector3(-6.69,mobile?-.8:-1.3,3.6)};
@@ -98,16 +117,22 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
     setVisible(value){visible=value;setPresence(value?1:0);blend=0;poseKey='';manualOffset=0;entryTime=0;entryPending=false;entryDone=null;coEdgeFocus=null;applyCoEdgeFocus();},
     setPresence,
     setCoEdgeFocus(value){coEdgeFocus=value;applyCoEdgeFocus();},
-    setState(value,locale,{poster=false}={}) {
-      targetMode=poster||figureStage(value)==='posters'?'poster':'contour';
+    setState(value,locale,{poster=false,fedex=false,arrow=false,study='fedex'}={}) {
+      revealTarget=fedex&&arrow?1:0;
+      focusStudy=studyById(study).id;
+      targetMode=fedex?'fedex':poster||figureStage(value)==='posters'?'poster':'contour';
       if(targetMode!=='contour'){coEdgeFocus=null;applyCoEdgeFocus();}
       sun.shadow.needsUpdate=true;invalidate();
     },
     refreshShadows(){if(visible)sun.shadow.needsUpdate=true;},
     update(dt,camera,look){
       if(!visible)return false;
+      const previousReveal=revealAmount;
+      revealAmount=reduced.matches?revealTarget:THREE.MathUtils.damp(revealAmount,revealTarget,9,dt);
+      if(Math.abs(revealAmount-revealTarget)<.001)revealAmount=revealTarget;
+      for(const plug of cutouts.plugs)plug.position.z=plug.userData.closedZ+(plug.userData.openZ-plug.userData.closedZ)*revealAmount;
       entryTime=Math.max(0,entryTime-dt);
-      const p=pose(),key=`${entryTime>0?'entry':targetMode}:${innerWidth<=760}`;
+      const p=pose(),mobile=innerWidth<=760,key=`${entryTime>0?'entry':targetMode}:${mobile}:${targetMode==='fedex'&&mobile?focusStudy:''}`;
       if(poseKey!==key){poseKey=key;startPosition.copy(camera.position);startLook.copy(look);blend=0;manualOffset=0;}
       blend=reduced.matches?1:Math.min(1,blend+dt/(entryPending?.8:1.25));const t=blend*blend*(3-2*blend);
       p.position.x+=manualOffset;camera.position.lerpVectors(startPosition,p.position,t);look.lerpVectors(startLook,p.look,t);
@@ -116,9 +141,16 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
       if(entryPending&&entryTime===0&&blend===1){
         const done=entryDone;entryPending=false;entryDone=null;done?.();
       }
-      return blend<1||entryTime>0;
+      return blend<1||entryTime>0||previousReveal!==revealAmount;
     },
     drag(delta){manualOffset=THREE.MathUtils.clamp(manualOffset+delta,-.65,.65);},
+    pickFedex(pointer,camera){
+      if(!visible)return false;
+      raycaster.setFromCamera(pointer,camera);
+      const hit=raycaster.intersectObjects(cutouts.pickables,false)[0];
+      if(!hit)return false;
+      return hit.object.userData.study||'fedex';
+    },
     pickPoster(pointer,camera){if(!visible)return false;raycaster.setFromCamera(pointer,camera);return raycaster.intersectObjects(posterTargets).length>0;},
     pickCoEdge(pointer,camera){
       if(!visible||targetMode!=='contour')return null;

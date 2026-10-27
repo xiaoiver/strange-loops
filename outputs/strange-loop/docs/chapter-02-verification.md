@@ -112,3 +112,14 @@ The gallery camera now spends 0.25s at the entrance and focuses the active exhib
 Four tests exercise the actual scene camera on desktop and mobile, early completion before either companion arrives, subsequent navigation, cancellation on leaving, and immediate reduced-motion arrival.
 
 The ground-view tortoise explanation is removed in all seven languages, including live announcements; the Rubin exhibit label remains. The return-to-posters button aligns with the left text column on desktop, tablet and mobile. Relevant camera, chapter and translation checks (11) pass after this change; build succeeds.
+
+
+## Negative-space cutout wall — 2026-10-27
+
+The right-wall FedEx panel is now one fair-faced concrete slab with three physical cutouts. `ExtrudeGeometry` builds the slab from a rectangle whose `Shape.holes` are the Formula 1 “1”, the FedEx arrow and the Toblerone bear. Each void has an extruded plug of the same concrete. Unrevealed, the plug sits in the hole. “看留白” translates the plug behind the slab so a paper-gray backlight is the first surface a ray meets; “填回墙面” seats the plug again. The F, speed lines, FedEx wordmark and mountain mesh stay at the same matrix. The wordmark itself is a `ShapeGeometry` with the arrow removed, so the texture does not cover the hole. Desktop framing stays put while the plugs move. A narrow viewport frames one study at a time, and the SVG fallback crops to that study. Reduced motion snaps the plugs. Escape and the return link still restore Rubin. There is no quiz.
+
+Formula 1 (Carter Wong, 1994–2017) and Toblerone (Andrew Davidson, 1990) are recorded with the FedEx study in THIRD_PARTY_NOTICES.md and excluded from the MIT grant in LICENSING.md. The studies are original monochrome geometry, not official logo files.
+
+`npm test` passes all 111 tests and `npm run build` succeeds. New checks cover seven-language wall and study labels, three plug paths in the closed SVG and none when revealed, a cropped phone viewBox, and a ray through each sample. With the plugs seated the ray hits that plug; after they withdraw it hits the backlight and misses the slab. Mark matrices, wordmark opacity and the desktop camera stay put. A narrow viewport moves the look target from Formula 1 down to Toblerone. Reduced motion is the snap used by those checks. This pass did not recapture the gallery screenshots; the images below still show the earlier flat wordmark.
+
+Both READMEs now include localized FedEx captures and refreshed Rubin captures. The remaining gallery screenshots were refreshed against main cf25386, including the continuous fractal interior.
