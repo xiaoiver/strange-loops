@@ -1,4 +1,4 @@
-import { FEDEX_ART, FEDEX_LABELS, fedexStudySVG } from './fedex-exhibit.js';
+import { STUDY_ORDER, WALL_LABELS, negativeSpaceSVG, studyById } from './cutout-studies.js';
 import { ART_LABELS, LOBSTER_POSTERS, LOBSTER_CREDIT, RUBIN_LABELS, RUBIN_CREDIT } from './gallery-art.js';
 import { FIGURE_COPY } from './figure-ground-copy.js';
 import { COPY } from './copy.js';
@@ -7,12 +7,14 @@ import { FIGURE_STORAGE, initialFigureState, restoreFigureState, advanceFigure, 
 
 const stages = ['posters', 'faces', 'ground'];
 export function createFigureGround(root, { locale: initialLocale, navigation, onState, onMeet, onBack, onNext, onAnnounce }) {
-  let locale = initialLocale, state = initialFigureState(), active = false, poster = false, coEdgeFocus = null, fedex = false, arrow = false;
+  let locale = initialLocale, state = initialFigureState(), active = false, poster = false, coEdgeFocus = null, fedex = false, arrow = false, study = 'fedex';
   try { state = restoreFigureState(JSON.parse(localStorage.getItem(FIGURE_STORAGE))); } catch { /* Storage is optional. */ }
   const c = () => FIGURE_COPY[locale];
   const viewingPosters = () => !fedex && (poster || figureStage(state) === 'posters');
   function save() { try { localStorage.setItem(FIGURE_STORAGE, JSON.stringify(state)); } catch { /* Continue without persistence. */ } }
-  function sync() { onState(state, locale, { poster: viewingPosters(), coEdgeFocus, fedex, arrow }); }
+  function sync() { onState(state, locale, { poster: viewingPosters(), coEdgeFocus, fedex, arrow, study }); }
+  const wallCopy = () => WALL_LABELS[locale];
+  const studyCopy = () => studyById(study).labels[locale];
   function achillesLine(stage) {
     const t = c();
     if (stage !== 'faces') return t.dialogue[0];
@@ -30,11 +32,12 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
     return true;
   }
   function render(focus) {
-    const f = FEDEX_LABELS[locale];
+    const f = wallCopy(), plate = studyCopy(), art = studyById(study).art;
     const t = c(), label = ART_LABELS[locale], rubin = RUBIN_LABELS[locale], stage = figureStage(state), isPoster = viewingPosters();
     const retainedFocus = root.contains(document.activeElement) ? document.activeElement.id : null;
     const index = isPoster ? 0 : stages.indexOf(stage), actor = index === 2 ? 'tortoise' : 'achilles';
     const primary = fedex ? ['arrow', arrow ? f.reset : f.look] : isPoster ? ['to-contour', t.toContour] : stage === 'faces' ? ['ground', t.look] : ['fedex', f.to];
+    const studies = fedex ? `<div class="figure-studies" role="group" aria-label="${f.alt}">${STUDY_ORDER.map((id) => `<button type="button" id="fg-study-${id}" data-fg="study-${id}" aria-pressed="${study === id}">${studyById(id).labels[locale].short}</button>`).join('')}</div>` : '';
     const coEdge = stage === 'faces' && !isPoster && !fedex ? `<div class="figure-coedge" role="group" aria-label="${t.coEdgeLabel}">
         <button type="button" class="figure-coedge-hit" id="fg-focus-vase" data-fg="focus-vase" aria-pressed="${coEdgeFocus === 'vase'}">${t.focusVase}</button>
         <button type="button" class="figure-coedge-hit" id="fg-focus-faces" data-fg="focus-faces" aria-pressed="${coEdgeFocus === 'faces'}">${t.focusFaces}</button>
@@ -44,22 +47,24 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
     root.dataset.contour = String(!isPoster && !fedex);
     root.dataset.fedex = String(fedex);
     root.dataset.arrow = String(arrow);
+    root.dataset.study = fedex ? study : '';
     root.dataset.coedge = coEdgeFocus ?? '';
     root.innerHTML = `<header class="figure-heading"><p>${t.eyebrow}</p><h2 id="figure-title" tabindex="-1">${t.title}</h2>${!fedex && state.observed && stage === 'faces' ? `<p class="figure-observed" aria-hidden="true">${t.observed}</p>` : ''}</header>
       <div class="figure-fallback" aria-hidden="true" ${isPoster || fedex ? 'hidden' : ''}><img src="assets/art/rubin-contour.svg" alt=""></div>
       ${coEdge}
-      ${fedex ? `<div class="figure-fedex-fallback" role="img" aria-label="${arrow ? f.revealed : f.alt}">${fedexStudySVG(arrow)}</div>` : ''}
+      ${fedex ? `<div class="figure-fedex-fallback" data-focus="${study}" role="img" aria-label="${arrow ? plate.revealed : plate.alt}">${negativeSpaceSVG({ revealed: arrow, focus: typeof innerWidth === 'number' && innerWidth <= 760 ? study : null })}</div>` : ''}
       ${!fedex && !isPoster && actor !== 'tortoise' ? `<div class="figure-reading">
         <div class="dialogue figure-dialogue" aria-live="polite" aria-atomic="true"><span class="speaker">${COPY[locale].actors[actor]}</span><p>${achillesLine(stage)}</p></div>
       </div>` : ''}
       <div class="figure-action"><button class="figure-primary" id="fg-primary" data-fg="${primary[0]}" ${fedex ? `aria-pressed="${arrow}"` : ''}>${primary[1]} <span aria-hidden="true">${primary[0] === 'poster' ? '←' : '→'}</span></button>${fedex ? `<button class="figure-link" id="fg-contour" data-fg="to-contour">← ${f.back}</button>` : ''}</div>
       <aside class="figure-notes">
-        ${fedex ? `<section class="figure-note-copy figure-art-label" aria-label="${f.title}">
-          <p class="figure-art-title">${f.title}<span>${FEDEX_ART.year}</span></p>
-          <p class="figure-art-designer">${FEDEX_ART.designer}<small>${f.role}</small></p>
-          <p aria-live="polite">${arrow ? f.revealed : f.text}</p>
-          ${arrow ? `<p class="figure-study-label">${f.annotation}</p>` : ''}
-          <a class="book-link" href="${FEDEX_ART.source}" target="_blank" rel="noopener noreferrer">${f.source}</a>
+        ${fedex ? `<section class="figure-note-copy figure-art-label" aria-label="${plate.title}">
+          ${studies}
+          <p class="figure-art-title">${plate.title}<span>${art.year}</span></p>
+          <p class="figure-art-designer">${art.designer}<small>${plate.role}</small></p>
+          <p aria-live="polite">${arrow ? plate.revealed : plate.text}</p>
+          ${arrow ? `<p class="figure-study-label">${plate.annotation}</p>` : ''}
+          <a class="book-link" href="${art.source}" target="_blank" rel="noopener noreferrer">${plate.source}</a>
         </section>` : !isPoster ? `<section class="figure-note-copy figure-art-label figure-rubin-label" aria-label="${rubin.title}">
           <p class="figure-art-title">${rubin.title}<span>${RUBIN_CREDIT.year}</span></p>
           <p class="figure-art-designer">${RUBIN_CREDIT.author}<small>${rubin.role}</small></p>
@@ -89,8 +94,13 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
     if (action === 'close') { root.querySelector('dialog').close(); navigation.querySelector('#fg-next')?.focus(); return; }
     if (action === 'focus-vase') { setCoEdgeFocus('vase'); return; }
     if (action === 'focus-faces') { setCoEdgeFocus('faces'); return; }
-    if (action === 'fedex') { fedex = true; arrow = false; poster = false; coEdgeFocus = null; render('fg-primary'); sync(); onAnnounce(FEDEX_LABELS[locale].text); return; }
-    if (action === 'arrow' && fedex) { arrow = !arrow; render('fg-primary'); sync(); onAnnounce(arrow ? FEDEX_LABELS[locale].revealed : FEDEX_LABELS[locale].text); return; }
+    if (action.startsWith('study-') && fedex) {
+      const next = action.slice(6);
+      if (!STUDY_ORDER.includes(next) || next === study) return;
+      study = next; render(`fg-study-${study}`); sync(); onAnnounce(arrow ? studyCopy().revealed : studyCopy().text); return;
+    }
+    if (action === 'fedex') { fedex = true; arrow = false; study = 'fedex'; poster = false; coEdgeFocus = null; render('fg-primary'); sync(); onAnnounce(studyCopy().text); return; }
+    if (action === 'arrow' && fedex) { arrow = !arrow; render('fg-primary'); sync(); onAnnounce(arrow ? studyCopy().revealed : studyCopy().text); return; }
     if (action === 'poster') { fedex = false; arrow = false; poster = true; coEdgeFocus = null; render('fg-primary'); sync(); onAnnounce(c().toPosters); return; }
     if (action === 'to-contour') {
       fedex = false; arrow = false;
@@ -110,9 +120,16 @@ export function createFigureGround(root, { locale: initialLocale, navigation, on
     getState: () => state,
     showContour() { fedex=false;arrow=false;poster=false;state=advanceFigure(state,'to-contour');coEdgeFocus=null;save();render();sync(); },
     dismiss() { if(fedex){fedex=false;arrow=false;render('fg-primary');sync();return true;} if (!poster) return false; poster = false; render('fg-primary'); sync(); return true; },
-    talk(id) { onMeet(id); if (id === 'achilles') onAnnounce(fedex ? (arrow ? FEDEX_LABELS[locale].revealed : FEDEX_LABELS[locale].text) : achillesLine(viewingPosters() ? 'posters' : figureStage(state))); },
+    talk(id) { onMeet(id); if (id === 'achilles') onAnnounce(fedex ? (arrow ? studyCopy().revealed : studyCopy().text) : achillesLine(viewingPosters() ? 'posters' : figureStage(state))); },
     showPoster() { if (viewingPosters()) return; fedex=false;arrow=false;poster = true; coEdgeFocus = null; render('fg-primary'); sync(); },
-    showFedex() { if (fedex) arrow=!arrow; else {fedex=true;arrow=false;} poster=false;coEdgeFocus=null;render('fg-primary');sync();onAnnounce(arrow ? FEDEX_LABELS[locale].revealed : FEDEX_LABELS[locale].text); },
+    showFedex(hit) {
+      const next = STUDY_ORDER.includes(hit) ? hit : study;
+      if (!fedex) { fedex = true; arrow = false; study = next; }
+      else if (STUDY_ORDER.includes(hit) && hit !== study) study = hit;
+      else arrow = !arrow;
+      poster = false; coEdgeFocus = null; render('fg-primary'); sync();
+      onAnnounce(arrow ? studyCopy().revealed : studyCopy().text);
+    },
     pickCoEdge(pointer, camera, scene) {
       const mode = scene?.pickCoEdge(pointer, camera);
       return mode ? setCoEdgeFocus(mode) : false;
