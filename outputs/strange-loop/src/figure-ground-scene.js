@@ -3,7 +3,8 @@ import { createNegativeSpaceWall } from './negative-space-wall.js';
 import * as THREE from 'three';
 import { GALLERY_ENTRY } from './chapter-passage.js';
 import { traceProfile } from './rubin-contour.js';
-import { figureStage } from './figure-ground-system.js';
+import { CONTOUR_Z, GALLERY_INTERIOR } from './gallery-layout.js';
+import { figureLocation } from './figure-ground-system.js';
 import { LOBSTER_POSTERS } from './gallery-art.js';
 import { applySoftShadows } from './soft-shadows.js';
 import { createFairFacedConcrete } from './fair-faced-concrete.js';
@@ -30,7 +31,7 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
   box(.08,3.16,right-left,ink,entry.x-entry.depth,-2.22,entry.z);
   group.add(new THREE.HemisphereLight(0xf2f3f0,0x6e726e,.42));
   // Two architectural piers share the vase boundary. The middle remains empty space.
-  const contour = new THREE.Group(); contour.position.set(0,-3.8,0); group.add(contour);
+  const contour = new THREE.Group(); contour.name='rubin-exit'; contour.position.set(0,-3.8,CONTOUR_Z); group.add(contour);
   const contourWalls = [];
   const inkFocus = ink.clone(); inkFocus.emissive = new THREE.Color(0x2a2d28); inkFocus.emissiveIntensity = .22;
   const inkRest = ink.clone(); inkRest.color.multiplyScalar(.72);
@@ -41,6 +42,12 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
     const wall = new THREE.Mesh(geo,ink.clone()); wall.castShadow = wall.receiveShadow = true;
     wall.userData.coEdge = 'faces'; contourWalls.push(wall); contour.add(wall);
   }
+  // Concrete side wings and lintel turn the contour into the end wall.
+  const room=GALLERY_INTERIOR;
+  const leftWing=box(-5.2-room.left,6,.48,shell,(room.left-5.2)/2,-.8,CONTOUR_Z+.24);
+  const rightWing=box(room.right-5.2,6,.48,shell,(room.right+5.2)/2,-.8,CONTOUR_Z+.24);
+  const lintel=box(room.right-room.left,room.ceiling-2.2,.48,shell,(room.right+room.left)/2,(room.ceiling+2.2)/2,CONTOUR_Z+.24);
+  leftWing.name='contour-left-wing';rightWing.name='contour-right-wing';lintel.name='contour-lintel';
   // A real roof aperture casts the diagonal light band onto walls, floor and actors.
   box(40,.18,8,shell,4,6.1,-16.5);
   box(40,.18,11,shell,4,6.1,-1.1);
@@ -75,7 +82,7 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
   let revealTarget=0,revealAmount=0,focusStudy='fedex';
   const raycaster=new THREE.Raycaster();
   const fade=createExhibitFade(group,{lift:0,shrink:0});
-  const gapPlane=new THREE.Plane(new THREE.Vector3(0,0,1),0);
+  const gapPlane=new THREE.Plane(new THREE.Vector3(0,0,1),-CONTOUR_Z);
   const hitPoint=new THREE.Vector3();
   let visible=false, targetMode='contour', coEdgeFocus=null;
   function applyCoEdgeFocus(){
@@ -103,8 +110,9 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
       const distance=mobile?16.2:Math.max(12,15/(innerWidth/innerHeight));
       return {position:new THREE.Vector3(-6.69+distance*(mobile?1:.944),mobile?.5:1,3.6+distance*(mobile?.05:.33)),look:new THREE.Vector3(-6.69,mobile?-.8:-1.3,3.6)};
     }
-    return {position:new THREE.Vector3(mobile?.2:3,mobile?1.8:1.9,mobile?20:17.8),look:new THREE.Vector3(mobile?-.4:-.6,-.7,0)};
+    return contourPose();
   }
+  function contourPose(){const mobile=innerWidth<=760;return {position:new THREE.Vector3(mobile?.2:1.6,mobile?1.8:1.9,CONTOUR_Z+(mobile?20:17.8)),look:new THREE.Vector3(0,-.7,CONTOUR_Z)};}
   let lastPresence=null;
   function setPresence(value){
     if(value===lastPresence)return;lastPresence=value;
@@ -112,7 +120,7 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
     sun.shadow.needsUpdate=true;invalidate();
   }
   return {
-    contourPose(){return {position:new THREE.Vector3(innerWidth<=760?.2:3,innerWidth<=760?1.8:1.9,innerWidth<=760?20:17.8),look:new THREE.Vector3(innerWidth<=760?-.4:-.6,-.7,0)};},
+    contourPose,
     beginEntry(onComplete){entryTime=reduced.matches?0:.25;entryPending=true;entryDone=onComplete;poseKey='';},
     setVisible(value){visible=value;setPresence(value?1:0);blend=0;poseKey='';manualOffset=0;entryTime=0;entryPending=false;entryDone=null;coEdgeFocus=null;applyCoEdgeFocus();},
     setPresence,
@@ -120,7 +128,7 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
     setState(value,locale,{poster=false,fedex=false,arrow=false,study='fedex'}={}) {
       revealTarget=fedex&&arrow?1:0;
       focusStudy=studyById(study).id;
-      targetMode=fedex?'fedex':poster||figureStage(value)==='posters'?'poster':'contour';
+      targetMode=figureLocation(value,{poster,fedex});
       if(targetMode!=='contour'){coEdgeFocus=null;applyCoEdgeFocus();}
       sun.shadow.needsUpdate=true;invalidate();
     },

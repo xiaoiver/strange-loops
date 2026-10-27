@@ -4,6 +4,7 @@ import { Scene, PerspectiveCamera, Vector3, TextureLoader, Texture, Box3, Raycas
 import { initialLabyrinthState, advanceLabyrinth, restoreLabyrinthState, labyrinthReading, MAX_DEPTH } from '../src/labyrinth-system.js';
 import { createLabyrinthScene, passageRail } from '../src/labyrinth-scene.js';
 import { contourRoute, routeSample, labyrinthStop } from '../src/chapter-passage.js';
+import { CONTOUR_Z } from '../src/gallery-layout.js';
 import { MODEL_ORIGIN } from '../src/labyrinth-fold.js';
 import { LABYRINTH_COPY } from '../src/labyrinth-copy.js';
 import { LANGUAGES } from '../src/languages.js';
@@ -15,10 +16,10 @@ test.afterEach(()=>{globalThis.innerHeight=originalHeight;});
 
 test('both directions of the companions route cross the actual contour opening',()=>{
   for(const returning of [false,true])for(const index of [0,1]){
-    const route=contourRoute(returning?[-2,-7]:[-5,5],index,returning);
+    const route=contourRoute(returning?[-2,CONTOUR_Z-7]:[-5,CONTOUR_Z+5],index,returning);
     for(let step=0;step<=1000;step++){
       const sample=routeSample(route,step/1000);
-      if(sample.z>=-.1&&sample.z<=.6)assert.ok(Math.abs(sample.x)<.01,'a profile wall was crossed');
+      if(sample.z>=CONTOUR_Z-.1&&sample.z<=CONTOUR_Z+.6)assert.ok(Math.abs(sample.x)<.01,'a profile wall was crossed');
     }
   }
 });
@@ -36,6 +37,11 @@ for(const mobile of [false,true])test(`chapter passage is one smooth rail throug
   const scene=new Scene(),view=createLabyrinthScene(scene,{matches:false},()=>{}),gallery=createFigureGroundScene(scene,{matches:false},()=>{});
   view.setVisible(true);gallery.setVisible(true);scene.updateMatrixWorld(true);
   const end=gallery.contourPose(),camera=new PerspectiveCamera(),look=end.look.clone();camera.position.copy(end.position);camera.lookAt(look);
+  const barriers=[];
+  for(const name of ['rubin-exit','contour-left-wing','contour-right-wing','contour-lintel']){
+    scene.getObjectByName(name).traverse(object=>{if(object.isMesh)barriers.push(object);});
+  }
+  const passageRay=new Raycaster();
   let done=false;view.beginEntry(camera,look,()=>{done=true;});
   const samples=[];
   function record(){
@@ -43,16 +49,20 @@ for(const mobile of [false,true])test(`chapter passage is one smooth rail throug
     while(!done&&++count<400){
       view.update(1/60,camera,look);const step=camera.position.distanceTo(previous);
       assert.ok(step<.24,'camera jumped or accelerated at an intermediate waypoint');
+      if(step>1e-8){
+        passageRay.set(previous,camera.position.clone().sub(previous).normalize());passageRay.far=step;
+        assert.equal(passageRay.intersectObjects(barriers,false).length,0,'camera collided with the actual exit architecture');
+      }
       assert.ok(camera.quaternion.angleTo(rotation)<.08,'view direction turned abruptly');
       if(count>40&&count<210)assert.ok(step>.035,'camera stopped at an intermediate waypoint');
       assert.ok(camera.position.y>=Math.min(end.position.y,view.outerPose().position.y)-.05,'camera dipped below both observation heights');
-      if(camera.position.z>=-.1&&camera.position.z<=.6)assert.ok(Math.abs(camera.position.x)<1e-5,'camera crossed a solid profile');
+      if(camera.position.z>=CONTOUR_Z-.1&&camera.position.z<=CONTOUR_Z+.6)assert.ok(Math.abs(camera.position.x)<1e-5,'camera crossed a solid profile');
       assert.ok(camera.position.distanceTo(look)>2,'camera overtook its gaze target');
       samples.push(camera.position.clone());previous.copy(camera.position);rotation.copy(camera.quaternion);
     }
     assert.ok(done,'passage did not finish');
   }
-  record();const outer=camera.position.clone();assert.ok(outer.z<-3,'the turn must finish behind the profile walls');
+  record();const outer=camera.position.clone();assert.ok(outer.z<CONTOUR_Z-3,'the turn must finish behind the profile walls');
   // Constant arc steps stay constant despite unequal distances between the controls.
   for(const returning of [false,true]){
     const rail=passageRail(returning?outer:end.position,returning?end.position:outer,returning);

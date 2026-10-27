@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { initialFigureState, advanceFigure, restoreFigureState, figureStage } from '../src/figure-ground-system.js';
+import { initialFigureState, advanceFigure, restoreFigureState, figureStage, figureLocation, figureNavigation } from '../src/figure-ground-system.js';
 import { FIGURE_COPY } from '../src/figure-ground-copy.js';
 import { RUBIN_LABELS, RUBIN_CREDIT } from '../src/gallery-art.js';
 import { LANGUAGES } from '../src/languages.js';
@@ -11,18 +11,26 @@ test('the observation tour stops at the shared contour without a number challeng
   let state=initialFigureState();
   assert.equal(figureStage(state),'posters');
   assert.deepEqual(advanceFigure(state,'ground'),state);
+  assert.equal(figureNavigation(state).primary,'fedex');
+  assert.equal(figureNavigation(state).next,'to-contour');
+  state=advanceFigure(state,'to-wall');assert.equal(figureStage(state),'marks');
+  assert.equal(figureLocation(state),'fedex');
+  assert.equal(figureNavigation(state).next,'to-contour');
+  assert.deepEqual(restoreFigureState(JSON.parse(JSON.stringify(state))),state);
   state=advanceFigure(state,'to-contour');assert.equal(figureStage(state),'faces');
+  assert.equal(figureNavigation(state).primary,'ground');
   state=advanceFigure(state,'ground');assert.equal(figureStage(state),'ground');
+  assert.deepEqual(figureNavigation(state),{primary:'next',next:'next'});
   for(const action of ['ground','to-contour','meaning','generate','check','not-listed']){
     assert.deepEqual(advanceFigure(state,action),state);
   }
   assert.deepEqual(restoreFigureState(JSON.parse(JSON.stringify(state))),state);
 });
 test('old number-wall saves resume at the observed artwork and discard retired stages',()=>{
-  for(const version of [1,2,3]){
+  for(const version of [1,2,3,4,5]){
     const saved={version,posters:true,ground:true,meaning:true,products:[[2,4]],check:{number:11},answer:'not-listed'};
     const restored=restoreFigureState(saved);
-    assert.deepEqual(restored,{version:5,posters:true,ground:true,observed:false});
+    assert.deepEqual(restored,{version:6,posters:true,marks:true,ground:true,observed:false});
     assert.equal(figureStage(restored),'ground');
     assert.deepEqual(restoreFigureState(restored),restored);
   }
@@ -31,7 +39,7 @@ test('old number-wall saves resume at the observed artwork and discard retired s
   const wallOnly=restoreFigureState({version:1,ground:true});
   assert.equal(figureStage(wallOnly),'posters');
   assert.equal(figureStage(advanceFigure(wallOnly,'to-contour')),'ground');
-  assert.deepEqual(restoreFigureState({version:4,posters:true,ground:true,observed:true}),{version:5,posters:true,ground:true,observed:true});
+  assert.deepEqual(restoreFigureState({version:4,posters:true,ground:true,observed:true}),{version:6,posters:true,marks:true,ground:true,observed:true});
   for(const invalid of [null,{}, {version:99}, {version:5,posters:'true',ground:1}]){
     assert.deepEqual(restoreFigureState(invalid),initialFigureState());
   }
@@ -195,4 +203,25 @@ test('F1 reveal covers the full gap at the curved head, middle bar and both feet
   for(const sourcePoint of [[89,25],[85,45],[50,70],[98,70],[115,10]]){
     assert.ok(contains(LOGO_CONTOURS.f1.hole,...toWall(sourcePoint)),`Unfilled F1 gap at ${sourcePoint}`);
   }
+});
+
+test('the gallery ends at the contour and the actual next-room cube is framed behind it',async t=>{
+  const {Scene,Box3,Vector3,TextureLoader,Texture,Raycaster}=await import('three');
+  const {createFigureGroundScene}=await import('../src/figure-ground-scene.js');
+  const {CONTOUR_Z,GALLERY_INTERIOR}=await import('../src/gallery-layout.js');
+  const {MODEL_ORIGIN}=await import('../src/labyrinth-fold.js');
+  const oldWidth=globalThis.innerWidth;globalThis.innerWidth=1280;t.after(()=>{globalThis.innerWidth=oldWidth;});
+  t.mock.method(TextureLoader.prototype,'load',()=>new Texture());
+  const scene=new Scene(),view=createFigureGroundScene(scene,{matches:true},()=>{});view.setVisible(true);scene.updateMatrixWorld(true);
+  const contour=scene.getObjectByName('rubin-exit'),bounds=new Box3().setFromObject(contour);
+  assert.ok(Math.abs(bounds.min.z-CONTOUR_Z)<1e-6&&CONTOUR_Z<0);
+  assert.ok(MODEL_ORIGIN[2]<CONTOUR_Z-5&&Math.abs(MODEL_ORIGIN[0])<.01,'The cube is beyond the doorway, along the opening');
+  const barriers=[];for(const name of ['rubin-exit','contour-left-wing','contour-right-wing','contour-lintel'])scene.getObjectByName(name).traverse(o=>{if(o.isMesh)barriers.push(o);});
+  const ray=new Raycaster();ray.far=2;
+  for(const [x,y] of [[GALLERY_INTERIOR.left+.2,-1],[GALLERY_INTERIOR.right-.2,-1],[0,4]]){
+    ray.set(new Vector3(x,y,CONTOUR_Z+1),new Vector3(0,0,-1));
+    assert.ok(ray.intersectObjects(barriers,false).length,'The wings and lintel close the former side bypasses');
+  }
+  ray.set(new Vector3(0,-1,CONTOUR_Z+1),new Vector3(0,0,-1));
+  assert.equal(ray.intersectObjects(barriers,false).length,0,'The vase remains a real, traversable opening');
 });

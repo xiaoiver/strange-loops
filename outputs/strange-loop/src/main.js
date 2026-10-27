@@ -10,7 +10,7 @@ import { applySoftShadows } from './soft-shadows.js';
 import { createFairFacedConcrete } from './fair-faced-concrete.js';
 import { COPY } from './copy.js';
 import { FIGURE_COPY } from './figure-ground-copy.js';
-import { figureStage } from './figure-ground-system.js';
+import { figureLocation } from './figure-ground-system.js';
 import { createFigureGround } from './figure-ground.js';
 import { createFigureGroundScene } from './figure-ground-scene.js';
 import { createLabyrinthScene } from './labyrinth-scene.js';
@@ -75,7 +75,7 @@ const garden=createGarden($('#garden-intro'),{
 const figure=createFigureGround($('#figure-ground'),{
  locale,navigation:$('#chapter-navigation'),
  onState:(state,lang,options={})=>{
-  const area=options.fedex?'fedex':options.poster?'poster':'contour';
+  const area=figureLocation(state,options);
   figureScene?.setState(state,lang,options);
   figureScene?.setCoEdgeFocus?.(options.coEdgeFocus??null);
   if(currentChapter===2&&!transition&&figureArea!==area){figureArea=area;companions?.setSpace(`figure-${area}`);}
@@ -539,7 +539,7 @@ function showFigure(arriving=false){
  figure.show();syncDynamicLabels();resize();refreshShadows();
  if(arriving){
   $('#figure-ground').inert=true;passageAge=0;
-  const arrivalArea=figureStage(figure.getState())==='posters'?'poster':'contour';
+  const arrivalArea=figureLocation(figure.getState());
   companions.enterGallery(null,arrivalArea);
   figureScene.beginEntry(()=>{figureArea=arrivalArea;endPassage();figure.setLocale(locale);});
  }

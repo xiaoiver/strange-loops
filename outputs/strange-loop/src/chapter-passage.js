@@ -1,12 +1,14 @@
 // World-space thresholds shared by architecture and the companions' routes.
 import { MODEL_ORIGIN } from './labyrinth-fold.js';
+import { CONTOUR_Z } from './gallery-layout.js';
 export const GARDEN_EXIT = Object.freeze({ x:-3.8, z:-1.3, halfWidth:.76, depth:.72 });
 export const GALLERY_ENTRY = Object.freeze({ x:-6.9, z:10.4, halfWidth:.9, depth:.9 });
-export const labyrinthStop = index => [MODEL_ORIGIN[0]+(index===0?1.7:2.2),index===0?-9.4:-9.3];
+export const labyrinthStop = index => [MODEL_ORIGIN[0]+(index===0?1.7:2.2),MODEL_ORIGIN[2]+(index===0?.6:.7)];
+export const contourStop = (index,mobile=false) => mobile?(index===0?[-2.5,CONTOUR_Z+.9]:[-1.5,CONTOUR_Z+1.2]):(index===0?[-3,CONTOUR_Z+3.9]:[-1.9,CONTOUR_Z+4.3]);
 export function contourRoute(start,index,returning=false,mobile=false) {
-  const end=returning?(mobile?(index===0?[-2.5,.9]:[-1.5,1.2]):(index===0?[-3,3.9]:[-1.9,4.3])):labyrinthStop(index);
+  const end=returning?contourStop(index,mobile):labyrinthStop(index);
   // Approach the front before crossing; no diagonal can clip either profile wall.
-  const crossing=returning?[[0,-1.8],[0,2.3]]:[[0,2.3],[0,-1.8]];
+  const crossing=returning?[[0,CONTOUR_Z-1.8],[0,CONTOUR_Z+2.3]]:[[0,CONTOUR_Z+2.3],[0,CONTOUR_Z-1.8]];
   return [start,...crossing,end];
 }
 export function exitRoute(start, index) {
@@ -15,7 +17,7 @@ export function exitRoute(start, index) {
 }
 export function entryRoute(index, mobile=false, area='contour') {
   const {x,z,depth}=GALLERY_ENTRY;
-  const end=area==='poster'?(index===0?[-4.9,5.2]:[-5.1,4.6]):mobile?(index===0?[-2.5,.9]:[-1.5,1.2]):(index===0?[-3,3.9]:[-1.9,4.3]);
+  const end=area==='poster'?(index===0?[-4.9,5.2]:[-5.1,4.6]):area==='fedex'?(index===0?[14.7,5.2]:[14.5,4.6]):contourStop(index,mobile);
   return [[x-depth+.15,z], [x+.7,z], [-5,7+index*.35], end];
 }
 // Interpolate by travelled distance, so crossing the threshold does not pause a walk.
