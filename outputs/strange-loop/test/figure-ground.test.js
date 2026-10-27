@@ -59,3 +59,34 @@ test('Rubin exhibit labels cover every language and credit the primary research 
     assert.ok(Object.values(RUBIN_LABELS[language]).every(value=>typeof value==='string'&&value.length));
   }
 });
+
+test('FedEx study has localized, sourced commentary and a reversible fallback',async()=>{
+  const {FEDEX_LABELS,FEDEX_ART,fedexStudySVG}=await import('../src/fedex-exhibit.js');
+  for(const language of LANGUAGES){
+    assert.deepEqual(Object.keys(FEDEX_LABELS[language]),Object.keys(FEDEX_LABELS.en));
+    assert.ok(Object.values(FEDEX_LABELS[language]).every(value=>typeof value==='string'&&value.length));
+  }
+  assert.ok(FEDEX_ART.source.startsWith('https://'));
+  assert.ok(!fedexStudySVG(false).includes('<polygon'));
+  assert.ok(fedexStudySVG(true).includes('<polygon'));
+  assert.ok(fedexStudySVG(true).includes(FEDEX_ART.file));
+});
+
+test('revealing FedEx negative space leaves the wordmark and viewpoint in place',async t=>{
+  const {Scene,PerspectiveCamera,Vector3,TextureLoader,Texture}=await import('three');
+  const {createFigureGroundScene}=await import('../src/figure-ground-scene.js');
+  const oldWidth=globalThis.innerWidth,oldHeight=globalThis.innerHeight;
+  globalThis.innerWidth=1280;globalThis.innerHeight=720;
+  t.after(()=>{globalThis.innerWidth=oldWidth;globalThis.innerHeight=oldHeight;});
+  t.mock.method(TextureLoader.prototype,'load',()=>new Texture());
+  const scene=new Scene(),view=createFigureGroundScene(scene,{matches:true},()=>{}),camera=new PerspectiveCamera(),look=new Vector3();
+  view.setVisible(true);view.setState(initialFigureState(),'en',{fedex:true});view.update(.1,camera,look);scene.updateMatrixWorld(true);
+  const logo=scene.getObjectByName('fedex-wordmark'),arrow=scene.getObjectByName('fedex-negative-space');
+  const matrix=logo.matrixWorld.clone(),position=camera.position.clone(),orientation=camera.quaternion.clone();
+  assert.equal(arrow.visible,false);
+  view.setState(initialFigureState(),'en',{fedex:true,arrow:true});view.update(.1,camera,look);scene.updateMatrixWorld(true);
+  assert.equal(arrow.visible,true);assert.ok(logo.material.opacity<.3);
+  assert.ok(logo.matrixWorld.equals(matrix));assert.ok(camera.position.equals(position));assert.ok(camera.quaternion.equals(orientation));
+  view.setState(initialFigureState(),'en',{fedex:true,arrow:false});view.update(.1,camera,look);
+  assert.equal(arrow.visible,false);assert.equal(logo.material.opacity,1);
+});

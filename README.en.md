@@ -10,6 +10,8 @@ Revisit *Gödel, Escher, Bach: an Eternal Golden Braid* with Achilles and the To
 
 The current code includes the vestibule and chapters one through three. The exhibition supports Chinese, English, Japanese, Korean, French, German, and Spanish; language changes preserve tour and puzzle progress. Chapters four through seven remain in development and appear greyed out on the chapter map. Chapter three is pending release to GM; the live site continues to serve its deployed revision.
 
+Screenshots refreshed on 2026-10-27 from `cf25386` with the FedEx exhibit update, using a consistent 1280 × 720 desktop viewport.
+
 ## Vestibule: Three Projections
 
 One sculpture casts G, E, and B under three perpendicular lights. Drag to explore, choose a letter view, or toggle each light. Enter any three uppercase Latin letters to generate another intersection sculpture in the browser, then download the current model as an STL.
@@ -28,11 +30,13 @@ Rules apply in one tap, using the leftmost occurrence when several match. Hints,
 
 ## Chapter two: Figure and Ground
 
-The companions cross the WU/MU doorway into a skylit gallery. Two *The Lobster* posters invite you to find an absent person along the edges of an embrace. Continue to the Rubin shared-contour walls, where two facing profiles enclose a vase. On-page museum labels identify creators, dates, and sources; you can revisit either exhibit.
+The companions cross the WU/MU doorway into a skylit gallery. Two *The Lobster* posters invite you to find an absent person along the edges of an embrace. Continue to the Rubin shared-contour walls, where two facing profiles enclose a vase. Continue to the FedEx wordmark and discover the arrow between E and x. Toggle the negative-space study, then restore the complete mark. On-page museum labels identify creators, dates, and sources; you can revisit each exhibit.
 
 ![English chapter two: both The Lobster posters and their museum label](outputs/strange-loop/docs/screenshots/readme-posters-en.jpg)
 
 ![English chapter two: the Rubin walls, vase-shaped ground, and left-aligned return button](outputs/strange-loop/docs/screenshots/readme-rubin-en.jpg)
+
+![English chapter two: the FedEx monochrome wordmark and negative-space observation](outputs/strange-loop/docs/screenshots/readme-fedex-en.jpg)
 
 Achilles jogs through the chapter doorway and uses the Formal walk between exhibits. Gait playback follows actual travel distance. The camera focuses the exhibit and unlocks reading before the companions arrive. This chapter centers on observation and exhibit labels, with no number wall, mathematical quiz, or completion badge.
 
@@ -40,7 +44,9 @@ Achilles jogs through the chapter doorway and uses the Formal walk between exhib
 
 Walk through the actual gap between the Rubin walls to a Menger cube. Its central opening reveals a larger interior. Step through to roam continuously among repeating structures, with gradually changing scale, angles, and curvature. Pause to look around, scroll to explore, or return to the gallery; the companions remain outside.
 
-![Chapter three: a continuous fractal interior on mobile](outputs/strange-loop/docs/screenshots/labyrinth-fractal-mobile-en.jpg)
+![English chapter three: a floating Menger cube and the fractal opening at its center](outputs/strange-loop/docs/screenshots/readme-labyrinth-outside-en.jpg)
+
+![English chapter three: a continuous fractal interior](outputs/strange-loop/docs/screenshots/readme-labyrinth-inside-en.jpg)
 
 The opening and interior share one precompiled field with a bounded pixel and ray-marching budget. Entry takes about eight seconds; companions remain outside, and a stationary view reuses its rendered image. Travel does not accumulate meshes or an unbounded saved distance. Optional original Web Audio music shifts from C to G on entry and resumes C on return; it is off by default.
 

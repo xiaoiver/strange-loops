@@ -112,3 +112,14 @@ The gallery camera now spends 0.25s at the entrance and focuses the active exhib
 Four tests exercise the actual scene camera on desktop and mobile, early completion before either companion arrives, subsequent navigation, cancellation on leaving, and immediate reduced-motion arrival.
 
 The ground-view tortoise explanation is removed in all seven languages, including live announcements; the Rubin exhibit label remains. The return-to-posters button aligns with the left text column on desktop, tablet and mobile. Relevant camera, chapter and translation checks (11) pass after this change; build succeeds.
+
+
+## FedEx negative-space study — 2026-10-27
+
+A third exhibit on the right wall extends the Rubin observation to the FedEx wordmark. The reveal fades the letters and overlays the existing E/x gap; neither the letters nor the viewing camera move during the reveal. The source SVG, designer interview and monochrome-study attribution are documented in THIRD_PARTY_NOTICES.md.
+
+Production build succeeds and all 111 tests pass. New regression checks cover seven-language labels, matching fallback geometry, reduced-motion reveal, stationary letter geometry/camera and restoration of the original material opacity after a gallery fade.
+
+Browser checks on the production bundle: 1280×720 desktop and 390×844 phone; original wordmark and arrow reveal; Chinese/English switching retains reveal state; the return link and Escape restore Rubin; the footer reaches the harmonic labyrinth. The console reports no errors. A temporary harness using the production controller and styles also verifies the SVG fallback at desktop and phone sizes; it does not simulate WebGL initialization failure. The harness was removed after verification.
+
+Both READMEs now include localized FedEx captures and refreshed Rubin captures. The remaining gallery screenshots were refreshed against main cf25386, including the continuous fractal interior.

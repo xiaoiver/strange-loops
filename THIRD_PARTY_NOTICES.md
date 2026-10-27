@@ -197,3 +197,12 @@ The chapter passage additionally uses Quaternius `Jog_Fwd_Loop` from the same CC
 ## Google Draco decoders
 
 Copyright 2016 The Draco Authors. The bundled `draco_decoder.js`, `draco_wasm_wrapper.js` and `draco_decoder.wasm` in `outputs/strange-loop/assets/draco/` come from the Three.js Draco distribution and retain the Apache License 2.0. The upstream license text is preserved in `assets/draco/LICENSE` within the website and release package. Source: https://github.com/google/draco ; license text source: https://github.com/google/draco/blob/1.5.7/LICENSE . The project MIT grant does not replace this license.
+
+
+## FedEx wordmark study (chapter two)
+
+- File: `outputs/strange-loop/assets/art/fedex.svg`.
+- Wordmark design: **Lindon Leader**, at **Landor Associates**, 1994. Primary designer interview: https://thesneeze.com/the-man-behind-the-fedex-logo/ . Designer portfolio: https://leadercreative.com/briefcase/federal-express/ .
+- Vector source: https://commons.wikimedia.org/wiki/File:FedEx_Corporation_-_2016_Logo.svg ; original file https://upload.wikimedia.org/wikipedia/commons/b/b9/FedEx_Corporation_-_2016_Logo.svg . Retrieved 2026-10-27. Commons credits FedEx and the original uploader Tkgd2007, and labels the simple text logo PD-textlogo with a trademark restriction notice. This project does not independently grant rights to the FedEx trademark.
+- Adaptation: the viewBox shows only the wordmark, omitting the lower corporate descriptor; both colors are rendered in monochrome for the exhibition. The year 1994 credits the original wordmark design, not the later corporate color rollout or this vector file.
+- The optional arrow overlay is this exhibition’s analytical annotation of the existing E/x gap. It is labeled as a negative-space study and is not an official alternate FedEx logo. Display is for design commentary, with no affiliation or endorsement implied. The mark and screenshots containing it are excluded from the project’s MIT grant; original interaction code remains MIT.

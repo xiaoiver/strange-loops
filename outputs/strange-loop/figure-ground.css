@@ -141,3 +141,19 @@ body.in-labyrinth #world{opacity:var(--labyrinth-presence,1)}
 .labyrinth[data-depth="1"] .labyrinth-dialogue{display:none}
 body.in-labyrinth :is(.masthead,.colophon)::before{content:"";position:absolute;inset:-40px -6vw -20px;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(231,231,230,.95),rgba(231,231,230,.7) 55%,transparent)}
 body.in-labyrinth .colophon::before{background:linear-gradient(0deg,rgba(231,231,230,.95),transparent)}
+
+/* A quiet additional design study, using the existing exhibit-label layout. */
+.figure-fedex-fallback{display:none}
+body[data-scene=fallback] .figure-fedex-fallback{display:block;position:absolute;left:40%;top:37%;width:51%;background:var(--paper);padding:24px}
+.figure-fedex-fallback svg{display:block;width:100%;height:auto}
+.figure-ground[data-fedex=true] .figure-notes{max-height:42%}
+.figure-study-label{font-size:10px;color:var(--muted)}
+.figure-ground[data-fedex=true] .figure-action{left:8.2%;bottom:17%;transform:none}
+@media(min-width:761px) and (max-width:1000px){.figure-ground[data-fedex=true] .figure-action{left:6%}}
+@media(max-width:760px){
+ .figure-ground[data-fedex=true] .figure-notes{top:auto;bottom:23%;max-height:22%;display:block;background:var(--paper);padding:0 12px}
+ .figure-ground[data-fedex=true] .figure-art-label{font-size:11px;padding:8px 0;margin:0}
+ .figure-ground[data-fedex=true] .figure-art-label p{margin-bottom:6px}
+ .figure-ground[data-fedex=true] .figure-action{left:7%;bottom:13%}
+ body[data-scene=fallback] .figure-fedex-fallback{left:7%;top:32%;width:86%;padding:18px}
+}

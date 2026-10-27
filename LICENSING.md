@@ -20,6 +20,7 @@ Paths below are relative to `outputs/strange-loop/` unless another prefix is sho
 | Quaternius Formal/Jog source clips in `outputs/characters/source/quaternius-*.glb` and their adapted animation data | Source animation package: **CC0 1.0**. Keep provenance with the accompanying files; the mannequin mesh still has its separate terms. |
 | Tripo tortoise, `assets/characters/tortoise.glb`, `outputs/characters/source/tripo-tortoise.glb`, and adaptations of that model | The maintainer confirms generation on a **paid plan with the model set to private**. The project grants **no separate reuse license for this model** through MIT. Obtain permission from the maintainer before redistributing the tortoise; generation provenance alone is not an open-content license. [Tripo terms](https://www.tripo3d.ai/terms). |
 | `assets/art/the-lobster.jpg`, `assets/art/the-lobster-weisz.jpg` | Third-party film posters, **excluded from MIT**. Rights remain with their respective holders. Attribution, a source link and this repository's commentary do not grant permission to reproduce or sublicense the posters. |
+| `assets/art/fedex.svg` | Third-party FedEx wordmark used for design commentary, **excluded from the project MIT grant**. Source and monochrome adaptation are recorded in THIRD_PARTY_NOTICES. No trademark rights or endorsement are granted. |
 | Noto Serif SC subset in `assets/fonts/` | **SIL Open Font License 1.1**, with the upstream notice in `assets/fonts/OFL.txt`. |
 | Helvetiker/Optimer font data and glyph geometry derived from those typefaces, including the bundled sculpture and letter meshes | Retain the **Magenta font license** and upstream notices recorded in THIRD_PARTY_NOTICES. MIT covers the project's generator code, not a replacement license for the source typefaces. |
 | Google Draco JS/WASM decoders in `assets/draco/` | **Apache-2.0**; the upstream license is preserved in `assets/draco/LICENSE`. |
@@ -48,6 +49,7 @@ MIT 允许商用、修改和再分发，包括闭源复用，要求保留版权�
 - **Quaternius 动画**：源包使用 CC0 1.0；模型网格仍遵循自己的许可。
 - **Tripo 乌龟**：维护者已确认使用付费方案并设为私有生成。MIT 不为该模型另行授予复用许可；再分发请联系维护者，生成来源记录不等于开放素材许可。
 - **《龙虾》海报**：排除在 MIT 授权之外，权利归各自权利人。标注作者与来源不等于获得复制或转授权许可。
+- **FedEx 字标**：用于设计评论的第三方商标，不在项目 MIT 授权范围内；矢量来源、单色改编及观察提示见素材声明，不授予商标权或暗示品牌认可。
 - **字体与字形网格**：Noto Serif SC 子集保留 OFL 1.1；Helvetiker、Optimer 及其衍生字形保留 Magenta 字体许可与来源说明。
 - **Draco 解码器**：保留 Apache-2.0；其他依赖保留各自 MIT 声明。
 - **截图、分享图、Blender 工程和动画预览**：包含的模型、字体和画作仍适用各自权利，不作为整件 MIT 素材授权；含海报的截图也排除在项目 MIT 授权之外。
