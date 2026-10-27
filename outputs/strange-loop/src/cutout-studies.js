@@ -17,13 +17,13 @@ export const MARK_DEPTH = 0.016;
 export const STUDY_ORDER = ['f1', 'fedex', 'toblerone'];
 
 export const WALL_LABELS = {
-  zh: { to: '看负空间墙', look: '看留白', reset: '填回墙面', back: '回到共边墙', alt: '三处镂空的负空间墙' },
-  en: { to: 'Look at the cutout wall', look: 'Look at the gap', reset: 'Fill the wall', back: 'Back to the shared contour', alt: 'Negative-space wall with three cutouts' },
-  ja: { to: '余白の壁を見る', look: '余白を見る', reset: '壁を埋める', back: '共通の輪郭へ戻る', alt: '三つの切り抜きがある余白の壁' },
-  ko: { to: '여백의 벽 보기', look: '여백 보기', reset: '벽을 메우기', back: '공유 윤곽으로 돌아가기', alt: '세 곳이 뚫린 여백의 벽' },
-  fr: { to: 'Voir le mur ajouré', look: 'Regarder le vide', reset: 'Reboucher le mur', back: 'Revenir au contour commun', alt: 'Mur ajouré de trois vides' },
-  de: { to: 'Die ausgeschnittene Wand ansehen', look: 'Den Zwischenraum sehen', reset: 'Die Wand schließen', back: 'Zur gemeinsamen Kontur', alt: 'Ausgeschnittene Wand mit drei Hohlräumen' },
-  es: { to: 'Ver el muro calado', look: 'Mirar el vacío', reset: 'Rellenar el muro', back: 'Volver al contorno compartido', alt: 'Muro calado con tres huecos' },
+  zh: { to: '走向标志墙', look: '看留白', reset: '填回墙面', back: '回到共边墙', alt: '三处镂空的负空间墙' },
+  en: { to: 'Walk to the logo wall', look: 'Look at the gap', reset: 'Fill the wall', back: 'Back to the shared contour', alt: 'Negative-space wall with three cutouts' },
+  ja: { to: 'ロゴの壁へ進む', look: '余白を見る', reset: '壁を埋める', back: '共通の輪郭へ戻る', alt: '三つの切り抜きがある余白の壁' },
+  ko: { to: '로고 벽으로 이동', look: '여백 보기', reset: '벽을 메우기', back: '공유 윤곽으로 돌아가기', alt: '세 곳이 뚫린 여백의 벽' },
+  fr: { to: 'Aller au mur des logos', look: 'Regarder le vide', reset: 'Reboucher le mur', back: 'Revenir au contour commun', alt: 'Mur ajouré de trois vides' },
+  de: { to: 'Zur Logo-Wand gehen', look: 'Den Zwischenraum sehen', reset: 'Die Wand schließen', back: 'Zur gemeinsamen Kontur', alt: 'Ausgeschnittene Wand mit drei Hohlräumen' },
+  es: { to: 'Ir al muro de logotipos', look: 'Mirar el vacío', reset: 'Rellenar el muro', back: 'Volver al contorno compartido', alt: 'Muro calado con tres huecos' },
 };
 
 const F1_LABELS = {

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Scene, PerspectiveCamera, Vector3, Texture, TextureLoader } from 'three';
 import { createFigureGroundScene } from '../src/figure-ground-scene.js';
+import { CONTOUR_Z } from '../src/gallery-layout.js';
 import { entryRoute, routeSample } from '../src/chapter-passage.js';
 
 function gallery(t,{mobile=false,reduced=false}={}){
@@ -27,8 +28,8 @@ for(const mobile of [false,true])test(`gallery camera unlocks at the vase before
  assert.ok(finishedAt>=.8&&finishedAt<1.15,`camera finished at ${finishedAt}s`);
  const earliestCompanion=Math.min(...[0,1].map(i=>routeSample(entryRoute(i,mobile,'contour'),0).length/[2.5,2][i]+i*.4));
  assert.ok(finishedAt<earliestCompanion,'reading still waits for companions');
- assert.ok(camera.position.distanceTo(new Vector3(mobile?.2:3,mobile?1.8:1.9,mobile?20:17.8))<1e-6);
- assert.ok(look.distanceTo(new Vector3(mobile?-.4:-.6,-.7,0))<1e-6);
+ assert.ok(camera.position.distanceTo(new Vector3(mobile?.2:1.6,mobile?1.8:1.9,CONTOUR_Z+(mobile?20:17.8)))<1e-6);
+ assert.ok(look.distanceTo(new Vector3(0,-.7,CONTOUR_Z))<1e-6);
  // Navigation may change exhibits while the arrival route is still running.
  view.setState({version:4,posters:false,ground:false},'zh');
  for(let frame=0;frame<90;frame++)view.update(1/60,camera,look);
@@ -48,5 +49,5 @@ test('reduced motion reaches the exhibit immediately and completes once',t=>{
  const {view,camera,look}=gallery(t,{reduced:true});let completions=0;
  view.beginEntry(()=>completions++);view.update(0,camera,look);view.update(0,camera,look);
  assert.equal(completions,1);
- assert.ok(look.distanceTo(new Vector3(-.6,-.7,0))<1e-6);
+ assert.ok(look.distanceTo(new Vector3(0,-.7,CONTOUR_Z))<1e-6);
 });

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {CONTOUR_Z} from './gallery-layout.js';
 import {applySoftShadows} from './soft-shadows.js';
 import {createFairFacedConcrete} from './fair-faced-concrete.js';
 import {createMengerArchitecture} from './menger-architecture.js';
@@ -8,7 +9,7 @@ import {PORTAL_Z,INTERIOR_SCALE,END_INTERIOR_Z,CRUISE_SPEED,createTravelFrame,ad
 export {MODEL_ORIGIN,MODEL_SCALE} from './labyrinth-fold.js';
 const ease=t=>t*t*(3-2*t);
 const mobile=()=>innerWidth<=760;
-export const CONTOUR_CROSSING=[[0,1.15,4.2],[0,1.05,1.2],[0,1.0,-.6],[0,.95,-1.8]];
+export const CONTOUR_CROSSING=[[0,1.15,CONTOUR_Z+4.2],[0,1.05,CONTOUR_Z+1.2],[0,1.0,CONTOUR_Z-.6],[0,.95,CONTOUR_Z-1.8]];
 
 export function passageRail(start,end,returning=false) {
   const portal=CONTOUR_CROSSING.map(p=>{

@@ -30,7 +30,7 @@ Rules apply in one tap, using the leftmost occurrence when several match. Hints,
 
 ## Chapter two: Figure and Ground
 
-The companions cross the WU/MU doorway into a skylit gallery. Two *The Lobster* posters invite you to find an absent person along the edges of an embrace. Continue to the Rubin shared-contour walls, where two facing profiles enclose a vase. Continue to the cutout wall: a 1 in the Formula 1 mark, the FedEx arrow, and the bear in the Toblerone mountain are three real holes. The marks stay still. Look at the gap to withdraw the plugs so light comes through, then fill the wall again. On-page museum labels identify creators, dates, and sources; you can revisit each exhibit.
+The companions cross the WU/MU doorway into a skylit gallery. Begin with the two *The Lobster* posters, then visit the logo wall to find the Formula 1 numeral, FedEx arrow, and Toblerone bear in negative space. Finish at the Rubin shared-contour wall at the far end of the gallery. The vase-shaped gap is a real exit: the next room’s cube is visible beyond it, and you can walk through into chapter three. Museum labels identify creators, dates, and sources; every exhibit can be revisited.
 
 ![English chapter two: both The Lobster posters and their museum label](outputs/strange-loop/docs/screenshots/readme-posters-en.jpg)
 

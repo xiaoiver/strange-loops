@@ -1,3 +1,4 @@
 // World-space placement shared by the exhibit, camera and companion routes.
-export const MODEL_ORIGIN=[2.8,-1.8,-10];
+import { CONTOUR_Z } from './gallery-layout.js';
+export const MODEL_ORIGIN=[0,-1.8,CONTOUR_Z-10];
 export const MODEL_SCALE=2.4/14;
