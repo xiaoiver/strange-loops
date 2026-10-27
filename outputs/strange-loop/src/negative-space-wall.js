@@ -3,11 +3,12 @@ import {
   BACKLIGHT_Z,
   CUTOUT_STUDIES,
   MARK_Z,
+  MARK_DEPTH,
   PLUG_CLOSED_Z,
   PLUG_DEPTH,
   PLUG_OPEN_Z,
   WALL,
-  WORDMARK_Z,
+  WALL_BOUNDS,
   oriented,
 } from './cutout-studies.js';
 
@@ -23,13 +24,14 @@ function shapeFrom(points, holes = []) {
   return shape;
 }
 
-export function createNegativeSpaceWall({ concrete, ink, wordmark }) {
+export function createNegativeSpaceWall({ concrete, ink }) {
   const root = new THREE.Group();
   root.name = 'negative-space-wall-root';
   const holes = CUTOUT_STUDIES.flatMap((study) => study.holes);
   const wall = new THREE.Mesh(
     new THREE.ExtrudeGeometry(shapeFrom([
-      [-WALL.w / 2, -WALL.h / 2], [WALL.w / 2, -WALL.h / 2], [WALL.w / 2, WALL.h / 2], [-WALL.w / 2, WALL.h / 2],
+      [WALL_BOUNDS.left, WALL_BOUNDS.bottom], [WALL_BOUNDS.right, WALL_BOUNDS.bottom],
+      [WALL_BOUNDS.right, WALL_BOUNDS.top], [WALL_BOUNDS.left, WALL_BOUNDS.top],
     ], holes), { depth: WALL.d, bevelEnabled: false }),
     concrete,
   );
@@ -39,7 +41,7 @@ export function createNegativeSpaceWall({ concrete, ink, wordmark }) {
   root.add(wall);
 
   const backlight = new THREE.Mesh(
-    new THREE.PlaneGeometry(WALL.w - 0.24, WALL.h - 0.24),
+    new THREE.PlaneGeometry(WALL.w - 0.02, WALL.h - 0.02),
     new THREE.MeshBasicMaterial({ color: 0xf4f1ea }),
   );
   backlight.name = 'ns-backlight';
@@ -69,10 +71,9 @@ export function createNegativeSpaceWall({ concrete, ink, wordmark }) {
     }
     const marks = new THREE.Group();
     marks.name = `ns-mark-${study.id}`;
-    for (const points of study.marks) {
-      const pierced = (study.pierced ?? []).includes(points);
+    for (const [index, points] of study.marks.entries()) {
       const mesh = new THREE.Mesh(
-        new THREE.ExtrudeGeometry(shapeFrom(points, pierced ? study.holes : []), { depth: 0.04, bevelEnabled: false }),
+        new THREE.ExtrudeGeometry(shapeFrom(points, study.markHoles[index]), { depth: MARK_DEPTH, bevelEnabled: true, bevelSize: 0.0008, bevelThickness: 0.0008, bevelSegments: 1, steps: 1 }),
         ink,
       );
       mesh.position.z = MARK_Z;
@@ -81,24 +82,6 @@ export function createNegativeSpaceWall({ concrete, ink, wordmark }) {
       mesh.castShadow = mesh.receiveShadow = true;
       marks.add(mesh);
       pickables.push(mesh);
-    }
-    if (study.wordmark) {
-      const { width, height } = study.wordmark;
-      const logoGeometry = new THREE.ShapeGeometry(shapeFrom([
-        [-width / 2, -height / 2], [width / 2, -height / 2], [width / 2, height / 2], [-width / 2, height / 2],
-      ], study.holes));
-      const uv = logoGeometry.attributes.uv;
-      const position = logoGeometry.attributes.position;
-      for (let i = 0; i < position.count; i++) {
-        uv.setXY(i, (position.getX(i) + width / 2) / width, (position.getY(i) + height / 2) / height);
-      }
-      const logo = new THREE.Mesh(logoGeometry, wordmark);
-      logo.name = 'fedex-wordmark';
-      logo.position.z = WORDMARK_Z;
-      logo.userData.study = study.id;
-      logo.userData.role = 'mark';
-      marks.add(logo);
-      pickables.push(logo);
     }
     markGroups.push(marks);
     root.add(marks);

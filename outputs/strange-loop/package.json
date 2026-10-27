@@ -9,6 +9,7 @@
     "test": "node --test test/*.test.js",
     "build": "node scripts/build-loading.mjs && esbuild src/main.js --bundle --minify --outfile=assets/app.js && esbuild src/sculpture-worker.js --bundle --minify --format=iife --outfile=assets/sculpture-worker.js && esbuild src/letter-pile-worker.js --bundle --minify --format=iife --outfile=assets/letter-pile-worker.js",
     "start": "python3 -m http.server 4173",
+    "logos:generate": "node scripts/generate-logo-contours.mjs",
     "sculpture": "node scripts/generate-sculpture.mjs",
     "compress-characters": "gltf-transform draco assets/characters/achilles.glb assets/characters/achilles.glb --method edgebreaker && gltf-transform draco assets/characters/tortoise.glb assets/characters/tortoise.glb --method edgebreaker",
     "release": "npm run build && node scripts/site-release.mjs",
@@ -23,6 +24,8 @@
   },
   "devDependencies": {
     "@gltf-transform/cli": "^4.5.1",
-    "esbuild": "0.25.11"
+    "@xmldom/xmldom": "^0.9.12",
+    "esbuild": "0.25.11",
+    "polygon-clipping": "^0.15.7"
   }
 }

@@ -8,9 +8,9 @@
 
 **[进入在线展厅](https://www.gallerymate.xyz/experiences/geb?lang=zh)** · [English](https://www.gallerymate.xyz/experiences/geb?lang=en) · [试试自定义雕塑 CAT](https://www.gallerymate.xyz/experiences/geb?lang=zh&s=CAT)
 
-当前代码包含序厅、第一章、第二章和第三章。支持中文、英文、日文、韩文、法文、德文和西班牙文；切换语言会保留游览与解谜进度。第四章至第七章仍在制作，章节地图中置灰显示。第三章尚待同步到 GM，在线站点沿用已部署版本。
+当前代码包含序厅、第一章、第二章和第三章。支持中文、英文、日文、韩文、法文、德文和西班牙文；切换语言会保留游览与解谜进度。第四章至第七章仍在制作，章节地图中置灰显示。在线展览通过 GM 发布快照同步。
 
-截图更新于 2026-10-27，基于 `cf25386` 与本次 FedEx 展项更新，统一采用 1280 × 720 桌面视口。
+截图更新于 2026-10-27，覆盖序厅至第三章；负空间墙截图展示最新的三个标志与齐平墙面。统一采用 1280 × 720 桌面视口。
 
 ## 序厅：三重投影
 
@@ -36,7 +36,7 @@
 
 ![中文第二章：Rubin 共边墙、花瓶留白与左侧回看入口](outputs/strange-loop/docs/screenshots/readme-rubin-zh.jpg)
 
-![中文第二章：FedEx 单色字标与负空间观察入口](outputs/strange-loop/docs/screenshots/readme-fedex-zh.jpg)
+![中文第二章：Formula 1、FedEx 与 Toblerone 负空间墙](outputs/strange-loop/docs/screenshots/readme-fedex-zh.jpg)
 
 角色穿门时慢跑，展品之间使用 Formal 步态；步频跟随实际位移，镜头先聚焦展品并恢复阅读，角色随后到位。第二章保留观察与展签，不设置数字墙、数学问答或完成徽标。
 

@@ -8,9 +8,9 @@ Revisit *Gödel, Escher, Bach: an Eternal Golden Braid* with Achilles and the To
 
 **[Visit the exhibition](https://www.gallerymate.xyz/experiences/geb?lang=en)** · [简体中文](https://www.gallerymate.xyz/experiences/geb?lang=zh) · [Try a custom CAT sculpture](https://www.gallerymate.xyz/experiences/geb?lang=en&s=CAT)
 
-The current code includes the vestibule and chapters one through three. The exhibition supports Chinese, English, Japanese, Korean, French, German, and Spanish; language changes preserve tour and puzzle progress. Chapters four through seven remain in development and appear greyed out on the chapter map. Chapter three is pending release to GM; the live site continues to serve its deployed revision.
+The current code includes the vestibule and chapters one through three. The exhibition supports Chinese, English, Japanese, Korean, French, German, and Spanish; language changes preserve tour and puzzle progress. Chapters four through seven remain in development and appear greyed out on the chapter map. The live exhibition is synchronized through a pinned GM release snapshot.
 
-Screenshots refreshed on 2026-10-27 from `cf25386` with the FedEx exhibit update, using a consistent 1280 × 720 desktop viewport.
+Screenshots refreshed on 2026-10-27, covering the vestibule and chapters one through three. The negative-space wall images show the latest three marks on the integrated gallery wall. All use a 1280 × 720 desktop viewport.
 
 ## Vestibule: Three Projections
 
@@ -36,7 +36,7 @@ The companions cross the WU/MU doorway into a skylit gallery. Two *The Lobster* 
 
 ![English chapter two: the Rubin walls, vase-shaped ground, and left-aligned return button](outputs/strange-loop/docs/screenshots/readme-rubin-en.jpg)
 
-![English chapter two: the FedEx monochrome wordmark and negative-space observation](outputs/strange-loop/docs/screenshots/readme-fedex-en.jpg)
+![English chapter two: Formula 1, FedEx and Toblerone negative-space wall](outputs/strange-loop/docs/screenshots/readme-fedex-en.jpg)
 
 Achilles jogs through the chapter doorway and uses the Formal walk between exhibits. Gait playback follows actual travel distance. The camera focuses the exhibit and unlocks reading before the companions arrive. This chapter centers on observation and exhibit labels, with no number wall, mathematical quiz, or completion badge.
 

@@ -1,4 +1,3 @@
-import { FEDEX_ART } from './fedex-exhibit.js';
 import { CUTOUT_ANCHOR, studyById } from './cutout-studies.js';
 import { createNegativeSpaceWall } from './negative-space-wall.js';
 import * as THREE from 'three';
@@ -29,7 +28,6 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
   box(entry.depth,3.16,.12,shell,entry.x-entry.depth/2,-2.22,left-.06);
   box(entry.depth,3.16,.12,shell,entry.x-entry.depth/2,-2.22,right+.06);
   box(.08,3.16,right-left,ink,entry.x-entry.depth,-2.22,entry.z);
-  box(.35,12,41,shell,17,2.2,1.3);
   group.add(new THREE.HemisphereLight(0xf2f3f0,0x6e726e,.42));
   // Two architectural piers share the vase boundary. The middle remains empty space.
   const contour = new THREE.Group(); contour.position.set(0,-3.8,0); group.add(contour);
@@ -66,19 +64,14 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
       surface.material.map=texture;surface.material.needsUpdate=true;invalidate();
     },undefined,()=>{surface.visible=false;invalidate();});
   });
-  // One concrete wall on the right. Each study is a real through-hole;
-  // a matching plug fills it until the visitor asks to see the gap.
+  // The original east wall contains the apertures directly. There is no
+  // additional panel, perimeter seam, or opaque wall behind the openings.
   const fedexMount=new THREE.Group();fedexMount.name='fedex-exhibit';
   fedexMount.position.set(CUTOUT_ANCHOR.x,CUTOUT_ANCHOR.y,CUTOUT_ANCHOR.z);fedexMount.rotation.y=-Math.PI/2;group.add(fedexMount);
-  const concrete=createFairFacedConcrete({space:'local'});
-  applySoftShadows(concrete, innerWidth<=760);
-  const wordmarkMaterial=new THREE.MeshBasicMaterial({transparent:true,depthWrite:false,opacity:1});
-  const cutouts=createNegativeSpaceWall({concrete,ink,wordmark:wordmarkMaterial});
+  const concrete=shell;
+  const logoInk=ink.clone();logoInk.color.setHex(0x292c28);logoInk.roughness=.74;
+  const cutouts=createNegativeSpaceWall({concrete,ink:logoInk});
   fedexMount.add(cutouts.root);
-  new THREE.TextureLoader().load(FEDEX_ART.file,texture=>{
-    texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=4;
-    wordmarkMaterial.map=texture;wordmarkMaterial.needsUpdate=true;invalidate();
-  },undefined,()=>{const logo=fedexMount.getObjectByName('fedex-wordmark');if(logo)logo.visible=false;invalidate();});
   let revealTarget=0,revealAmount=0,focusStudy='fedex';
   const raycaster=new THREE.Raycaster();
   const fade=createExhibitFade(group,{lift:0,shrink:0});
@@ -98,9 +91,12 @@ export function createFigureGroundScene(scene, reduced, invalidate) {
     const mobile=innerWidth<=760;
     if(entryTime>0)return {position:new THREE.Vector3(mobile?-.5:3.5,1.3,mobile?19:18),look:new THREE.Vector3(-5.7,-1.8,9)};
     if(targetMode==='fedex'){
-      const focusY=mobile?studyById(focusStudy).centerY:0;
-      const distance=mobile?5.4:Math.max(13.2,16.5/(innerWidth/innerHeight));
-      const lookY=CUTOUT_ANCHOR.y+focusY;
+      const study=studyById(focusStudy),aspect=innerWidth/innerHeight;
+      // Chapter two uses a 48-degree vertical field on mobile. Fit the complete
+      // outline into the open space between the heading and the exhibit label.
+      const tangent=Math.tan(THREE.MathUtils.degToRad(48)/2);
+      const distance=mobile?Math.max(study.size.width/(2*tangent*aspect*.86),study.size.height/(2*tangent*.29)):Math.max(13.2,16.5/aspect);
+      const lookY=CUTOUT_ANCHOR.y+(mobile?study.centerY-distance*2*tangent*.12:0);
       return {position:new THREE.Vector3(CUTOUT_ANCHOR.x-distance*(mobile?1:.98),mobile?lookY:.2,CUTOUT_ANCHOR.z+distance*(mobile?.02:.12)),look:new THREE.Vector3(CUTOUT_ANCHOR.x,mobile?lookY:CUTOUT_ANCHOR.y,CUTOUT_ANCHOR.z)};
     }
     if(targetMode==='poster'){
